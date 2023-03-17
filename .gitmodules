@@ -1,6 +1,6 @@
 [submodule "barretenberg"]
 	path = aztec-connect-cpp/barretenberg
-	url = git@github.com:aztecprotocol/barretenberg
+	url = git@github.com:shichiro-nakahara/barretenberg
 [submodule "contracts/lib/forge-std"]
 	path = contracts/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
