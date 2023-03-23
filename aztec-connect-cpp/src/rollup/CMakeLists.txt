@@ -2,8 +2,8 @@ if(NOT WASM)
   include(FetchContent)
   FetchContent_Declare(
       leveldb
-      GIT_REPOSITORY https://github.com/google/leveldb.git
-      GIT_TAG 1.22
+      GIT_REPOSITORY https://github.com/shichiro-nakahara/leveldb.git
+      GIT_TAG 1.22-1
   )
 
   FetchContent_GetProperties(leveldb)
