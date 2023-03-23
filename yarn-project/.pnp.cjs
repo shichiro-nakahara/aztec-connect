@@ -12635,6 +12635,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/node", "npm:18.7.23"],\
             ["@types/react", "npm:18.0.15"],\
             ["@types/react-dom", "npm:18.0.6"],\
+            ["@types/source-map-support", "npm:0.5.6"],\
             ["@types/styled-components", "npm:5.1.26"],\
             ["browserify-cipher", "npm:1.0.1"],\
             ["buffer", "npm:6.0.3"],\
@@ -12646,8 +12647,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:3ab5e1aac1ccb251dc64fdaf39e5ba9ee1514e61346fae57870ad090de6cb82f1931ebe458ad7847a64074fbe7b2ce6175e410afc2f44c3a99a00215f7183566#npm:18.2.0"],\
             ["react-is", "npm:18.2.0"],\
+            ["reflect-metadata", "npm:0.1.13"],\
             ["resolve-typescript-plugin", "virtual:3ab5e1aac1ccb251dc64fdaf39e5ba9ee1514e61346fae57870ad090de6cb82f1931ebe458ad7847a64074fbe7b2ce6175e410afc2f44c3a99a00215f7183566#npm:1.2.0"],\
             ["serve", "npm:14.0.1"],\
+            ["source-map-support", "npm:0.5.21"],\
             ["stream-browserify", "npm:3.0.0"],\
             ["string_decoder", "npm:1.3.0"],\
             ["styled-components", "virtual:3ab5e1aac1ccb251dc64fdaf39e5ba9ee1514e61346fae57870ad090de6cb82f1931ebe458ad7847a64074fbe7b2ce6175e410afc2f44c3a99a00215f7183566#npm:5.3.5"],\
