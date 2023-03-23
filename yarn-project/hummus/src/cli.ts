@@ -1,5 +1,6 @@
+import sourceMapSupport from 'source-map-support';
+sourceMapSupport.install()
 import 'reflect-metadata';
-import 'source-map-support/register';
 import { JsonRpcProvider, MemoryFifo, setPostDebugLogHook, WalletProvider } from '@aztec/sdk';
 import { Terminal } from './terminal/index.js';
 import { TerminalHandler } from './terminal/terminal_handler.js';
