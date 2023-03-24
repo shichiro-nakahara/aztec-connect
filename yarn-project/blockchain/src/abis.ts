@@ -24,6 +24,7 @@ export { default as RollupProcessorV2 } from './abis/contracts/RollupProcessorV2
 export { default as AlwaysTrueVerifier } from './abis/contracts/AlwaysTrueVerifier.sol/AlwaysTrueVerifier.json' assert { type: 'json' };
 export { default as MockVerifier } from './abis/contracts/MockVerifier.sol/MockVerifier.json' assert { type: 'json' };
 export { default as Verifier1x1 } from './abis/contracts/Verifier1x1.sol/Verifier1x1.json' assert { type: 'json' };
+export { default as Verifier14x16 } from './abis/contracts/Verifier14x16.sol/Verifier14x16.json' assert { type: 'json' };
 export { default as Verifier28x32 } from './abis/contracts/Verifier28x32.sol/Verifier28x32.json' assert { type: 'json' };
 
 export { default as ProxyDeployer } from './abis/contracts/ProxyDeployer.sol/ProxyDeployer.json' assert { type: 'json' };
