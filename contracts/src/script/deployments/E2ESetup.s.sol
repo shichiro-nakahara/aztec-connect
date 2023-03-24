@@ -9,6 +9,7 @@ import {RollupDeployer} from "./RollupDeployer.s.sol";
 import {PermitHelper} from "periphery/PermitHelper.sol";
 import {RollupProcessorV2} from "core/processors/RollupProcessorV2.sol";
 import {Verifier28x32} from "core/verifier/instances/Verifier28x32.sol";
+import {Verifier14x16} from "core/verifier/instances/Verifier14x16.sol";
 import {Verifier1x1} from "core/verifier/instances/Verifier1x1.sol";
 import {MockVerifier} from "core/verifier/instances/MockVerifier.sol";
 import {AlwaysTrueVerifier} from "../../test/mocks/AlwaysTrueVerifier.sol";
@@ -100,6 +101,10 @@ contract E2ESetup is Test {
             emit log_string("Using 1x1 Verifier");
             vm.broadcast();
             verifier = address(new Verifier1x1());
+        } else if (stringEq(_verifier, "VerificationKey14x16")) {
+            emit log_string("Using 14x16 Verifier");
+            vm.broadcast();
+            verifier = address(new Verifier14x16());
         } else if (stringEq(_verifier, "VerificationKey28x32")) {
             emit log_string("Using 28x32 Verifier");
             vm.broadcast();
