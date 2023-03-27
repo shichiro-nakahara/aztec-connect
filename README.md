@@ -18,6 +18,8 @@
 
 ## All Project Dependencies
 
+*Tip: Run scripts in ./scripts/setup folder to install dependencies and allocate swap for Halloumi instances.*
+
 cmake >= 3.2.4
 ```
 $ cmake --version
@@ -97,4 +99,15 @@ sqlite3, sqlite3-devel
 $ sudo dnf list installed | grep sqlite
 sqlite.x86_64 3.40.0-1.fc37 @fedora
 sqlite-devel.x86_64 3.40.0-1.fc37 @fedora
+```
+
+cast (from foundry)
+```
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+
+foundryup: installed - forge 0.2.0 (df8ab09 2023-03-14T09:59:20.944687208Z)
+foundryup: installed - cast 0.2.0 (df8ab09 2023-03-14T09:59:20.944687208Z)
+foundryup: installed - anvil 0.1.0 (df8ab09 2023-03-14T09:59:59.102392673Z)
+foundryup: installed - chisel 0.1.1 (df8ab09 2023-03-14T09:59:59.175534662Z)
 ```
