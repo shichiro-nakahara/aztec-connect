@@ -13,3 +13,5 @@ curl -L https://foundry.paradigm.xyz | bash
 nvm install v18.8.0
 
 foundryup
+
+npm install yarn -g
