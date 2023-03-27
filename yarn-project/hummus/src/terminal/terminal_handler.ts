@@ -236,11 +236,28 @@ export class TerminalHandler {
 
     const timer = new Timer();
     this.printQueue.put(`syncing user: ${publicKey.toString().slice(0, 12)}...\n`);
+
+    const { nextRollupId } = (await this.sdk.getRemoteStatus()).blockchainStatus;
+    this.updateSyncStatus(nextRollupId);
+
     await this.sdk.awaitUserSynchronised(this.user.id);
+    
     this.printQueue.put(`sync complete in ${timer.s()}s\n`);
     await this.balance();
 
     this.registerHandlers();
+  }
+
+  private async updateSyncStatus(nextRollupId: number) {
+    const userRollupId = await this.sdk.getUserSyncedToRollup(this.user.id);
+
+    this.printQueue.put(`blocks synced: ${userRollupId}/${nextRollupId}\n`);
+
+    if (userRollupId < nextRollupId - 1) {
+        setTimeout(() => {
+          this.updateSyncStatus(nextRollupId);
+        }, 1000);
+    }
   }
 
   private async deposit(valueStr: string) {
