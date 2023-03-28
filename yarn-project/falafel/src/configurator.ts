@@ -173,6 +173,7 @@ function getRuntimeConfigEnvVars(): Partial<RuntimeConfig> {
     DEFAULT_DEFI_BATCH_SIZE,
     FEE_PAYING_ASSET_IDS,
     FEE_DISTRIBUTOR_ADDRESS,
+    DEPOSIT_LIMIT
   } = process.env;
 
   const envVars = {
@@ -183,6 +184,8 @@ function getRuntimeConfigEnvVars(): Partial<RuntimeConfig> {
     feePayingAssetIds: FEE_PAYING_ASSET_IDS ? FEE_PAYING_ASSET_IDS.split(',').map(id => +id) : undefined,
 
     rollupBeneficiary: FEE_DISTRIBUTOR_ADDRESS ? EthAddress.fromString(FEE_DISTRIBUTOR_ADDRESS) : undefined,
+
+    depositLimit: DEPOSIT_LIMIT ? +DEPOSIT_LIMIT : undefined
   };
   return Object.fromEntries(Object.entries(envVars).filter(e => e[1] !== undefined));
 }
