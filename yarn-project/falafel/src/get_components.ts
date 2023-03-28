@@ -90,7 +90,7 @@ async function getRollupDb(configurator: Configurator, dataRoot: Buffer) {
 export async function getComponents(configurator: Configurator) {
   const confVars = configurator.getConfVars();
   const {
-    runtimeConfig: { gasLimit, feePayingAssetIds, rollupBeneficiary },
+    runtimeConfig: { gasLimit, feePayingAssetIds, rollupBeneficiary, depositLimit, publishInterval },
     ethereumHost,
     privateKey,
     rollupContractAddress,
@@ -121,6 +121,8 @@ export async function getComponents(configurator: Configurator) {
   console.log(`Bridge data provider address: ${bridgeDataProviderAddress}`);
   console.log(`Falafel version: ${version}`);
   console.log(`Commit hash: ${VERSION_HASH}`);
+  console.log(`Deposit limit: ${depositLimit}`);
+  console.log(`Publish interval: ${publishInterval}`);
 
   if (priceFeedContractAddresses.length < feePayingAssetIds.length) {
     throw new Error('There should be one price feed contract address per fee paying asset.');
