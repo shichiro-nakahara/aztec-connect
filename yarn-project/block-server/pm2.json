@@ -1,0 +1,10 @@
+{
+  "apps": [{
+      "name": "block-server",
+      "script": "set -a && source .env && set +a && yarn start",
+      "cwd": "./",
+      "env": {
+        "NODE_ENV":"production"
+      }
+  }]
+}

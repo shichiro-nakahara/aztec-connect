@@ -15,3 +15,5 @@ nvm install v18.8.0
 foundryup
 
 npm install yarn -g
+
+npm install pm2 -g
