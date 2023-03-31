@@ -35,9 +35,11 @@ Inside the `scripts/docker-compose.yml` file you will notice that there are a nu
   - Corresponds to the `contracts/src/core/verifier/instances/Verifier1x1.sol` contract.
   2. VerificationKey14x16 - A 14 by 16 verification key will be used.
   - Corresponds to the `contracts/src/core/verifier/instances/Verifier14x16.sol` contract.
-  3. VerificationKey28x32 - A 28 by 32 verification key will be used, as is used in production.
+  3. VerificationKey18x24 - A 18 by 24 verification key will be used.
+  - Corresponds to the `contracts/src/core/verifier/instances/Verifier18x24.sol` contract.
+  4. VerificationKey28x32 - A 28 by 32 verification key will be used, as is used in production.
   - corresponds to the `contracts/src/core/verifier/instances/Verifier28x32.sol` contract.
-  4. MockVerifier - A verifier that will always return true.
+  5. MockVerifier - A verifier that will always return true.
 - PROVERLESS - A mock prover is used, should always be true if no prover is provided.
 - NUM_INNER_ROLLUP_TXS - The number of rollups that will be in the inner rollup.
 - NUM_OUTER_ROLLUP_PROOFS - The number of inner rollups that will be rolled into the final rollup.
