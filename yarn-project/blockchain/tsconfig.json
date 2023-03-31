@@ -31,6 +31,7 @@
     "src/abis/contracts/MockVerifier.sol/MockVerifier.json",
     "src/abis/contracts/Verifier1x1.sol/Verifier1x1.json",
     "src/abis/contracts/Verifier14x16.sol/Verifier14x16.json",
+    "src/abis/contracts/Verifier18x24.sol/Verifier18x24.json",
     "src/abis/contracts/Verifier28x32.sol/Verifier28x32.json",
     "src/abis/contracts/ProxyDeployer.sol/ProxyDeployer.json",
     "src/abis/contracts/ProxyAdmin.sol/ProxyAdmin.json",
