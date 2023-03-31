@@ -56,7 +56,7 @@ Optional:
 - ROLLUP_PROVIDER_ADDRESS - The address to be added as a sequencer [default: DEPLOYER_ADDRESS]
 - FAUCET_CONTROLLER - The address that will be given superOperator privileges when the faucet is deployed [default: DEPLOYER_ADDRESS]
 - SAFE_ADDRESS - The address to own the deployed system [default: DEPLOYER_ADDRESS]
-- VK - The verification key type (VerificationKey1x1 | VerificationKey14x16 | VerificationKey28x32 | MockVerifier) [default: MockVerifier]
+- VK - The verification key type (VerificationKey1x1 | VerificationKey14x16 | VerificationKey18x24 | VerificationKey28x32 | MockVerifier) [default: MockVerifier]
 - UPGRADE - Flag to upgrade rollup to use the newest implementation [default: true]
 
 ### How are deployments triggered?
