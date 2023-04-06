@@ -23,9 +23,17 @@ contract ChainSpecificSetup is Test {
     address internal constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address internal constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
+    // Polygon key addresses
+    // address internal constant POLYGON_DAI = 0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063; // Mainnet
+    address internal constant POLYGON_DAI = 0xF14f9596430931E177469715c591513308244e8F; // Mumbai
+
     // Mainnet addresses for criticial components
     address internal constant MAINNET_GAS_PRICE_FEED = 0x169E633A2D1E6c10dD91238Ba11c4A708dfEF37C;
     address internal constant MAINNET_DAI_PRICE_FEED = 0x773616E4d11A78F511299002da57A0a94577F1f4;
+
+    // Polygon addresses for criticial components
+    address internal constant POLYGON_GAS_PRICE_FEED = address(0); // TODO: How?
+    address internal constant POLYGON_DAI_PRICE_FEED = 0xFC539A559e170f848323e19dfD66007520510085; // DAI:ETH price on Polygon POS (Mainnet)
 
     /// @notice Addresses that are returned when setting up a testnet
     struct BridgePeripheryAddresses {
@@ -52,8 +60,12 @@ contract ChainSpecificSetup is Test {
     {
         uint256 chainId = block.chainid;
 
-        //   mainnet          dev               stage                testnet
-        if (chainId == 1 || chainId == 3567 || chainId == 359059 || chainId == 677868) {
+        //  polygon mainnet   mumbai
+        if (chainId == 137 || chainId == 80001) {
+            return setupAssetAndBridgesPolygon(_proxy, _permitHelper, _safe, _faucetOperator);
+        }
+        //       mainnet         dev                stage                testnet
+        else if (chainId == 1 || chainId == 3567 || chainId == 359059 || chainId == 677868) {
             // Deploy Data Provider and list bridges | assets
             (address dataProvider, address feeDistributor) = setupAssetAndBridgesMainnet(_proxy, _permitHelper, _safe);
 
@@ -72,6 +84,63 @@ contract ChainSpecificSetup is Test {
         } else {
             return setupAssetsAndBridgesTests(_proxy, _permitHelper, _faucetOperator);
         }
+    }
+
+    /**
+     * @notice Deploys bridges for full setup with the aggregate deployment from bridges repo
+     * @param _proxy The address of the rollup proxy
+     * @param _permitHelper The address of the permit helper
+     * @param _safe The address of the Multisig Safe
+     * @param _faucetOperator The address of the faucet operator
+     * @return BridgePeripheryAddresses contains dataProvider, priceFeeds, faucet and fee distributor addresses
+     */
+    function setupAssetAndBridgesPolygon(address _proxy, address _permitHelper, address _safe, address _faucetOperator)
+        public
+        returns (BridgePeripheryAddresses memory)
+    {
+        emit log_string("Setting up assets and bridges for Polygon");
+
+        vm.broadcast();
+        RollupProcessorV2(_proxy).setSupportedAsset(POLYGON_DAI, 75000);
+
+        vm.broadcast();
+        PermitHelper(_permitHelper).preApprove(POLYGON_DAI);
+
+        // Set environment variables
+        // string memory rollupProcessorAddressString = vm.toString(_proxy);
+        // vm.setEnv("ROLLUP_PROCESSOR_ADDRESS", rollupProcessorAddressString);
+        // vm.setEnv("LISTER_ADDRESS", rollupProcessorAddressString);
+
+        // Deploy Fee Distributor as on fork
+        // vm.broadcast();
+        // AztecFeeDistributor feeDistributor = new AztecFeeDistributor(_safe, _proxy, UNISWAP_V2_ROUTER);
+
+        // Deploy bridges
+        // AggregateDeployment aggDeploy = new AggregateDeployment();
+        // aggDeploy.setUp();
+        // address dataProvider = aggDeploy.deployAndListAll();
+
+        // Deploy faucet
+        address faucet = deployFaucet(_faucetOperator);
+
+        // Mock a gasPriceFeed for now
+        vm.broadcast();
+        MockChainlinkOracle gasPriceFeed = new MockChainlinkOracle(150 gwei);
+
+        // Mock a DAI price feed for now
+        int256 daiPrice = 1 * 10 ** 15; // 1000 DAI/ETH
+        vm.broadcast();
+        MockChainlinkOracle daiPriceFeed = new MockChainlinkOracle(daiPrice);
+
+        return BridgePeripheryAddresses({
+            dataProvider: address(0),
+            gasPriceFeed: address(gasPriceFeed),
+            daiPriceFeed: address(daiPriceFeed),
+            dai: POLYGON_DAI,
+            btc: address(0),
+            faucet: faucet,
+            feeDistributor: address(0) // TODO: Don't include for now
+        });
     }
 
     /**
