@@ -15,6 +15,7 @@ remappings = [
     '@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/',
     '@uniswap/v2-periphery/=lib/v2-periphery/',
     '@uniswap/v2-core/=lib/v2-core/',
+    '@aave/core-v3/contracts/=lib/aave-v3-core/contracts/',
     'bridge-deployments/=lib/aztec-connect-bridges/src/deployment',
     'bridge-tests/=lib/aztec-connect-bridges/src/test',
     'bridge-interfaces/=lib/aztec-connect-bridges/src/interfaces'

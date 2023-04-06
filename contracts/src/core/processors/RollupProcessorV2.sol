@@ -17,6 +17,8 @@ import {TokenTransfers} from "../libraries/TokenTransfers.sol";
 import {RollupProcessorLibrary} from "rollup-encoder/libraries/RollupProcessorLibrary.sol";
 import {SafeCast} from "../libraries/SafeCast.sol";
 
+import {AaveV3} from "../libraries/AaveV3.sol";
+
 /**
  * @title Rollup Processor
  * @dev Smart contract responsible for processing Aztec zkRollups, relaying them to a verifier
@@ -345,6 +347,12 @@ contract RollupProcessorV2 is IRollupProcessorV2, Decoder, Initializable, Access
     mapping(uint256 => AssetCap) public caps;
 
     /*----------------------------------------
+      AAVE VARIABLES 
+      ----------------------------------------*/
+
+    uint256[] public aaveAssetDeposited;
+
+    /*----------------------------------------
       MODIFIERS
       ----------------------------------------*/
     /**
@@ -485,6 +493,9 @@ contract RollupProcessorV2 is IRollupProcessorV2, Decoder, Initializable, Access
 
         emit AssetCapUpdated(0, 6, 1000);
         emit AssetCapUpdated(1, 10100, 1e6);
+
+        // Setup native asset (assetId == 0)
+        aaveAssetDeposited.push(0);
     }
 
     /*----------------------------------------
@@ -632,6 +643,8 @@ contract RollupProcessorV2 is IRollupProcessorV2, Decoder, Initializable, Access
         if (_gasLimit < MIN_ERC20_GAS_LIMIT || _gasLimit > MAX_ERC20_GAS_LIMIT) {
             revert INVALID_ASSET_GAS();
         }
+
+        aaveAssetDeposited.push(0);
 
         supportedAssets.push(_token);
         uint256 assetId = supportedAssets.length;
@@ -781,7 +794,14 @@ contract RollupProcessorV2 is IRollupProcessorV2, Decoder, Initializable, Access
                 revert INSUFFICIENT_TOKEN_APPROVAL();
             }
             TokenTransfers.safeTransferFrom(assetAddress, msg.sender, address(this), _amount);
+
+            AaveV3.depositToLP(assetAddress, _amount);
         }
+        else {
+            AaveV3.depositNativeToLP(_amount);
+        }
+
+        aaveAssetDeposited[_assetId] += _amount;
     }
 
     /**
@@ -935,6 +955,29 @@ contract RollupProcessorV2 is IRollupProcessorV2, Decoder, Initializable, Access
             );
 
         return true;
+    }
+
+    /**
+     * @notice Withdraw's the interest accured for a particular asset
+     * @param _assetId asset ID which was assigned during asset registration
+     */
+    function withdrawInterest(uint256 _assetId)
+        onlyRole(OWNER_ROLE)
+        noReenter
+    {
+        uint256 interestBalance = getInterestBalance(_assetId);
+        if (_assetId == 0) {
+            assembly {
+                pop(call(30000, OWNER_ROLE, interestBalance, 0, 0, 0, 0))
+            }
+            return;
+        }
+
+        address assetAddress = getSupportedAsset(_assetId);
+
+        TokenTransfers.transferToDoNotBubbleErrors(
+            assetAddress, OWNER_ROLE, interestBalance, assetGasLimits[_assetId]
+        );
     }
 
     /*----------------------------------------
@@ -1366,16 +1409,23 @@ contract RollupProcessorV2 is IRollupProcessorV2, Decoder, Initializable, Access
             revert WITHDRAW_TO_ZERO_ADDRESS();
         }
         if (_assetId == 0) {
+            AaveV3.withdrawNativeFromLP(_withdrawValue);
+
             assembly {
                 pop(call(30000, _receiver, _withdrawValue, 0, 0, 0, 0))
             }
             // payable(_receiver).call{gas: 30000, value: _withdrawValue}('');
         } else {
             address assetAddress = getSupportedAsset(_assetId);
+
+            AaveV3.withdrawFromLP(assetAddress, _withdrawValue);
+
             TokenTransfers.transferToDoNotBubbleErrors(
                 assetAddress, _receiver, _withdrawValue, assetGasLimits[_assetId]
             );
         }
+
+        aaveAssetDeposited[_assetId] -= _withdrawValue;
     }
 
     /*----------------------------------------
@@ -1526,6 +1576,23 @@ contract RollupProcessorV2 is IRollupProcessorV2, Decoder, Initializable, Access
      */
     function getAsyncDefiInteractionHashesLength() public view override(IRollupProcessor) returns (uint256) {
         return rollupState.numAsyncDefiInteractionHashes;
+    }
+
+    /**
+     * @notice Returns the balance of interest accured for an asset
+     * @param _assetId asset ID which was assigned during asset registration
+     * @return - the value of interest accured
+     */
+    function getInterestBalance(uint256 _assetId) public view returns (uint256) {
+        if (_assetId == ETH_ASSET_ID) {
+            return address(this).balance - aaveAssetDeposited[_assetId];
+        }
+
+        address assetAddress = getSupportedAsset(_assetId);
+        return IERC20(assetAddress).balanceOf(address(this)) - aaveAssetDeposited[_assetId];
+    }
+
+    receive() external payable {
     }
 
     /*----------------------------------------
