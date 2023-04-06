@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dnf install -y ninja-build clang clang-tools-extra binaryen socat tmux sqlite sqlite-devel
+dnf install -y ninja-build clang clang-tools-extra binaryen socat tmux sqlite sqlite-devel cmake
 
 cp .tmux.conf ~/.tmux.conf
 

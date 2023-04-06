@@ -40,3 +40,6 @@
 [submodule "build-system"]
 	path = build-system
 	url = git@github.com:aztecprotocol/build-system
+[submodule "contracts/lib/aave-v3-core"]
+	path = contracts/lib/aave-v3-core
+	url = git@github.com:aave/aave-v3-core.git
