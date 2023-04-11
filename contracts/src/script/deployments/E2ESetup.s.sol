@@ -8,6 +8,7 @@ import {Test} from "forge-std/Test.sol";
 import {RollupDeployer} from "./RollupDeployer.s.sol";
 import {PermitHelper} from "periphery/PermitHelper.sol";
 import {RollupProcessorV2} from "core/processors/RollupProcessorV2.sol";
+import {RollupProcessorV3} from "core/processors/RollupProcessorV3.sol";
 import {Verifier28x32} from "core/verifier/instances/Verifier28x32.sol";
 import {Verifier1x1} from "core/verifier/instances/Verifier1x1.sol";
 import {MockVerifier} from "core/verifier/instances/MockVerifier.sol";
@@ -170,6 +171,117 @@ contract E2ESetup is Test {
         // Grant the deployer permission to list bridges and assets
         vm.broadcast();
         RollupProcessorV2(proxy).grantRole(ROLES[3], _params.deployer);
+
+        ChainSpecificSetup bridgesSetup = new ChainSpecificSetup();
+        ChainSpecificSetup.BridgePeripheryAddresses memory peripheryAddresses = bridgesSetup.setupAssetsAndBridges(
+            address(proxy), address(permitHelper), _params.faucetController, _params.safe
+        );
+
+        setupRoles(proxy, _params.safe, _params.deployer);
+
+        // Transfer ownerships
+        if (PermitHelper(permitHelper).owner() != _params.safe) {
+            vm.broadcast();
+            PermitHelper(permitHelper).transferOwnership(_params.safe);
+        }
+        if (ProxyAdmin(proxyAdmin).owner() != _params.safe) {
+            vm.broadcast();
+            ProxyAdmin(proxyAdmin).transferOwnership(_params.safe);
+        }
+
+        outputAddresses(
+            _params,
+            peripheryAddresses,
+            address(proxyAdmin),
+            address(proxy),
+            address(permitHelper),
+            address(proxyDeployer),
+            address(defiProxy)
+        );
+    }
+
+    /**
+     * @notice Deploy RollupProcessorV3 with input configuration
+     * @param _deployer Deployer address
+     * @param _safe Admin safe address
+     * @param _faucetController Faucet Admin address - for testnets
+     * @param _provider Rollup Provider address
+     * @param _verifier Verifier Contract setting - (VerificationKey1x1 | VerificationKey28x32 | MockVerifier)
+     * @param _upgrade Upgrade flag
+     */
+    function deployV3(
+        address _deployer,
+        address _safe,
+        address _faucetController,
+        address _provider,
+        string memory _verifier,
+        bool _upgrade
+    ) public {
+        address verifier;
+        if (stringEq(_verifier, "VerificationKey1x1")) {
+            emit log_string("Using 1x1 Verifier");
+            vm.broadcast();
+            verifier = address(new Verifier1x1());
+        } else if (stringEq(_verifier, "VerificationKey28x32")) {
+            emit log_string("Using 28x32 Verifier");
+            vm.broadcast();
+            verifier = address(new Verifier28x32());
+        } else if (stringEq(_verifier, "AlwaysTrueVerifier")) {
+            emit log_string("Using Always True Verifier");
+            vm.broadcast();
+            verifier = address(new AlwaysTrueVerifier());
+        } else {
+            emit log_string("Using Mock Verifier");
+            vm.broadcast();
+            verifier = address(new MockVerifier());
+        }
+
+        // Depending on the chainID that is being deployed to, the initial values will be different
+        (bytes32 initDataRoot, bytes32 initNullRoot, bytes32 initRootsRoot, uint32 initDataSize) =
+            getDefaultRootValues(false);
+
+        FullParam memory _params = FullParam(
+            verifier,
+            _deployer,
+            _safe,
+            _faucetController,
+            _provider,
+            _upgrade,
+            initDataRoot,
+            initNullRoot,
+            initRootsRoot,
+            initDataSize,
+            ALLOW_THIRD_PARTY_CONTRACTS
+        );
+
+        RollupDeployer rollupDeployer = new RollupDeployer();
+        rollupDeployer.setIsDeploying(true);
+
+        (address proxyAdmin, address proxy, address permitHelper, address proxyDeployer, address defiProxy) =
+        rollupDeployer.deploy(
+            RollupDeployer.DeployParams(
+                address(_params.verifier),
+                _params.deployer,
+                ESCAPE_BLOCK_LOWER_BOUND,
+                ESCAPE_BLOCK_UPPER_BOUND,
+                _params.initDataRoot,
+                _params.initNullRoot,
+                _params.initRootRoot,
+                _params.initDataSize,
+                _params.allowThirdPartyContract
+            )
+        );
+
+        RollupProcessorV3 rollupProcessorV3 = RollupProcessorV3(payable(proxy));
+
+        vm.broadcast();
+        rollupProcessorV3.setRollupProvider(_params.provider, true);
+
+        rollupDeployer.upgradeV3(proxyAdmin, proxy);
+
+        // Grant the deployer permission to list bridges and assets
+        vm.broadcast();
+        rollupProcessorV3.grantRole(ROLES[3], _params.deployer);
 
         ChainSpecificSetup bridgesSetup = new ChainSpecificSetup();
         ChainSpecificSetup.BridgePeripheryAddresses memory peripheryAddresses = bridgesSetup.setupAssetsAndBridges(
