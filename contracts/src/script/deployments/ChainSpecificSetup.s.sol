@@ -8,6 +8,8 @@ import {RollupProcessorV2} from "core/processors/RollupProcessorV2.sol";
 import {AggregateDeployment} from "bridge-deployments/AggregateDeployment.s.sol";
 import {ERC20Permit} from "../../test/mocks/ERC20Permit.sol";
 import {AztecFeeDistributor} from "periphery/AztecFeeDistributor.sol";
+import {GasOracle} from "core/libraries/GasOracle.sol";
+import {RollupProcessorV3} from "core/processors/RollupProcessorV3.sol";
 
 // Mocks
 import {DummyDefiBridge} from "../../test/mocks/DummyDefiBridge.sol";
@@ -24,7 +26,6 @@ contract ChainSpecificSetup is Test {
     address internal constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
     // Polygon key addresses
-    // address internal constant POLYGON_DAI = 0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063; // Mainnet
     address internal constant POLYGON_DAI = 0xF14f9596430931E177469715c591513308244e8F; // Mumbai
 
     // Mainnet addresses for criticial components
@@ -32,7 +33,6 @@ contract ChainSpecificSetup is Test {
     address internal constant MAINNET_DAI_PRICE_FEED = 0x773616E4d11A78F511299002da57A0a94577F1f4;
 
     // Polygon addresses for criticial components
-    address internal constant POLYGON_GAS_PRICE_FEED = address(0); // TODO: How?
     address internal constant POLYGON_DAI_PRICE_FEED = 0xFC539A559e170f848323e19dfD66007520510085; // DAI:ETH price on Polygon POS (Mainnet)
 
     /// @notice Addresses that are returned when setting up a testnet
@@ -123,9 +123,9 @@ contract ChainSpecificSetup is Test {
         // Deploy faucet
         address faucet = deployFaucet(_faucetOperator);
 
-        // Mock a gasPriceFeed for now
+        // Use custom gas oracle with fixed priority fee
         vm.broadcast();
-        MockChainlinkOracle gasPriceFeed = new MockChainlinkOracle(150 gwei);
+        GasOracle gasOracle = new GasOracle(5 gwei);
 
         // Mock a DAI price feed for now
         int256 daiPrice = 1 * 10 ** 15; // 1000 DAI/ETH
@@ -134,7 +134,7 @@ contract ChainSpecificSetup is Test {
 
         return BridgePeripheryAddresses({
             dataProvider: address(0),
-            gasPriceFeed: address(gasPriceFeed),
+            gasPriceFeed: address(gasOracle),
             daiPriceFeed: address(daiPriceFeed),
             dai: POLYGON_DAI,
             btc: address(0),
