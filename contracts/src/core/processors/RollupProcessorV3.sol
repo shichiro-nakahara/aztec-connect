@@ -17,7 +17,9 @@ import {TokenTransfers} from "../libraries/TokenTransfers.sol";
 import {RollupProcessorLibrary} from "rollup-encoder/libraries/RollupProcessorLibrary.sol";
 import {SafeCast} from "../libraries/SafeCast.sol";
 
-import {AaveV3} from "../libraries/AaveV3.sol";
+import {IPool} from "@aave/core-v3/contracts/interfaces/IPool.sol";
+import {IWETH} from "@aave/core-v3/contracts/misc/interfaces/IWETH.sol";
+import {DataTypes} from "@aave/core-v3/contracts/protocol/libraries/types/DataTypes.sol";
 
 /**
  * @title Rollup Processor
@@ -65,6 +67,7 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
     error PENDING_CAP_SURPASSED();
     error DAILY_CAP_SURPASSED();
     error NOT_AVAILABLE_IN_V3();
+    error AAVE_NOT_INITIALIZED();
 
     /*----------------------------------------
       EVENTS
@@ -120,6 +123,7 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
      * | 224          | 8           | Lock enum used to guard against reentrancy attacks (minimum value to store in is uint8)
      * | 232          | 8           | pause flag, true if contract is paused, false otherwise
      * | 240          | 8           | capped flag, true if assets should check cap, false otherwise
+     * | 248          | 8           | Aave pause flag, if true deposit/withdraw functions will deposit/withdraw assets from Aave pools
      *
      * Note: (RollupState struct gets packed to 1 storage slot -> bit offset signifies location withing the 256 bit string)
      */
@@ -131,6 +135,7 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
         Lock lock;
         bool paused;
         bool capped;
+        bool aavePaused;
     }
 
     /**
@@ -348,14 +353,47 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
     mapping(uint256 => AssetCap) public caps;
 
     /*----------------------------------------
-      AAVE VARIABLES 
+      AAVE STATE VARIABLES 
       ----------------------------------------*/
 
     uint256[] public aaveAssetDeposited;
+    address public aavePoolProxy;
+    address public nativeWrappedToken;
 
     /*----------------------------------------
       MODIFIERS
       ----------------------------------------*/
+    
+    /**
+     * @notice A modifier reverting if Aave isn't initialized properly
+     */
+    modifier aaveInitialized() {
+        if (aavePoolProxy == address(0) || nativeWrappedToken == address(0)) {
+            revert AAVE_NOT_INITIALIZED();
+        } 
+        _;
+    }
+
+    /**
+     * @notice A modifier reverting if Aave isn't paused
+     */
+    modifier whenAavePaused() {
+        if (!rollupState.aavePaused) {
+            revert NOT_PAUSED();
+        }
+        _;
+    }
+
+    /**
+     * @notice A modifier reverting if Aave is paused
+     */
+    modifier whenAaveNotPaused() {
+        if (rollupState.aavePaused) {
+            revert NOT_PAUSED();
+        }
+        _;
+    }
+    
     /**
      * @notice A modifier forbidding functions from being called by addresses without LISTER role when Aztec Connect
      *         is still in BETA (`allowThirdPartyContracts` variable set to false)
@@ -497,11 +535,59 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
 
         // Setup native asset (assetId == 0)
         aaveAssetDeposited.push(0);
+        rollupState.aavePaused = true;
     }
 
     /*----------------------------------------
       MUTATING FUNCTIONS WITH ACCESS CONTROL 
       ----------------------------------------*/
+
+    /**
+     * @notice Initialize Aave by setting pool proxy and native wrapped token addresses
+     * @param _aavePoolProxy address of pool proxy contract
+     * @param _nativeWrappedToken address of native wrapped token contract
+     */
+    function initAave(address _aavePoolProxy, address _nativeWrappedToken)
+        external 
+        onlyRole(OWNER_ROLE) 
+        noReenter
+    {
+        aavePoolProxy = _aavePoolProxy;
+        nativeWrappedToken = _nativeWrappedToken;
+    }
+
+    /**
+     * @notice A function which allows the holders of the OWNER_ROLE role to pause Aave deposits/withdrawals
+     */
+    function pauseAave() external onlyRole(OWNER_ROLE) aaveInitialized whenAaveNotPaused noReenter {
+        rollupState.aavePaused = true;
+
+        // All user funds must be withdrawn from the pools
+        withdrawFromLP(ETH_ASSET_ID, aaveAssetDeposited[ETH_ASSET_ID], true);
+
+        for (uint256 assetId = 1; assetId <= supportedAssets.length; assetId++) {
+            address assetAddress = getSupportedAsset(assetId);
+
+            withdrawFromLP(assetId, aaveAssetDeposited[assetId], true);
+        }
+    }
+
+    /**
+     * @dev Allow the holders of the OWNER_ROLE to unpause Aave deposits/withdrawals
+     */
+    function unpauseAave() external onlyRole(OWNER_ROLE) aaveInitialized whenAavePaused noReenter {
+        rollupState.aavePaused = false;
+
+        // All user funds must be deposited to the pools
+        depositToLP(ETH_ASSET_ID, address(this).balance);
+
+        for (uint256 assetId = 1; assetId <= supportedAssets.length; assetId++) {
+            address assetAddress = getSupportedAsset(assetId);
+
+            depositToLP(assetId, IERC20(assetAddress).balanceOf(address(this)));
+        }
+    }
+
     /**
      * @notice A function which allow the holders of the EMERGENCY_ROLE role to pause the contract
      */
@@ -665,17 +751,7 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
         checkThirdPartyContractStatus
         noReenter
     {
-        if (_bridge.code.length == 0) {
-            revert INVALID_ADDRESS_NO_CODE();
-        }
-        if (_gasLimit < MIN_BRIDGE_GAS_LIMIT || _gasLimit > MAX_BRIDGE_GAS_LIMIT) {
-            revert INVALID_BRIDGE_GAS();
-        }
-
-        supportedBridges.push(_bridge);
-        uint256 bridgeAddressId = supportedBridges.length;
-        bridgeGasLimits[bridgeAddressId] = _gasLimit;
-        emit BridgeAdded(bridgeAddressId, _bridge, bridgeGasLimits[bridgeAddressId]);
+        revert NOT_AVAILABLE_IN_V3();
     }
 
     /**
@@ -725,6 +801,36 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
     /*----------------------------------------
       PUBLIC/EXTERNAL MUTATING FUNCTIONS 
       ----------------------------------------*/
+
+    /**
+     * @notice Withdraw's the interest accured for a particular asset
+     * @param _assetId asset ID which was assigned during asset registration
+     */
+    function withdrawInterest(uint256 _assetId)
+        external
+        onlyRole(OWNER_ROLE)
+        aaveInitialized
+        noReenter
+    {
+        address owner = msg.sender;
+        uint256 interestBalance = getInterestBalance(_assetId);
+
+        withdrawFromLP(_assetId, interestBalance, false);
+
+        if (_assetId == 0) {
+            assembly {
+                pop(call(30000, owner, interestBalance, 0, 0, 0, 0))
+            }
+
+            return;
+        }
+
+        address assetAddress = getSupportedAsset(_assetId);
+
+        TokenTransfers.transferToDoNotBubbleErrors(
+            assetAddress, owner, interestBalance, assetGasLimits[_assetId]
+        );
+    }
 
     /**
      * @notice A function used by bridges to send ETH to the RollupProcessor during an interaction
@@ -788,14 +894,9 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
                 revert INSUFFICIENT_TOKEN_APPROVAL();
             }
             TokenTransfers.safeTransferFrom(assetAddress, msg.sender, address(this), _amount);
-
-            AaveV3.depositToLP(assetAddress, _amount);
-        }
-        else {
-            AaveV3.depositNativeToLP(_amount);
         }
 
-        aaveAssetDeposited[_assetId] += _amount;
+        if (!rollupState.aavePaused) depositToLP(_assetId, _amount);
     }
 
     /**
@@ -830,39 +931,48 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
         revert NOT_AVAILABLE_IN_V3();
     }
 
-    /**
-     * @notice Withdraw's the interest accured for a particular asset
-     * @param _assetId asset ID which was assigned during asset registration
-     */
-    function withdrawInterest(uint256 _assetId)
-        external
-        onlyRole(OWNER_ROLE)
-        noReenter
-    {
-        address owner = msg.sender;
-        uint256 interestBalance = getInterestBalance(_assetId);
-
-        if (_assetId == 0) {
-            AaveV3.withdrawNativeFromLP(interestBalance);
-
-            assembly {
-                pop(call(30000, owner, interestBalance, 0, 0, 0, 0))
-            }
-
-            return;
-        }
-
-        address assetAddress = getSupportedAsset(_assetId);
-        AaveV3.withdrawFromLP(assetAddress, interestBalance);
-
-        TokenTransfers.transferToDoNotBubbleErrors(
-            assetAddress, owner, interestBalance, assetGasLimits[_assetId]
-        );
-    }
-
     /*----------------------------------------
       INTERNAL/PRIVATE MUTATING FUNCTIONS 
       ----------------------------------------*/
+
+    /**
+     * @notice Deposit asset to corresponding Aave liquidity pool
+     * @param _assetId id of the asset being deposited
+     * @param _amount amount of asset being deposited
+     */
+    function depositToLP(uint256 _assetId, uint256 _amount) internal {
+        if (_amount == 0) return;
+
+        address assetAddress = _assetId == ETH_ASSET_ID ? nativeWrappedToken : getSupportedAsset(_assetId);
+
+        // If the asset is native, we need to wrap it first
+        if (_assetId == ETH_ASSET_ID) IWETH(assetAddress).deposit{value: _amount}();
+
+        IERC20(assetAddress).approve(aavePoolProxy, _amount);
+
+        IPool(aavePoolProxy).supply(assetAddress, _amount, address(this), 0);
+
+        aaveAssetDeposited[_assetId] += _amount;
+    }
+
+    /**
+     * @notice Withdraw asset from corresponding Aave liquidity pool
+     * @param _assetId id of the asset being withdrawn
+     * @param _amount amount of asset being withdrawn
+     * @param _userRequested if true, aaveAssetDeposited will be updated
+     */
+    function withdrawFromLP(uint256 _assetId, uint256 _amount, bool _userRequested) internal {
+        if (_amount == 0) return;
+
+        address assetAddress = _assetId == ETH_ASSET_ID ? nativeWrappedToken : getSupportedAsset(_assetId);
+
+        IPool(aavePoolProxy).withdraw(assetAddress, _amount, address(this));
+
+        // If the asset is native, we need to unwrap it first
+        if (_assetId == ETH_ASSET_ID) IWETH(assetAddress).withdraw(_amount);
+
+        if (_userRequested) aaveAssetDeposited[_assetId] -= _amount;
+    }
 
     /**
      * @notice A function which increasees pending deposit amount in the `userPendingDeposits` mapping
@@ -1277,29 +1387,49 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
         if (_receiver == address(0)) {
             revert WITHDRAW_TO_ZERO_ADDRESS();
         }
-        if (_assetId == 0) {
-            AaveV3.withdrawNativeFromLP(_withdrawValue);
 
+        if (!rollupState.aavePaused) withdrawFromLP(_assetId, _withdrawValue, true);
+
+        if (_assetId == 0) {
             assembly {
                 pop(call(30000, _receiver, _withdrawValue, 0, 0, 0, 0))
             }
             // payable(_receiver).call{gas: 30000, value: _withdrawValue}('');
         } else {
             address assetAddress = getSupportedAsset(_assetId);
-
-            AaveV3.withdrawFromLP(assetAddress, _withdrawValue);
-
             TokenTransfers.transferToDoNotBubbleErrors(
                 assetAddress, _receiver, _withdrawValue, assetGasLimits[_assetId]
             );
         }
-
-        aaveAssetDeposited[_assetId] -= _withdrawValue;
     }
 
     /*----------------------------------------
       PUBLIC/EXTERNAL NON-MUTATING FUNCTIONS 
       ----------------------------------------*/
+
+    /**
+     * @notice Returns the balance of interest accured for an asset
+     * @param _assetId asset ID which was assigned during asset registration
+     * @return uint256 the value of interest accured
+     */
+    function getInterestBalance(uint256 _assetId) public view aaveInitialized returns (uint256) {
+        DataTypes.ReserveData memory _reserveData = IPool(aavePoolProxy).getReserveData(getSupportedAsset(_assetId));
+        
+        require (_reserveData.aTokenAddress != address(0));
+
+        return IERC20(_reserveData.aTokenAddress).balanceOf(address(this)) - aaveAssetDeposited[_assetId];
+    }
+
+    /**
+     * @notice Function to check if Aave functionality is paused
+     * @return aavePaused true if paused
+     */
+    function aavePaused() external view returns (bool aavePaused) {
+        return rollupState.aavePaused;
+    }
+
+    receive() external payable {
+    }
 
     /**
      * @notice Get implementation's version number
@@ -1311,9 +1441,9 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
 
     /**
      * @notice Get true if the contract is paused, false otherwise
-     * @return isPaused - True if paused, false otherwise
+     * @return bool - True if paused, false otherwise
      */
-    function paused() external view override(IRollupProcessor) returns (bool isPaused) {
+    function paused() external view override(IRollupProcessor) returns (bool) {
         return rollupState.paused;
     }
 
@@ -1445,23 +1575,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
      */
     function getAsyncDefiInteractionHashesLength() public view override(IRollupProcessor) returns (uint256) {
         return rollupState.numAsyncDefiInteractionHashes;
-    }
-
-    /**
-     * @notice Returns the balance of interest accured for an asset
-     * @param _assetId asset ID which was assigned during asset registration
-     * @return - the value of interest accured
-     */
-    function getInterestBalance(uint256 _assetId) public view returns (uint256) {
-        if (_assetId == ETH_ASSET_ID) {
-            return AaveV3.withdrawable(AaveV3.POLYGON_W_NATIVE) - aaveAssetDeposited[_assetId];
-        }
-
-        address assetAddress = getSupportedAsset(_assetId);
-        return AaveV3.withdrawable(assetAddress) - aaveAssetDeposited[_assetId];
-    }
-
-    receive() external payable {
     }
 
     /*----------------------------------------
@@ -1737,308 +1850,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
         internal
         returns (bytes32[] memory nextExpectedHashes)
     {
-        uint256 defiInteractionHashesLength;
-        // Verify that nextExpectedDefiInteractionsHash equals the value given in the rollup
-        // Then remove the set of pending hashes
-        {
-            // Extract the claimed value of previousDefiInteractionHash present in the proof data
-            bytes32 providedDefiInteractionsHash = extractPrevDefiInteractionHash(_proofData);
-
-            // Validate the stored interactionHash matches the value used when making the rollup proof!
-            if (providedDefiInteractionsHash != prevDefiInteractionsHash) {
-                revert INCORRECT_PREVIOUS_DEFI_INTERACTION_HASH(providedDefiInteractionsHash, prevDefiInteractionsHash);
-            }
-            uint256 numPendingInteractions;
-            (defiInteractionHashesLength, numPendingInteractions) = getDefiHashesLengthsAndNumPendingInteractions();
-            // numPendingInteraction equals the number of interactions expected to be in the given rollup
-            // this is the length of the defiInteractionHashes array, capped at the NUM_BRIDGE_CALLS as per the following
-            // numPendingInteractions = min(defiInteractionsHashesLength, numberOfBridgeCalls)
-
-            // Reduce DefiInteractionHashes.length by numPendingInteractions
-            defiInteractionHashesLength -= numPendingInteractions;
-
-            assembly {
-                // Update DefiInteractionHashes.length in storage
-                let state := sload(rollupState.slot)
-                let oldState := and(not(shl(DEFIINTERACTIONHASHES_BIT_OFFSET, ARRAY_LENGTH_MASK)), state)
-                let newState := or(oldState, shl(DEFIINTERACTIONHASHES_BIT_OFFSET, defiInteractionHashesLength))
-                sstore(rollupState.slot, newState)
-            }
-        }
-        uint256 interactionNonce = getRollupId(_proofData) * NUMBER_OF_BRIDGE_CALLS;
-
-        // ### Process bridge calls
-        uint256 proofDataPtr;
-        assembly {
-            proofDataPtr := add(_proofData, BRIDGE_CALL_DATAS_OFFSET)
-        }
-        BridgeResult memory bridgeResult;
-        assembly {
-            bridgeResult := mload(0x40)
-            mstore(0x40, add(bridgeResult, 0x80))
-        }
-        for (uint256 i = 0; i < NUMBER_OF_BRIDGE_CALLS;) {
-            uint256 encodedBridgeCallData;
-            assembly {
-                encodedBridgeCallData := mload(proofDataPtr)
-            }
-            if (encodedBridgeCallData == 0) {
-                // no more bridges to call
-                break;
-            }
-            uint256 totalInputValue;
-            assembly {
-                totalInputValue := mload(add(proofDataPtr, mul(0x20, NUMBER_OF_BRIDGE_CALLS)))
-            }
-            if (totalInputValue == 0) {
-                revert ZERO_TOTAL_INPUT_VALUE();
-            }
-
-            FullBridgeCallData memory fullBridgeCallData = getFullBridgeCallData(encodedBridgeCallData);
-
-            (
-                AztecTypes.AztecAsset memory inputAssetA,
-                AztecTypes.AztecAsset memory inputAssetB,
-                AztecTypes.AztecAsset memory outputAssetA,
-                AztecTypes.AztecAsset memory outputAssetB
-            ) = getAztecAssetTypes(fullBridgeCallData, interactionNonce);
-            assembly {
-                // call the following function of DefiBridgeProxy via delegatecall...
-                //     function convert(
-                //          address bridgeAddress,
-                //          AztecTypes.AztecAsset calldata inputAssetA,
-                //          AztecTypes.AztecAsset calldata inputAssetB,
-                //          AztecTypes.AztecAsset calldata outputAssetA,
-                //          AztecTypes.AztecAsset calldata outputAssetB,
-                //          uint256 totalInputValue,
-                //          uint256 interactionNonce,
-                //          uint256 auxInputData,
-                //          uint256 ethPaymentsSlot,
-                //          address rollupBeneficary
-                //     )
-
-                // Construct the calldata we send to DefiBridgeProxy
-                // mPtr = memory pointer. Set to free memory location (0x40)
-                let mPtr := mload(0x40)
-                // first 4 bytes is the function signature
-                mstore(mPtr, DEFI_BRIDGE_PROXY_CONVERT_SELECTOR)
-                mPtr := add(mPtr, 0x04)
-
-                let bridgeAddress := mload(add(fullBridgeCallData, 0x20))
-                mstore(mPtr, bridgeAddress)
-                mstore(add(mPtr, 0x20), mload(inputAssetA))
-                mstore(add(mPtr, 0x40), mload(add(inputAssetA, 0x20)))
-                mstore(add(mPtr, 0x60), mload(add(inputAssetA, 0x40)))
-                mstore(add(mPtr, 0x80), mload(inputAssetB))
-                mstore(add(mPtr, 0xa0), mload(add(inputAssetB, 0x20)))
-                mstore(add(mPtr, 0xc0), mload(add(inputAssetB, 0x40)))
-                mstore(add(mPtr, 0xe0), mload(outputAssetA))
-                mstore(add(mPtr, 0x100), mload(add(outputAssetA, 0x20)))
-                mstore(add(mPtr, 0x120), mload(add(outputAssetA, 0x40)))
-                mstore(add(mPtr, 0x140), mload(outputAssetB))
-                mstore(add(mPtr, 0x160), mload(add(outputAssetB, 0x20)))
-                mstore(add(mPtr, 0x180), mload(add(outputAssetB, 0x40)))
-                mstore(add(mPtr, 0x1a0), totalInputValue)
-                mstore(add(mPtr, 0x1c0), interactionNonce)
-
-                let auxData := mload(add(fullBridgeCallData, 0xc0))
-                mstore(add(mPtr, 0x1e0), auxData)
-                mstore(add(mPtr, 0x200), ethPayments.slot)
-                mstore(add(mPtr, 0x220), _rollupBeneficiary)
-
-                // Call the bridge proxy via delegatecall!
-                // We want the proxy to share state with the rollup processor, as the proxy is the entity
-                // sending/recovering tokens from the bridge contracts. We wrap this logic in a delegatecall so that
-                // if the call fails (i.e. the bridge interaction fails), we can unwind bridge-interaction specific
-                // state changes without reverting the entire transaction.
-                let bridgeProxy := sload(defiBridgeProxy.slot)
-                if iszero(extcodesize(bridgeProxy)) {
-                    mstore(0, INVALID_ADDRESS_NO_CODE_SELECTOR)
-                    revert(0, 0x4)
-                }
-                let success :=
-                    delegatecall(
-                        mload(add(fullBridgeCallData, 0x1a0)), // fullBridgeCallData.bridgeGasLimit
-                        bridgeProxy,
-                        sub(mPtr, 0x04),
-                        0x244,
-                        0,
-                        0
-                    )
-                returndatacopy(mPtr, 0, returndatasize())
-
-                switch success
-                case 1 {
-                    mstore(bridgeResult, mload(mPtr)) // outputValueA
-                    mstore(add(bridgeResult, 0x20), mload(add(mPtr, 0x20))) // outputValueB
-                    mstore(add(bridgeResult, 0x40), mload(add(mPtr, 0x40))) // isAsync
-                    mstore(add(bridgeResult, 0x60), 1) // success
-                }
-                default {
-                    // If the call failed, mark this interaction as failed. No tokens have been exchanged, users can
-                    // use the "claim" circuit to recover the initial tokens they sent to the bridge
-                    mstore(bridgeResult, 0) // outputValueA
-                    mstore(add(bridgeResult, 0x20), 0) // outputValueB
-                    mstore(add(bridgeResult, 0x40), 0) // isAsync
-                    mstore(add(bridgeResult, 0x60), 0) // success
-                }
-            }
-
-            if (!fullBridgeCallData.secondOutputInUse) {
-                bridgeResult.outputValueB = 0;
-            }
-
-            // emit events and update state
-            assembly {
-                // if interaction is Async, update pendingDefiInteractions
-                // if interaction is synchronous, compute the interaction hash and add to defiInteractionHashes
-                switch mload(add(bridgeResult, 0x40))
-                // switch isAsync
-                case 1 {
-                    let mPtr := mload(0x40)
-                    // emit AsyncDefiBridgeProcessed(indexed encodedBridgeCallData, indexed interactionNonce, totalInputValue)
-                    {
-                        mstore(mPtr, totalInputValue)
-                        log3(mPtr, 0x20, ASYNC_BRIDGE_PROCESSED_SIGHASH, encodedBridgeCallData, interactionNonce)
-                    }
-                    // pendingDefiInteractions[interactionNonce] = PendingDefiBridgeInteraction(encodedBridgeCallData, totalInputValue)
-                    mstore(0x00, interactionNonce)
-                    mstore(0x20, pendingDefiInteractions.slot)
-                    let pendingDefiInteractionsSlotBase := keccak256(0x00, 0x40)
-
-                    sstore(pendingDefiInteractionsSlotBase, encodedBridgeCallData)
-                    sstore(add(pendingDefiInteractionsSlotBase, 0x01), totalInputValue)
-                }
-                default {
-                    let mPtr := mload(0x40)
-                    // prepare the data required to publish the DefiBridgeProcessed event, we will only publish it if
-                    // isAsync == false
-                    // async interactions that have failed, have their isAsync property modified to false above
-                    // emit DefiBridgeProcessed(indexed encodedBridgeCallData, indexed interactionNonce, totalInputValue, outputValueA, outputValueB, success)
-
-                    {
-                        mstore(mPtr, totalInputValue)
-                        mstore(add(mPtr, 0x20), mload(bridgeResult)) // outputValueA
-                        mstore(add(mPtr, 0x40), mload(add(bridgeResult, 0x20))) // outputValueB
-                        mstore(add(mPtr, 0x60), mload(add(bridgeResult, 0x60))) // success
-                        mstore(add(mPtr, 0x80), 0xa0) // position in event data block of `bytes` object
-
-                        if mload(add(bridgeResult, 0x60)) {
-                            mstore(add(mPtr, 0xa0), 0)
-                            log3(mPtr, 0xc0, DEFI_BRIDGE_PROCESSED_SIGHASH, encodedBridgeCallData, interactionNonce)
-                        }
-                        if iszero(mload(add(bridgeResult, 0x60))) {
-                            mstore(add(mPtr, 0xa0), returndatasize())
-                            let size := returndatasize()
-                            let remainder := mul(iszero(iszero(size)), sub(32, mod(size, 32)))
-                            returndatacopy(add(mPtr, 0xc0), 0, size)
-                            mstore(add(mPtr, add(0xc0, size)), 0)
-                            log3(
-                                mPtr,
-                                add(0xc0, add(size, remainder)),
-                                DEFI_BRIDGE_PROCESSED_SIGHASH,
-                                encodedBridgeCallData,
-                                interactionNonce
-                            )
-                        }
-                    }
-                    // compute defiInteractionnHash
-                    mstore(mPtr, encodedBridgeCallData)
-                    mstore(add(mPtr, 0x20), interactionNonce)
-                    mstore(add(mPtr, 0x40), totalInputValue)
-                    mstore(add(mPtr, 0x60), mload(bridgeResult)) // outputValueA
-                    mstore(add(mPtr, 0x80), mload(add(bridgeResult, 0x20))) // outputValueB
-                    mstore(add(mPtr, 0xa0), mload(add(bridgeResult, 0x60))) // success
-                    pop(staticcall(gas(), 0x2, mPtr, 0xc0, 0x00, 0x20))
-                    let defiInteractionHash := mod(mload(0x00), CIRCUIT_MODULUS)
-
-                    // defiInteractionHashes[defiInteractionHashesLength] = defiInteractionHash;
-                    mstore(0x00, defiInteractionHashesLength)
-                    mstore(0x20, defiInteractionHashes.slot)
-                    sstore(keccak256(0x00, 0x40), defiInteractionHash)
-
-                    // Increase the length of defiInteractionHashes by 1
-                    defiInteractionHashesLength := add(defiInteractionHashesLength, 0x01)
-                }
-
-                // advance interactionNonce and proofDataPtr
-                interactionNonce := add(interactionNonce, 0x01)
-                proofDataPtr := add(proofDataPtr, 0x20)
-            }
-            unchecked {
-                ++i;
-            }
-        }
-
-        assembly {
-            /**
-             * Cleanup
-             *
-             * 1. Copy asyncDefiInteractionHashes into defiInteractionHashes
-             * 2. Update defiInteractionHashes.length
-             * 2. Clear asyncDefiInteractionHashes.length
-             */
-            let state := sload(rollupState.slot)
-
-            let asyncDefiInteractionHashesLength :=
-                and(ARRAY_LENGTH_MASK, shr(ASYNCDEFIINTERACTIONHASHES_BIT_OFFSET, state))
-
-            // Validate we are not overflowing our 1024 array size
-            let arrayOverflow :=
-                gt(add(asyncDefiInteractionHashesLength, defiInteractionHashesLength), ARRAY_LENGTH_MASK)
-
-            // Throw an error if defiInteractionHashesLength > ARRAY_LENGTH_MASK (i.e. is >= 1024)
-            // should never hit this! If block `i` generates synchronous txns,
-            // block 'i + 1' must process them.
-            // Only way this array size hits 1024 is if we produce a glut of async interaction results
-            // between blocks. HOWEVER we ensure that async interaction callbacks fail if they would increase
-            // defiInteractionHashes length to be >= 512
-            // Still, can't hurt to check...
-            if arrayOverflow {
-                mstore(0, ARRAY_OVERFLOW_SELECTOR)
-                revert(0, 0x4)
-            }
-
-            // Now, copy async hashes into defiInteractionHashes
-
-            // Cache the free memory pointer
-            let freePtr := mload(0x40)
-
-            // Prepare the reusable parts of slot computation
-            mstore(0x20, defiInteractionHashes.slot)
-            mstore(0x60, asyncDefiInteractionHashes.slot)
-            for { let i := 0 } lt(i, asyncDefiInteractionHashesLength) { i := add(i, 1) } {
-                // defiInteractionHashesLength[defiInteractionHashesLength + i] = asyncDefiInteractionHashes[i]
-                mstore(0x00, add(defiInteractionHashesLength, i))
-                mstore(0x40, i)
-                sstore(keccak256(0x00, 0x40), sload(keccak256(0x40, 0x40)))
-            }
-            // Restore the free memory pointer
-            mstore(0x40, freePtr)
-
-            // clear defiInteractionHashesLength in state
-            state := and(not(shl(DEFIINTERACTIONHASHES_BIT_OFFSET, ARRAY_LENGTH_MASK)), state)
-
-            // write new defiInteractionHashesLength in state
-            state :=
-                or(
-                    shl(
-                        DEFIINTERACTIONHASHES_BIT_OFFSET, add(asyncDefiInteractionHashesLength, defiInteractionHashesLength)
-                    ),
-                    state
-                )
-
-            // clear asyncDefiInteractionHashesLength in state
-            state := and(not(shl(ASYNCDEFIINTERACTIONHASHES_BIT_OFFSET, ARRAY_LENGTH_MASK)), state)
-
-            // write new state
-            sstore(rollupState.slot, state)
-        }
-
-        // now we want to extract the next set of pending defi interaction hashes and calculate their hash to store
-        // for the next rollup
-        (bytes32[] memory hashes, bytes32 nextExpectedHash) = getPendingAndNextExpectedHashes();
-        nextExpectedHashes = hashes;
-        prevDefiInteractionsHash = nextExpectedHash;
+        return new bytes32[](0);
     }
 }
