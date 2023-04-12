@@ -5,6 +5,7 @@ pragma solidity >=0.8.4;
 import {Test} from "forge-std/Test.sol";
 import {PermitHelper} from "periphery/PermitHelper.sol";
 import {RollupProcessorV2} from "core/processors/RollupProcessorV2.sol";
+import {RollupProcessorV3} from "core/processors/RollupProcessorV3.sol";
 import {AggregateDeployment} from "bridge-deployments/AggregateDeployment.s.sol";
 import {ERC20Permit} from "../../test/mocks/ERC20Permit.sol";
 import {AztecFeeDistributor} from "periphery/AztecFeeDistributor.sol";
@@ -100,25 +101,9 @@ contract ChainSpecificSetup is Test {
     {
         emit log_string("Setting up assets and bridges for Polygon");
 
-        vm.broadcast();
-        RollupProcessorV2(_proxy).setSupportedAsset(POLYGON_DAI, 75000);
-
-        vm.broadcast();
-        PermitHelper(_permitHelper).preApprove(POLYGON_DAI);
-
-        // Set environment variables
-        // string memory rollupProcessorAddressString = vm.toString(_proxy);
-        // vm.setEnv("ROLLUP_PROCESSOR_ADDRESS", rollupProcessorAddressString);
-        // vm.setEnv("LISTER_ADDRESS", rollupProcessorAddressString);
-
         // Deploy Fee Distributor as on fork
         // vm.broadcast();
         // AztecFeeDistributor feeDistributor = new AztecFeeDistributor(_safe, _proxy, UNISWAP_V2_ROUTER);
-
-        // Deploy bridges
-        // AggregateDeployment aggDeploy = new AggregateDeployment();
-        // aggDeploy.setUp();
-        // address dataProvider = aggDeploy.deployAndListAll();
 
         // Deploy faucet
         address faucet = deployFaucet(_faucetOperator);
@@ -127,16 +112,11 @@ contract ChainSpecificSetup is Test {
         vm.broadcast();
         GasOracle gasOracle = new GasOracle(5 gwei);
 
-        // Mock a DAI price feed for now
-        int256 daiPrice = 1 * 10 ** 15; // 1000 DAI/ETH
-        vm.broadcast();
-        MockChainlinkOracle daiPriceFeed = new MockChainlinkOracle(daiPrice);
-
         return BridgePeripheryAddresses({
             dataProvider: address(0),
             gasPriceFeed: address(gasOracle),
-            daiPriceFeed: address(daiPriceFeed),
-            dai: POLYGON_DAI,
+            daiPriceFeed: address(0),
+            dai: address(0),
             btc: address(0),
             faucet: faucet,
             feeDistributor: address(0) // TODO: Don't include for now
