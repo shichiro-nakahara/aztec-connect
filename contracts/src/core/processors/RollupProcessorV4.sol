@@ -25,7 +25,7 @@ import {DataTypes} from "@aave/core-v3/contracts/protocol/libraries/types/DataTy
  * @dev Smart contract responsible for processing Aztec zkRollups, relaying them to a verifier
  *      contract for validation and performing all the relevant ERC20 token transfers
  */
-contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, AccessControl {
+contract RollupProcessorV4 is IRollupProcessorV2, Decoder, Initializable, AccessControl {
     using SafeCast for uint256;
     /*----------------------------------------
       ERROR TAGS
@@ -534,7 +534,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
 
         // Setup native asset (assetId == 0)
         aaveAssetDeposited.push(0);
-        rollupState.aavePaused = true;
     }
 
     /*----------------------------------------
@@ -1435,7 +1434,7 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
      * @return version version number of the implementation
      */
     function getImplementationVersion() public view virtual returns (uint8 version) {
-        return 3;
+        return 4;
     }
 
     /**
