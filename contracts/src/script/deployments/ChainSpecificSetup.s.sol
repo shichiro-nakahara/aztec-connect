@@ -61,8 +61,8 @@ contract ChainSpecificSetup is Test {
     {
         uint256 chainId = block.chainid;
 
-        //  polygon mainnet   mumbai
-        if (chainId == 137 || chainId == 80001) {
+        //  polygon mainnet   mumbai              zkEVM mainnet      zkEVM testnet
+        if (chainId == 137 || chainId == 80001 || chainId == 1101 || chainId == 1442) {
             return setupAssetAndBridgesPolygon(_proxy, _permitHelper, _safe, _faucetOperator);
         }
         //       mainnet         dev                stage                testnet
