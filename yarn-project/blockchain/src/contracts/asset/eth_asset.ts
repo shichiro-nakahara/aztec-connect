@@ -19,8 +19,8 @@ export class EthAsset implements Asset {
   getStaticInfo() {
     return {
       address: EthAddress.ZERO,
-      name: 'Eth',
-      symbol: 'ETH',
+      name: 'MATIC',
+      symbol: 'MATIC',
       decimals: 18,
       gasLimit: 30000,
     };
@@ -36,15 +36,15 @@ export class EthAsset implements Asset {
   }
 
   allowance(owner: EthAddress, receiver: EthAddress): Promise<bigint> {
-    throw new Error('Allowance unsupported for ETH.');
+    throw new Error('Allowance unsupported for MATIC.');
   }
 
   approve(value: bigint, owner: EthAddress, receiver: EthAddress): Promise<TxHash> {
-    throw new Error('Approve unsupported for ETH.');
+    throw new Error('Approve unsupported for MATIC.');
   }
 
   mint(value: bigint, account: EthAddress): Promise<TxHash> {
-    throw new Error('Mint unsupported for ETH.');
+    throw new Error('Mint unsupported for MATIC.');
   }
 
   async transfer(value: bigint, from: EthAddress, to: EthAddress, options: SendTxOptions = {}) {
