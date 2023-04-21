@@ -1348,6 +1348,9 @@ contract RollupProcessorV4 is IRollupProcessorV2, Decoder, Initializable, Access
             uint256 txFee = extractTotalTxFee(_proofData, i);
             if (txFee > 0) {
                 uint256 assetId = extractFeeAssetId(_proofData, i);
+
+                if (!rollupState.aavePaused) withdrawFromLP(assetId, txFee, true);
+
                 if (assetId == ETH_ASSET_ID) {
                     // We explicitly do not throw if this call fails, as this opens up the possiblity of griefing
                     // attacks --> engineering a failed fee would invalidate an entire rollup block. As griefing could
