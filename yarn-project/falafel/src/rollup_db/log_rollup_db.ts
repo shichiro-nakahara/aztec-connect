@@ -12,6 +12,7 @@ import {
   RollupProofDao,
   TxDao,
   BridgeMetricsDao,
+  RollupProcessTimeDao
 } from '../entity/index.js';
 import { RollupDb } from './rollup_db.js';
 
@@ -28,6 +29,14 @@ export class LogRollupDb implements RollupDb {
 
   public destroy() {
     return this.time('destroy', () => this.rollupDb.destroy());
+  }
+
+  public addProcessTime(rollupProcessTime: RollupProcessTimeDao) {
+    return this.time('addProcessTime', () => this.rollupDb.addProcessTime(rollupProcessTime));
+  }
+
+  public async getProcessTimes(take?: number) {
+    return this.time('getProcessTimes', () => this.rollupDb.getProcessTimes(take)); 
   }
 
   public addTx(txDao: TxDao) {
