@@ -21,7 +21,7 @@ import Router from 'koa-router';
 import { PromiseReadable } from 'promise-readable';
 import requestIp from 'request-ip';
 import { configurator } from './configurator.js';
-import { TxDao } from './entity/index.js';
+import { RollupProcessTimeDao, TxDao } from './entity/index.js';
 import { Metrics } from './metrics/index.js';
 import { Server } from './server.js';
 import { Tx, TxRequest } from './tx_receiver/index.js';
@@ -405,6 +405,40 @@ export function appFactory(server: Server, prefix: string, metrics: Metrics, ser
     if (sidecarResp) {
       ctx.body += await sidecarResp.text();
     }
+
+    ctx.status = 200;
+  });
+
+  router.get('/rollup-status', recordMetric, async (ctx: Koa.Context) => {
+    const last10RollupProcessingTimes = await server.getProcessTimes(10);
+    const completeRollupProcessingTimes = last10RollupProcessingTimes.filter((row: RollupProcessTimeDao) => row.innerCompleted && row.outerCompleted);
+    const lastRollupProcessTime = last10RollupProcessingTimes.length > 0 ? last10RollupProcessingTimes[0] : null;
+    const processing = lastRollupProcessTime && !lastRollupProcessTime.innerCompleted && !lastRollupProcessTime.outerCompleted;
+
+    let totalInnerRollupProcessTime = 0;
+    let totalOuterRollupProcessTime = 0;
+    for (let i = 0; i < completeRollupProcessingTimes.length; i++) {
+      const row = completeRollupProcessingTimes[i];
+
+      const innerRollupCompleteTime = (Date.parse(row.innerCompleted!.toISOString()) - Date.parse(row.started!.toISOString())) / 1000;
+      totalInnerRollupProcessTime += innerRollupCompleteTime / row.innerRollupCount;
+
+      totalOuterRollupProcessTime += (Date.parse(row.outerCompleted!.toISOString()) - Date.parse(row.innerCompleted!.toISOString())) / 1000;
+    }
+    const averageInnerRollupProcessTime = totalInnerRollupProcessTime / completeRollupProcessingTimes.length;
+    const averageOuterRollupProcessTime = totalOuterRollupProcessTime / completeRollupProcessingTimes.length;
+
+    ctx.body = {
+      rollup: {
+        processing: processing,
+        started: processing ? last10RollupProcessingTimes[0].started : null,
+        innerRollups: processing ? last10RollupProcessingTimes[0].innerRollupCount : null
+      },
+      timeEstimate: {
+        innerRollup: averageInnerRollupProcessTime,
+        outerRollup: averageOuterRollupProcessTime
+      }
+    };
 
     ctx.status = 200;
   });

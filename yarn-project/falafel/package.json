@@ -1,6 +1,6 @@
 {
   "name": "falafel",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dest/index.js",
   "license": "MIT",
   "type": "module",
