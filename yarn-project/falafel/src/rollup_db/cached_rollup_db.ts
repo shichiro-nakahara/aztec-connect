@@ -11,6 +11,7 @@ import {
   BridgeMetricsDao,
   AccountDao,
   ClaimDao,
+  RollupProcessTimeDao
 } from '../entity/index.js';
 import { RollupDb } from './rollup_db.js';
 
@@ -286,6 +287,15 @@ export class CachedRollupDb implements RollupDb {
   public async getTotalTxCount() {
     await this.refresh();
     return this.totalTxCount;
+  }
+
+  public async addProcessTime(rollupProcessTime: RollupProcessTimeDao) {
+    await this.underlying.addProcessTime(rollupProcessTime);
+    this.refreshPromise = undefined;
+  }
+
+  public async getProcessTimes(take?: number) {
+    return await this.underlying.getProcessTimes(take);
   }
 
   public async addTx(txDao: TxDao) {

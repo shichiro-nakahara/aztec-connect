@@ -16,6 +16,7 @@ import {
   RollupProofDao,
   TxDao,
   BridgeMetricsDao,
+  RollupProcessTimeDao,
 } from '../entity/index.js';
 import { getNewAccountDaos } from './tx_dao_to_account_dao.js';
 
@@ -35,6 +36,7 @@ export class TypeOrmRollupDb implements RollupDb {
   private claimRep: Repository<ClaimDao>;
   private assetMetricsRep: Repository<AssetMetricsDao>;
   private bridgeMetricsRep: Repository<BridgeMetricsDao>;
+  private rollupProcessTimeRep: Repository<RollupProcessTimeDao>;
   private debug = createDebugLogger('bb:typeorm_rollup_db');
 
   constructor(private connection: DataSource, private initialDataRoot: Buffer = WorldStateConstants.EMPTY_DATA_ROOT) {
@@ -45,6 +47,7 @@ export class TypeOrmRollupDb implements RollupDb {
     this.claimRep = this.connection.getRepository(ClaimDao);
     this.assetMetricsRep = this.connection.getRepository(AssetMetricsDao);
     this.bridgeMetricsRep = this.connection.getRepository(BridgeMetricsDao);
+    this.rollupProcessTimeRep = this.connection.getRepository(RollupProcessTimeDao);
   }
 
   public init() {
@@ -53,6 +56,19 @@ export class TypeOrmRollupDb implements RollupDb {
 
   public async destroy() {
     await this.connection.destroy();
+  }
+
+  public async addProcessTime(rollupProcessTime: RollupProcessTimeDao) {
+    await this.connection.transaction(async transactionalEntityManager => {
+      await transactionalEntityManager.save(rollupProcessTime);
+    });
+  }
+
+  public async getProcessTimes(take?: number) {
+    return await this.rollupProcessTimeRep.find({
+      order: { id: 'DESC' },
+      take
+    });
   }
 
   public async addTx(txDao: TxDao) {

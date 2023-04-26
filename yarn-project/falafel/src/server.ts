@@ -376,6 +376,10 @@ export class Server {
     return (await this.rollupDb.getNextRollupId()) - 1;
   }
 
+  public async getProcessTimes(take?: number) {
+    return await this.rollupDb.getProcessTimes(take);
+  }
+
   public async getTxById(txId: string) {
     // TODO: Deprecate this. We don't want to support external parties making these requests.
     const tx = await this.rollupDb.getTx(Buffer.from(txId.replace(/^0x/i, ''), 'hex'));

@@ -15,7 +15,7 @@ import { Metrics } from '../metrics/index.js';
 import { BridgeTxQueue, createDefiRollupTx, createRollupTx, RollupTx, RollupResources } from './bridge_tx_queue.js';
 import { PublishTimeManager, RollupTimeouts } from './publish_time_manager.js';
 import { profileRollup, RollupProfile } from './rollup_profiler.js';
-import { RollupDao } from '../entity/index.js';
+import { RollupDao, RollupProcessTimeDao } from '../entity/index.js';
 import { InterruptError } from '@aztec/barretenberg/errors';
 import { BridgeSubsidyProvider } from '../bridge/bridge_subsidy_provider.js';
 
@@ -451,6 +451,13 @@ export class RollupCoordinator {
         ),
     );
 
+    // Record basic stats on rollup (used to implement custom block timer)
+    const rollupProcessTime = new RollupProcessTimeDao({
+      innerRollupCount: txRollups.length,
+      started: new Date()
+    });
+    this.rollupDb.addProcessTime(rollupProcessTime);
+
     // Trigger building of inner rollups in parallel.
     const rollupProofDaos = await Promise.all(
       txRollups.map((txRollup, i) =>
@@ -460,6 +467,8 @@ export class RollupCoordinator {
         ),
       ),
     );
+
+    rollupProcessTime.innerCompleted = new Date();
 
     const rollupDao = await this.rollupAggregator.aggregateRollupProofs(
       rollupProofDaos,
@@ -471,6 +480,11 @@ export class RollupCoordinator {
       ),
       [...resourceConsumption.assetIds],
     );
+
+    rollupProcessTime.rollupId = rollupDao.id;
+    rollupProcessTime.rootRollupHash = `0x${rollupDao.rollupProof.id.toString('hex')}`;
+    rollupProcessTime.outerCompleted = new Date();
+    this.rollupDb.addProcessTime(rollupProcessTime);
 
     rollupProfile.published = await this.checkpointAndPublish(rollupDao, rollupProfile);
 
