@@ -511,12 +511,12 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
         rollupState.capped = true;
         lastRollupTimeStamp = uint32(block.timestamp);
 
-        // Set Eth asset caps. 6 Eth to cover 5 eth deposits + fee up to 1 eth.
+        // Set Matic asset caps. 10100 Matic to cover 10K deposits + fee up to 100 matic.
         caps[0] = AssetCap({
-            available: uint128(1000e18),
+            available: uint128(1e24),
             lastUpdatedTimestamp: uint32(block.timestamp),
-            pendingCap: 6,
-            dailyCap: 1000,
+            pendingCap: 10100,
+            dailyCap: 1e6,
             precision: 18
         });
 
@@ -529,7 +529,7 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
             precision: 18
         });
 
-        emit AssetCapUpdated(0, 6, 1000);
+        emit AssetCapUpdated(0, 10100, 1e6);
         emit AssetCapUpdated(1, 10100, 1e6);
 
         // Setup native asset (assetId == 0)
