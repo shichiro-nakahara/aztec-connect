@@ -816,7 +816,7 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
 
         withdrawFromLP(_assetId, interestBalance, false);
 
-        if (_assetId == 0) {
+        if (_assetId == ETH_ASSET_ID) {
             assembly {
                 pop(call(30000, owner, interestBalance, 0, 0, 0, 0))
             }
@@ -1415,7 +1415,9 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
      * @return uint256 the value of interest accured
      */
     function getInterestBalance(uint256 _assetId) public view aaveInitialized returns (uint256) {
-        DataTypes.ReserveData memory _reserveData = IPool(aavePoolProxy).getReserveData(getSupportedAsset(_assetId));
+        address assetAddress = _assetId == ETH_ASSET_ID ? nativeWrappedToken : getSupportedAsset(_assetId);
+
+        DataTypes.ReserveData memory _reserveData = IPool(aavePoolProxy).getReserveData(assetAddress);
         
         require (_reserveData.aTokenAddress != address(0));
 
