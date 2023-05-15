@@ -10,15 +10,14 @@ import { NoteAlgorithms } from '@aztec/barretenberg/note_algorithms';
 import {
   BridgePublishQuery,
   InitialWorldState,
-  RollupProviderStatus,
-  RuntimeConfig,
+  RollupProviderStatus as BarretenbergRollupProviderStatus,
 } from '@aztec/barretenberg/rollup_provider';
 import { BarretenbergWasm } from '@aztec/barretenberg/wasm';
 import { WorldStateDb } from '@aztec/barretenberg/world_state_db';
 import { CliProofGenerator, HttpJobServer, HttpJobServers, ProofGenerator } from '@aztec/halloumi/proof_generator';
 import { InitAccountFiles } from './environment/index.js';
 import { BridgeResolver } from './bridge/index.js';
-import { Configurator } from './configurator.js';
+import { Configurator, RuntimeConfig } from './configurator.js';
 import { Metrics } from './metrics/index.js';
 import { RollupDb } from './rollup_db/index.js';
 import { RollupPipelineFactory } from './rollup_pipeline.js';
@@ -27,6 +26,10 @@ import { TxReceiver, TxRequest } from './tx_receiver/index.js';
 import { WorldState } from './world_state.js';
 import { AddressCheckProviders, AztecBlacklistProvider, RateLimiter } from './compliance/index.js';
 import { rollupDaoToBlockBuffer } from './rollup_db/rollup_dao_to_block_buffer.js';
+
+export interface RollupProviderStatus extends BarretenbergRollupProviderStatus {
+  runtimeConfig: RuntimeConfig;
+};
 
 export class Server {
   public version: string;

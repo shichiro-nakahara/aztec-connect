@@ -1,6 +1,6 @@
 import { dirname } from 'path';
 import {
-  RuntimeConfig,
+  RuntimeConfig as BarretenbergRuntimeConfig,
   privacySetsFromJson,
   privacySetsToJson,
   getDefaultPrivacySets,
@@ -57,6 +57,8 @@ interface StartupConfig {
   rollupCallDataLimit: number;
   // To be turned on when Aztec Connect is sunset. Means that users are only allowed to exit AC. Env: EXIT_ONLY
   exitOnly: boolean;
+  // Block explorer endpoint Env: BLOCK_EXPLORER
+  blockExplorer: string;
 }
 
 export interface ConfVars extends StartupConfig {
@@ -85,6 +87,12 @@ const defaultStartupConfig: StartupConfig = {
   proverless: false,
   exitOnly: false,
   rollupCallDataLimit: 120 * 1024,
+  blockExplorer: ''
+};
+
+export interface RuntimeConfig extends BarretenbergRuntimeConfig {
+  telegramSendMessageEndpoint: string | undefined;
+  telegramChannelId: string | undefined;
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
@@ -106,6 +114,8 @@ const defaultRuntimeConfig: RuntimeConfig = {
   privacySets: getDefaultPrivacySets(),
   depositLimit: 10,
   blacklist: [],
+  telegramSendMessageEndpoint: undefined,
+  telegramChannelId: undefined
 };
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {
@@ -131,6 +141,7 @@ function getStartupConfigEnvVars(): Partial<StartupConfig> {
     TYPEORM_LOGGING,
     SERVER_AUTH_TOKEN,
     CALL_DATA_LIMIT_KB,
+    BLOCK_EXPLORER
   } = process.env;
 
   const envVars: Partial<StartupConfig> = {
@@ -161,6 +172,7 @@ function getStartupConfigEnvVars(): Partial<StartupConfig> {
     exitOnly: EXIT_ONLY ? EXIT_ONLY === 'true' : undefined,
     serverAuthToken: SERVER_AUTH_TOKEN,
     rollupCallDataLimit: CALL_DATA_LIMIT_KB ? +CALL_DATA_LIMIT_KB * 1024 : undefined,
+    blockExplorer: BLOCK_EXPLORER ? BLOCK_EXPLORER : undefined
   };
   return Object.fromEntries(Object.entries(envVars).filter(e => e[1] !== undefined));
 }
@@ -173,7 +185,9 @@ function getRuntimeConfigEnvVars(): Partial<RuntimeConfig> {
     DEFAULT_DEFI_BATCH_SIZE,
     FEE_PAYING_ASSET_IDS,
     FEE_DISTRIBUTOR_ADDRESS,
-    DEPOSIT_LIMIT
+    DEPOSIT_LIMIT,
+    TELEGRAM_SEND_MESSAGE_ENDPOINT,
+    TELEGRAM_CHANNEL_ID
   } = process.env;
 
   const envVars = {
@@ -185,7 +199,10 @@ function getRuntimeConfigEnvVars(): Partial<RuntimeConfig> {
 
     rollupBeneficiary: FEE_DISTRIBUTOR_ADDRESS ? EthAddress.fromString(FEE_DISTRIBUTOR_ADDRESS) : undefined,
 
-    depositLimit: DEPOSIT_LIMIT ? +DEPOSIT_LIMIT : undefined
+    depositLimit: DEPOSIT_LIMIT ? +DEPOSIT_LIMIT : undefined,
+
+    telegramSendMessageEndpoint: TELEGRAM_SEND_MESSAGE_ENDPOINT ? TELEGRAM_SEND_MESSAGE_ENDPOINT : undefined,
+    telegramChannelId: TELEGRAM_CHANNEL_ID ? TELEGRAM_CHANNEL_ID : undefined
   };
   return Object.fromEntries(Object.entries(envVars).filter(e => e[1] !== undefined));
 }
