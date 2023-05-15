@@ -41,6 +41,7 @@
     "class-validator": "^0.12.2",
     "coinbase-pro": "^0.9.0",
     "commander": "^9.4.0",
+    "ethers": "^6.3.0",
     "fs-extra": "9.0.1",
     "koa": "^2.7.0",
     "koa-compress": "^5.1.0",
