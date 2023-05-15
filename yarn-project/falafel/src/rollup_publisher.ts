@@ -7,6 +7,8 @@ import { fromBaseUnits } from '@aztec/blockchain';
 import { RollupDao } from './entity/index.js';
 import { Metrics } from './metrics/index.js';
 import { RollupDb } from './rollup_db/index.js';
+import { configurator } from './configurator.js';
+import * as ethers from 'ethers';
 
 export class RollupPublisher {
   private ethereumRpc: EthereumRpc;
@@ -63,6 +65,9 @@ export class RollupPublisher {
   }
 
   public async publishRollup(rollup: RollupDao, estimatedGas: number) {
+    const telegramSendMessageEndpoint = configurator.getConfVars().runtimeConfig.telegramSendMessageEndpoint;
+    const telegramChannelId = configurator.getConfVars().runtimeConfig.telegramChannelId;
+
     this.log(`Publishing rollup: ${rollup.id}`);
     const endTimer = this.metrics.publishTimer();
 
@@ -129,6 +134,17 @@ export class RollupPublisher {
             // We no no longer continue trying to publish if contract state changed.
             if (receipt.revertError.name === 'INCORRECT_STATE_HASH') {
               this.log('Publish failed. Contract state changed underfoot.');
+              if (telegramSendMessageEndpoint && telegramChannelId) {
+                try {
+                  await fetch(`${telegramSendMessageEndpoint}?` + new URLSearchParams({
+                    text: `\u{274C} Failed to publish rollup ${rollup.id}\n\nINCORRECT_STATE_HASH`,
+                    parse_mode: 'HTML',
+                    chat_id: telegramChannelId
+                  }));
+                } catch (e) {
+                  this.log(`Failed to send publish notification: ${e}`);
+                }
+              }
               return false;
             }
           }
@@ -142,6 +158,56 @@ export class RollupPublisher {
       // All succeeded.
       endTimer();
       this.log('Rollup successfully published.');
+
+      // Send notification
+      if (telegramSendMessageEndpoint && telegramChannelId) {
+        const blockExplorer = configurator.getConfVars().blockExplorer;
+        const provider = new ethers.JsonRpcProvider(configurator.getConfVars().ethereumHost);
+        const wallet = new ethers.Wallet(configurator.getConfVars().privateKey.toString('hex'), provider);
+        
+        let walletBalance;
+        try {
+          walletBalance = await provider.getBalance(wallet.address);
+        } catch (e) {
+          this.log(`Failed to get wallet balance: ${e}`);
+        }
+
+        let message = `Publish complete for rollup ${rollup.id}`;
+
+        message += `\n\n<b>Wallet</b>`;
+        message += `\nBalance: ${walletBalance ? `${ethers.formatEther(walletBalance)} MATIC` : '\u{274C} <i>Error</i>'}`;
+
+        for (let i = 0; i < txStatuses.length; i++) {
+          const { txHash, success, name } = txStatuses[i];
+
+          message += `\n\n<b>Transaction #${i + 1}</b>`;
+          message += `\n<i>${name}</i>\n`;
+          message += `${success ? 'Success \u{2705}' : 'Failure \u{274C}'}`;
+
+          if (!txHash) continue;
+
+          const txHashString = txHash.toString();
+
+          if (blockExplorer) {
+            message += `\n<a href="${blockExplorer}/tx/${txHashString}">${txHashString.slice(0, 6)}...${txHashString.slice(-4)}</a>`;
+            continue;
+          }
+
+          message += `\n${txHashString}`;
+        }
+
+        try {
+          await fetch(`${telegramSendMessageEndpoint}?` + new URLSearchParams({
+            text: message,
+            parse_mode: 'HTML',
+            chat_id: telegramChannelId,
+            disable_web_page_preview: 'true'
+          }));
+        } catch (e) {
+          this.log(`Failed to send publish notification: ${e}`);
+        }
+      }
+
       return true;
     }
   }
