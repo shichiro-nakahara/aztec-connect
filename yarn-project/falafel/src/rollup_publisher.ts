@@ -7,8 +7,7 @@ import { fromBaseUnits } from '@aztec/blockchain';
 import { RollupDao } from './entity/index.js';
 import { Metrics } from './metrics/index.js';
 import { RollupDb } from './rollup_db/index.js';
-import { configurator } from './configurator.js';
-import * as ethers from 'ethers';
+import { Notifier } from './notifier.js';
 
 export class RollupPublisher {
   private ethereumRpc: EthereumRpc;
@@ -22,6 +21,7 @@ export class RollupPublisher {
     private callDataLimit: number,
     private metrics: Metrics,
     private log = createLogger('RollupPublisher'),
+    private notifier = new Notifier('RollupPublisher')
   ) {
     this.ethereumRpc = new EthereumRpc(blockchain.getProvider());
   }
@@ -39,12 +39,12 @@ export class RollupPublisher {
       const estimatedCost = estimatedFeePerGas * BigInt(estimatedGas);
 
       this.log(`Signer address: ${signerAddress.toString()}`);
-      this.log(`Signer balance: ${fromBaseUnits(currentBalance, 18, 3)} ETH`);
+      this.log(`Signer balance: ${fromBaseUnits(currentBalance, 18, 3)} MATIC`);
       this.log(`Max fee per gas: ${fromBaseUnits(this.maxFeePerGas, 9, 3)} gwei`);
       this.log(`Estimated fee per gas: ${fromBaseUnits(estimatedFeePerGas, 9, 3)} gwei`);
       this.log(`Estimated gas: ${estimatedGas}`);
-      this.log(`Required balance: ${fromBaseUnits(requiredBalance, 18, 3)} ETH`);
-      this.log(`Estimated cost: ${fromBaseUnits(estimatedCost, 18, 3)} ETH`);
+      this.log(`Required balance: ${fromBaseUnits(requiredBalance, 18, 3)} MATIC`);
+      this.log(`Estimated cost: ${fromBaseUnits(estimatedCost, 18, 3)} MATIC`);
 
       // Wait until gas price is below threshold.
       if (estimatedFeePerGas > this.maxFeePerGas) {
@@ -65,9 +65,6 @@ export class RollupPublisher {
   }
 
   public async publishRollup(rollup: RollupDao, estimatedGas: number) {
-    const telegramSendMessageEndpoint = configurator.getConfVars().runtimeConfig.telegramSendMessageEndpoint;
-    const telegramChannelId = configurator.getConfVars().runtimeConfig.telegramChannelId;
-
     this.log(`Publishing rollup: ${rollup.id}`);
     const endTimer = this.metrics.publishTimer();
 
@@ -91,6 +88,15 @@ export class RollupPublisher {
       { success: false, tx: rollupProofTx, name: 'rollup proof' },
     ];
     const [defaultSignerAddress] = await this.ethereumRpc.getAccounts();
+
+    // Send pre-publish notification
+    const requiredBalance = this.maxFeePerGas * BigInt(estimatedGas);
+    const currentBalance = await this.ethereumRpc.getBalance(defaultSignerAddress);
+
+    let prePublishMessage = `Publishing rollup #${rollup.id}`;
+    prePublishMessage += `\n\n<b>Required Balance</b>\n${fromBaseUnits(requiredBalance, 18, 3)} MATIC`;
+    prePublishMessage += `\n\n<b>Wallet Balance</b>\n${fromBaseUnits(currentBalance, 18, 3)} MATIC`;
+    await this.notifier.send(prePublishMessage);
 
     mainLoop: while (true) {
       await this.awaitGasPriceBelowThresholdAndSufficientBalance(defaultSignerAddress, estimatedGas);
@@ -134,17 +140,7 @@ export class RollupPublisher {
             // We no no longer continue trying to publish if contract state changed.
             if (receipt.revertError.name === 'INCORRECT_STATE_HASH') {
               this.log('Publish failed. Contract state changed underfoot.');
-              if (telegramSendMessageEndpoint && telegramChannelId) {
-                try {
-                  await fetch(`${telegramSendMessageEndpoint}?` + new URLSearchParams({
-                    text: `\u{274C} Failed to publish rollup ${rollup.id}\n\nINCORRECT_STATE_HASH`,
-                    parse_mode: 'HTML',
-                    chat_id: telegramChannelId
-                  }));
-                } catch (e) {
-                  this.log(`Failed to send publish notification: ${e}`);
-                }
-              }
+              await this.notifier.send(`\u{274C} Failed to publish rollup #${rollup.id}\n\nINCORRECT_STATE_HASH`);
               return false;
             }
           }
@@ -159,54 +155,18 @@ export class RollupPublisher {
       endTimer();
       this.log('Rollup successfully published.');
 
-      // Send notification
-      if (telegramSendMessageEndpoint && telegramChannelId) {
-        const blockExplorer = configurator.getConfVars().blockExplorer;
-        const provider = new ethers.JsonRpcProvider(configurator.getConfVars().ethereumHost);
-        const wallet = new ethers.Wallet(configurator.getConfVars().privateKey.toString('hex'), provider);
-        
-        let walletBalance;
-        try {
-          walletBalance = await provider.getBalance(wallet.address);
-        } catch (e) {
-          this.log(`Failed to get wallet balance: ${e}`);
-        }
+      // Send post-publish notification
+      let postPublishMessage = `Publish complete for rollup #${rollup.id}`;
+      for (let i = 0; i < txStatuses.length; i++) {
+        const { txHash, success, name } = txStatuses[i];
 
-        let message = `Publish complete for rollup ${rollup.id}`;
+        postPublishMessage += `\n\n<b>Transaction #${i + 1}</b>`;
+        postPublishMessage += `\n<i>${name}</i>\n`;
+        postPublishMessage += `${success ? 'Success \u{2705}' : 'Failure \u{274C}'}`;
 
-        message += `\n\n<b>Wallet</b>`;
-        message += `\nBalance: ${walletBalance ? `${ethers.formatEther(walletBalance)} MATIC` : '\u{274C} <i>Error</i>'}`;
-
-        for (let i = 0; i < txStatuses.length; i++) {
-          const { txHash, success, name } = txStatuses[i];
-
-          message += `\n\n<b>Transaction #${i + 1}</b>`;
-          message += `\n<i>${name}</i>\n`;
-          message += `${success ? 'Success \u{2705}' : 'Failure \u{274C}'}`;
-
-          if (!txHash) continue;
-
-          const txHashString = txHash.toString();
-
-          if (blockExplorer) {
-            message += `\n<a href="${blockExplorer}/tx/${txHashString}">${txHashString.slice(0, 6)}...${txHashString.slice(-4)}</a>`;
-            continue;
-          }
-
-          message += `\n${txHashString}`;
-        }
-
-        try {
-          await fetch(`${telegramSendMessageEndpoint}?` + new URLSearchParams({
-            text: message,
-            parse_mode: 'HTML',
-            chat_id: telegramChannelId,
-            disable_web_page_preview: 'true'
-          }));
-        } catch (e) {
-          this.log(`Failed to send publish notification: ${e}`);
-        }
+        if (txHash) postPublishMessage += `\n{{ ${txHash.toString()} }}`;
       }
+      await this.notifier.send(postPublishMessage);
 
       return true;
     }
