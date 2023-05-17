@@ -60,4 +60,8 @@ export class AztecSdkUser {
   public async getDefiTxs() {
     return await this.sdk.getDefiTxs(this.id);
   }
+
+  public async decryptJoinSplitNotes(offchainTxData: Buffer[]) {
+    return await this.sdk.decryptJoinSplitNotes(this.id, offchainTxData);
+  }
 }

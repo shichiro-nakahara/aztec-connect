@@ -326,6 +326,26 @@ export class UserState extends EventEmitter {
     this.emit(UserStateEvent.UPDATED_USER_STATE, this.userData.accountPublicKey);
   }
 
+  public async decryptJoinSplitNotes(offchainTxData: Buffer[]) {
+    // Extract viewing keys
+    const viewingKeys: ViewingKey[] = [];
+    offchainTxData.forEach((row) => {
+      const offchainJointSplitData = OffchainJoinSplitData.fromBuffer(row);
+      viewingKeys.push(...offchainJointSplitData.viewingKeys)
+    });
+
+    const viewingKeysBuf = Buffer.concat(viewingKeys.flat().map(vk => vk.toBuffer()));
+
+    const decryptedNotes = await batchDecryptNotes(
+      viewingKeysBuf,
+      this.userData.accountPrivateKey,
+      this.noteDecryptor,
+      this.grumpkin,
+    );
+
+    return decryptedNotes;
+  }
+
   // ---------------
   // PRIVATE METHODS
   // ---------------

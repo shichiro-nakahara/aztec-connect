@@ -664,6 +664,10 @@ export class AztecSdk extends EventEmitter {
     return await this.core.getBlocks(from, take);
   }
 
+  public async decryptJoinSplitNotes(userId: GrumpkinAddress, offchainTxData: Buffer[]) {
+    return await this.core.decryptJoinSplitNotes(userId, offchainTxData);
+  }
+
   // Exposing for medici. Remove once they have proper multisig api.
   public getCoreSdk() {
     return this.core;
