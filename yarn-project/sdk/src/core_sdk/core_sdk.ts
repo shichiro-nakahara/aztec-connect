@@ -1002,6 +1002,10 @@ export class CoreSdk extends EventEmitter {
     await retryUntil(defiSettled, `defi settlement: ${txId}`, timeout);
   }
 
+  public async decryptJoinSplitNotes(userId: GrumpkinAddress, offchainTxData: Buffer[]) {
+    return await this.getUserState(userId).decryptJoinSplitNotes(offchainTxData);
+  }
+
   // ---------------
   // PRIVATE METHODS
   // ---------------
