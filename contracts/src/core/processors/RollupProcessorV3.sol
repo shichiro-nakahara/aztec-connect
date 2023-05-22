@@ -122,7 +122,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
      * | 224          | 8           | Lock enum used to guard against reentrancy attacks (minimum value to store in is uint8)
      * | 232          | 8           | pause flag, true if contract is paused, false otherwise
      * | 240          | 8           | capped flag, true if assets should check cap, false otherwise
-     * | 248          | 8           | Aave pause flag, if true deposit/withdraw functions will deposit/withdraw assets from Aave pools
      *
      * Note: (RollupState struct gets packed to 1 storage slot -> bit offset signifies location withing the 256 bit string)
      */
@@ -134,7 +133,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
         Lock lock;
         bool paused;
         bool capped;
-        bool aavePaused;
     }
 
     /**
@@ -283,6 +281,7 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
     bytes32 public constant EMERGENCY_ROLE = keccak256("EMERGENCY_ROLE");
     bytes32 public constant LISTER_ROLE = keccak256("LISTER_ROLE");
     bytes32 public constant RESUME_ROLE = keccak256("RESUME_ROLE");
+    bytes32 public constant AAVE_ADMIN_ROLE = keccak256("AAVE_ADMIN_ROLE");
 
     // bounds used for escape hatch
     uint256 public immutable escapeBlockLowerBound;
@@ -370,26 +369,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
         if (aavePoolProxy == address(0) || nativeWrappedToken == address(0)) {
             revert AAVE_NOT_INITIALIZED();
         } 
-        _;
-    }
-
-    /**
-     * @notice A modifier reverting if Aave isn't paused
-     */
-    modifier whenAavePaused() {
-        if (!rollupState.aavePaused) {
-            revert NOT_PAUSED();
-        }
-        _;
-    }
-
-    /**
-     * @notice A modifier reverting if Aave is paused
-     */
-    modifier whenAaveNotPaused() {
-        if (rollupState.aavePaused) {
-            revert NOT_PAUSED();
-        }
         _;
     }
     
@@ -534,7 +513,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
 
         // Setup native asset (assetId == 0)
         aaveAssetDeposited.push(0);
-        rollupState.aavePaused = true;
     }
 
     /*----------------------------------------
@@ -548,7 +526,7 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
      */
     function initAave(address _aavePoolProxy, address _nativeWrappedToken)
         external 
-        onlyRole(OWNER_ROLE) 
+        onlyRole(AAVE_ADMIN_ROLE) 
         noReenter
     {
         aavePoolProxy = _aavePoolProxy;
@@ -556,35 +534,78 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
     }
 
     /**
-     * @notice A function which allows the holders of the OWNER_ROLE role to pause Aave deposits/withdrawals
+     * @notice Deposit asset to corresponding Aave liquidity pool
+     * @param _assetId id of the asset being deposited
+     * @param _amount amount of asset being deposited
      */
-    function pauseAave() external onlyRole(OWNER_ROLE) aaveInitialized whenAaveNotPaused noReenter {
-        rollupState.aavePaused = true;
+    function depositToLP(uint256 _assetId, uint256 _amount) 
+        external
+        onlyRole(AAVE_ADMIN_ROLE)
+        aaveInitialized
+        noReenter
+    {
+        address assetAddress = _assetId == ETH_ASSET_ID ? nativeWrappedToken : getSupportedAsset(_assetId);
 
-        // All user funds must be withdrawn from the pools
-        withdrawFromLP(ETH_ASSET_ID, aaveAssetDeposited[ETH_ASSET_ID], true);
+        // If the asset is native, we need to wrap it first
+        if (_assetId == ETH_ASSET_ID) IWETH(assetAddress).deposit{value: _amount}();
 
-        for (uint256 assetId = 1; assetId <= supportedAssets.length; assetId++) {
-            address assetAddress = getSupportedAsset(assetId);
+        IERC20(assetAddress).approve(aavePoolProxy, _amount);
 
-            withdrawFromLP(assetId, aaveAssetDeposited[assetId], true);
-        }
+        IPool(aavePoolProxy).supply(assetAddress, _amount, address(this), 0);
+
+        aaveAssetDeposited[_assetId] += _amount;
     }
 
     /**
-     * @dev Allow the holders of the OWNER_ROLE to unpause Aave deposits/withdrawals
+     * @notice Withdraw asset from corresponding Aave liquidity pool
+     * @param _assetId id of the asset being withdrawn
+     * @param _amount amount of asset being withdrawn
+     * @param _userRequested if true, aaveAssetDeposited will be updated
      */
-    function unpauseAave() external onlyRole(OWNER_ROLE) aaveInitialized whenAavePaused noReenter {
-        rollupState.aavePaused = false;
+    function withdrawFromLP(uint256 _assetId, uint256 _amount, bool _userRequested)
+        public
+        onlyRole(AAVE_ADMIN_ROLE)
+        aaveInitialized
+        noReenter 
+    {
+        address assetAddress = _assetId == ETH_ASSET_ID ? nativeWrappedToken : getSupportedAsset(_assetId);
 
-        // All user funds must be deposited to the pools
-        depositToLP(ETH_ASSET_ID, address(this).balance);
+        IPool(aavePoolProxy).withdraw(assetAddress, _amount, address(this));
 
-        for (uint256 assetId = 1; assetId <= supportedAssets.length; assetId++) {
-            address assetAddress = getSupportedAsset(assetId);
+        // If the asset is native, we need to unwrap it first
+        if (_assetId == ETH_ASSET_ID) IWETH(assetAddress).withdraw(_amount);
 
-            depositToLP(assetId, IERC20(assetAddress).balanceOf(address(this)));
+        if (_userRequested) aaveAssetDeposited[_assetId] -= _amount;
+    }
+
+    /**
+     * @notice Withdraw's the interest accured for a particular asset
+     * @param _assetId asset ID which was assigned during asset registration
+     */
+    function withdrawInterest(uint256 _assetId)
+        external
+        onlyRole(OWNER_ROLE)
+        aaveInitialized
+        noReenter
+    {
+        address owner = msg.sender;
+        uint256 interestBalance = getInterestBalance(_assetId);
+
+        withdrawFromLP(_assetId, interestBalance, false);
+
+        if (_assetId == ETH_ASSET_ID) {
+            assembly {
+                pop(call(30000, owner, interestBalance, 0, 0, 0, 0))
+            }
+
+            return;
         }
+
+        address assetAddress = getSupportedAsset(_assetId);
+
+        TokenTransfers.transferToDoNotBubbleErrors(
+            assetAddress, owner, interestBalance, assetGasLimits[_assetId]
+        );
     }
 
     /**
@@ -802,36 +823,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
       ----------------------------------------*/
 
     /**
-     * @notice Withdraw's the interest accured for a particular asset
-     * @param _assetId asset ID which was assigned during asset registration
-     */
-    function withdrawInterest(uint256 _assetId)
-        external
-        onlyRole(OWNER_ROLE)
-        aaveInitialized
-        noReenter
-    {
-        address owner = msg.sender;
-        uint256 interestBalance = getInterestBalance(_assetId);
-
-        withdrawFromLP(_assetId, interestBalance, false);
-
-        if (_assetId == ETH_ASSET_ID) {
-            assembly {
-                pop(call(30000, owner, interestBalance, 0, 0, 0, 0))
-            }
-
-            return;
-        }
-
-        address assetAddress = getSupportedAsset(_assetId);
-
-        TokenTransfers.transferToDoNotBubbleErrors(
-            assetAddress, owner, interestBalance, assetGasLimits[_assetId]
-        );
-    }
-
-    /**
      * @notice A function used by bridges to send ETH to the RollupProcessor during an interaction
      * @param _interactionNonce an interaction nonce that used as an ID of this payment
      */
@@ -894,8 +885,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
             }
             TokenTransfers.safeTransferFrom(assetAddress, msg.sender, address(this), _amount);
         }
-
-        if (!rollupState.aavePaused) depositToLP(_assetId, _amount);
     }
 
     /**
@@ -933,45 +922,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
     /*----------------------------------------
       INTERNAL/PRIVATE MUTATING FUNCTIONS 
       ----------------------------------------*/
-
-    /**
-     * @notice Deposit asset to corresponding Aave liquidity pool
-     * @param _assetId id of the asset being deposited
-     * @param _amount amount of asset being deposited
-     */
-    function depositToLP(uint256 _assetId, uint256 _amount) internal {
-        if (_amount == 0) return;
-
-        address assetAddress = _assetId == ETH_ASSET_ID ? nativeWrappedToken : getSupportedAsset(_assetId);
-
-        // If the asset is native, we need to wrap it first
-        if (_assetId == ETH_ASSET_ID) IWETH(assetAddress).deposit{value: _amount}();
-
-        IERC20(assetAddress).approve(aavePoolProxy, _amount);
-
-        IPool(aavePoolProxy).supply(assetAddress, _amount, address(this), 0);
-
-        aaveAssetDeposited[_assetId] += _amount;
-    }
-
-    /**
-     * @notice Withdraw asset from corresponding Aave liquidity pool
-     * @param _assetId id of the asset being withdrawn
-     * @param _amount amount of asset being withdrawn
-     * @param _userRequested if true, aaveAssetDeposited will be updated
-     */
-    function withdrawFromLP(uint256 _assetId, uint256 _amount, bool _userRequested) internal {
-        if (_amount == 0) return;
-
-        address assetAddress = _assetId == ETH_ASSET_ID ? nativeWrappedToken : getSupportedAsset(_assetId);
-
-        IPool(aavePoolProxy).withdraw(assetAddress, _amount, address(this));
-
-        // If the asset is native, we need to unwrap it first
-        if (_assetId == ETH_ASSET_ID) IWETH(assetAddress).withdraw(_amount);
-
-        if (_userRequested) aaveAssetDeposited[_assetId] -= _amount;
-    }
 
     /**
      * @notice A function which increasees pending deposit amount in the `userPendingDeposits` mapping
@@ -1349,9 +1299,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
             uint256 txFee = extractTotalTxFee(_proofData, i);
             if (txFee > 0) {
                 uint256 assetId = extractFeeAssetId(_proofData, i);
-
-                if (!rollupState.aavePaused) withdrawFromLP(assetId, txFee, true);
-
                 if (assetId == ETH_ASSET_ID) {
                     // We explicitly do not throw if this call fails, as this opens up the possiblity of griefing
                     // attacks --> engineering a failed fee would invalidate an entire rollup block. As griefing could
@@ -1389,9 +1336,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
         if (_receiver == address(0)) {
             revert WITHDRAW_TO_ZERO_ADDRESS();
         }
-
-        if (!rollupState.aavePaused) withdrawFromLP(_assetId, _withdrawValue, true);
-
         if (_assetId == 0) {
             assembly {
                 pop(call(30000, _receiver, _withdrawValue, 0, 0, 0, 0))
@@ -1422,14 +1366,6 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
         require (_reserveData.aTokenAddress != address(0));
 
         return IERC20(_reserveData.aTokenAddress).balanceOf(address(this)) - aaveAssetDeposited[_assetId];
-    }
-
-    /**
-     * @notice Function to check if Aave functionality is paused
-     * @return aavePaused true if paused
-     */
-    function aavePaused() external view returns (bool aavePaused) {
-        return rollupState.aavePaused;
     }
 
     receive() external payable {
