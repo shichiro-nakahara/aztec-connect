@@ -31,7 +31,7 @@ contract E2ESetup is Test {
     bool private constant ALLOW_THIRD_PARTY_CONTRACTS = false;
 
     bytes32[4] internal ROLES =
-        [bytes32(0), keccak256("OWNER_ROLE"), keccak256("EMERGENCY_ROLE"), keccak256("LISTER_ROLE")];
+        [bytes32(0), keccak256("OWNER_ROLE"), keccak256("EMERGENCY_ROLE"), keccak256("LISTER_ROLE"), keccak256("AAVE_ADMIN_ROLE")];
 
     struct FullParam {
         address verifier;
@@ -364,6 +364,7 @@ contract E2ESetup is Test {
 
         if (_safe != _deployer) {
             vm.startBroadcast();
+            rollup.revokeRole(ROLES[4], _deployer);
             rollup.revokeRole(ROLES[3], _deployer);
             rollup.revokeRole(ROLES[2], _deployer);
             rollup.revokeRole(ROLES[1], _deployer);
