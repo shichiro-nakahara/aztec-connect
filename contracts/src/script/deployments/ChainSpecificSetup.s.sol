@@ -61,8 +61,8 @@ contract ChainSpecificSetup is Test {
     {
         uint256 chainId = block.chainid;
 
-        //  polygon mainnet   mumbai              zkEVM mainnet      zkEVM testnet
-        if (chainId == 137 || chainId == 80001 || chainId == 1101 || chainId == 1442) {
+        //  polygon mainnet   mumbai              zkEVM mainnet      zkEVM testnet      local test
+        if (chainId == 137 || chainId == 80001 || chainId == 1101 || chainId == 1442 || chainId == 8008) {
             return setupAssetAndBridgesPolygon(_proxy, _permitHelper, _safe, _faucetOperator);
         }
         //       mainnet         dev                stage                testnet
@@ -100,10 +100,6 @@ contract ChainSpecificSetup is Test {
         returns (BridgePeripheryAddresses memory)
     {
         emit log_string("Setting up assets and bridges for Polygon");
-
-        // Deploy Fee Distributor as on fork
-        // vm.broadcast();
-        // AztecFeeDistributor feeDistributor = new AztecFeeDistributor(_safe, _proxy, UNISWAP_V2_ROUTER);
 
         // Deploy faucet
         address faucet = deployFaucet(_faucetOperator);
