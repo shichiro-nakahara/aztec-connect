@@ -18,11 +18,19 @@ import { profileRollup, RollupProfile } from './rollup_profiler.js';
 import { RollupDao, RollupProcessTimeDao } from '../entity/index.js';
 import { InterruptError } from '@aztec/barretenberg/errors';
 import { BridgeSubsidyProvider } from '../bridge/bridge_subsidy_provider.js';
+import { Blockchain } from '@aztec/barretenberg/blockchain';
+import { fromBaseUnits } from '@aztec/blockchain';
+import { configurator } from '../configurator.js';
 
 enum RollupCoordinatorState {
   BUILDING,
   PUBLISHING,
   INTERRUPTED,
+}
+
+interface AssetTransfer {
+  deposit: bigint;
+  withdraw: bigint;
 }
 
 export class RollupCoordinator {
@@ -47,6 +55,7 @@ export class RollupCoordinator {
     private maxGasForRollup: number,
     private maxCallDataForRollup: number,
     private metrics: Metrics,
+    private blockchain: Blockchain,
     private log = console.log,
   ) {
     this.totalSlots = this.numOuterRollupProofs * this.numInnerRollupTxs;
@@ -458,6 +467,8 @@ export class RollupCoordinator {
     });
     this.rollupDb.addProcessTime(rollupProcessTime);
 
+    await this.performAaveTransfers();
+
     // Trigger building of inner rollups in parallel.
     const rollupProofDaos = await Promise.all(
       txRollups.map((txRollup, i) =>
@@ -520,7 +531,7 @@ export class RollupCoordinator {
   }
 
   private async printRollupState(rollupProfile: RollupProfile, timeout: boolean, flush: boolean, limit: boolean) {
-    this.log(`RollupCoordinator: Creating rollup...`);
+    this.log(`RollupCoordinator:   Creating rollup...`);
     this.log(`RollupCoordinator:   rollupSize: ${rollupProfile.rollupSize}`);
     const secondClassStr = rollupProfile.totalSecondClassTxs ? ` (${rollupProfile.totalSecondClassTxs} 2nd-class)` : '';
     this.log(`RollupCoordinator:   numTxs: ${rollupProfile.totalTxs}${secondClassStr}`);
@@ -538,7 +549,7 @@ export class RollupCoordinator {
     for (const bp of rollupProfile.bridgeProfiles.values()) {
       const bridgeDescription = await this.bridgeResolver.getBridgeDescription(bp.bridgeCallData);
       const descriptionLog = bridgeDescription ? `(${bridgeDescription})` : '';
-      this.log(`RollupCoordinator: Defi bridge published: ${bp.bridgeCallData.toString()} ${descriptionLog}`);
+      this.log(`RollupCoordinator:   Defi bridge published: ${bp.bridgeCallData.toString()} ${descriptionLog}`);
       this.log(`RollupCoordinator:   numTxs: ${bp.numTxs}`);
       this.log(
         `RollupCoordinator:   gas balance (subsidy): ${bp.gasAccrued + bp.gasSubsidy - bp.gasThreshold} (${
@@ -598,5 +609,56 @@ export class RollupCoordinator {
     const outOfSlots = rollupProfile.totalTxs == this.totalSlots;
 
     return { isProfitable, deadline, outOfGas, outOfCallData, outOfSlots };
+  }
+
+  private async performAaveTransfers() {
+    const { aavePaused, aaveBuffer } = configurator.getConfVars().runtimeConfig;
+
+    const blockchainStatus = this.blockchain.getBlockchainStatus();
+
+    // TODO: Get amount of each Aave deposited asset
+
+    if (aavePaused) {
+      // TODO: If there are any assets with Aave, withdraw them
+      return;
+    }
+
+    // For each asset determine the total amount deposited or withdrawn to/from the contract
+
+    const contractTransfers: AssetTransfer[] = new Array(blockchainStatus.assets.length);
+    contractTransfers.fill({ deposit: 0n, withdraw: 0n });
+
+    // TxType[0] = DEPOSIT;
+    // TxType[1] = TRANSFER;
+    // TxType[2] = WITHDRAW_TO_WALLET;
+    // TxType[3] = WITHDRAW_HIGH_GAS;
+    // TxType[4] = ACCOUNT;
+    // TxType[5] = DEFI_DEPOSIT;
+    // TxType[6] = DEFI_CLAIM;
+
+    this.processedTxs.forEach((processedTx) => {
+      const publicValue = BigInt(`0x${processedTx.tx.proofData.slice(0xa0, 0xa0 + 32).toString('hex')}`);
+      const publicOwner = `0x${processedTx.tx.proofData.slice(0xc0 + 12, 0xc0 + 32).toString('hex')}`;
+      const assetId = Number(`0x${processedTx.tx.proofData.slice(0xe0, 0xe0 + 32).toString('hex')}`);
+
+      console.log({
+        txType: processedTx.tx.txType,
+        publicValue: fromBaseUnits(publicValue, 18, 4),
+        publicOwner: publicOwner,
+        assetId: assetId
+      });
+
+      if (processedTx.tx.txType == 0) {
+        contractTransfers[assetId].deposit += publicValue;
+        return;
+      }
+
+      if (processedTx.tx.txType == 2 || processedTx.tx.txType == 3) {
+        contractTransfers[assetId].withdraw += publicValue;
+      } 
+    });
+
+    // TODO: Deposit/withdraw assets from Aave.
+    // After the rollup has been processed, the amount of each asset in the contract should be 'aaveBuffer'.
   }
 }

@@ -5,12 +5,9 @@ pragma solidity >=0.8.4;
 import {Test} from "forge-std/Test.sol";
 import {PermitHelper} from "periphery/PermitHelper.sol";
 import {RollupProcessorV2} from "core/processors/RollupProcessorV2.sol";
-import {RollupProcessorV3} from "core/processors/RollupProcessorV3.sol";
 import {AggregateDeployment} from "bridge-deployments/AggregateDeployment.s.sol";
 import {ERC20Permit} from "../../test/mocks/ERC20Permit.sol";
 import {AztecFeeDistributor} from "periphery/AztecFeeDistributor.sol";
-import {GasOracle} from "core/libraries/GasOracle.sol";
-import {RollupProcessorV3} from "core/processors/RollupProcessorV3.sol";
 
 // Mocks
 import {DummyDefiBridge} from "../../test/mocks/DummyDefiBridge.sol";
@@ -26,15 +23,9 @@ contract ChainSpecificSetup is Test {
     address internal constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address internal constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
-    // Polygon key addresses
-    address internal constant POLYGON_DAI = 0xF14f9596430931E177469715c591513308244e8F; // Mumbai
-
     // Mainnet addresses for criticial components
     address internal constant MAINNET_GAS_PRICE_FEED = 0x169E633A2D1E6c10dD91238Ba11c4A708dfEF37C;
     address internal constant MAINNET_DAI_PRICE_FEED = 0x773616E4d11A78F511299002da57A0a94577F1f4;
-
-    // Polygon addresses for criticial components
-    address internal constant POLYGON_DAI_PRICE_FEED = 0xFC539A559e170f848323e19dfD66007520510085; // DAI:ETH price on Polygon POS (Mainnet)
 
     /// @notice Addresses that are returned when setting up a testnet
     struct BridgePeripheryAddresses {
@@ -61,12 +52,8 @@ contract ChainSpecificSetup is Test {
     {
         uint256 chainId = block.chainid;
 
-        //  polygon mainnet   mumbai              zkEVM mainnet      zkEVM testnet      local test
-        if (chainId == 137 || chainId == 80001 || chainId == 1101 || chainId == 1442 || chainId == 8008) {
-            return setupAssetAndBridgesPolygon(_proxy, _permitHelper, _safe, _faucetOperator);
-        }
-        //       mainnet         dev                stage                testnet
-        else if (chainId == 1 || chainId == 3567 || chainId == 359059 || chainId == 677868) {
+        //   mainnet          dev               stage                testnet
+        if (chainId == 1 || chainId == 3567 || chainId == 359059 || chainId == 677868) {
             // Deploy Data Provider and list bridges | assets
             (address dataProvider, address feeDistributor) = setupAssetAndBridgesMainnet(_proxy, _permitHelper, _safe);
 
@@ -85,38 +72,6 @@ contract ChainSpecificSetup is Test {
         } else {
             return setupAssetsAndBridgesTests(_proxy, _permitHelper, _faucetOperator);
         }
-    }
-
-    /**
-     * @notice Deploys bridges for full setup with the aggregate deployment from bridges repo
-     * @param _proxy The address of the rollup proxy
-     * @param _permitHelper The address of the permit helper
-     * @param _safe The address of the Multisig Safe
-     * @param _faucetOperator The address of the faucet operator
-     * @return BridgePeripheryAddresses contains dataProvider, priceFeeds, faucet and fee distributor addresses
-     */
-    function setupAssetAndBridgesPolygon(address _proxy, address _permitHelper, address _safe, address _faucetOperator)
-        public
-        returns (BridgePeripheryAddresses memory)
-    {
-        emit log_string("Setting up assets and bridges for Polygon");
-
-        // Deploy faucet
-        address faucet = deployFaucet(_faucetOperator);
-
-        // Use custom gas oracle with fixed priority fee
-        vm.broadcast();
-        GasOracle gasOracle = new GasOracle(5 gwei);
-
-        return BridgePeripheryAddresses({
-            dataProvider: address(0),
-            gasPriceFeed: address(gasOracle),
-            daiPriceFeed: address(0),
-            dai: address(0),
-            btc: address(0),
-            faucet: faucet,
-            feeDistributor: address(0) // TODO: Don't include for now
-        });
     }
 
     /**
