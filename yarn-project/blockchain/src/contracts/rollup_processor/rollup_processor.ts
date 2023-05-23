@@ -22,7 +22,7 @@ import {
 import { Web3Provider } from '@ethersproject/providers';
 import createDebug from 'debug';
 import { BytesLike, Contract, Event, utils } from 'ethers';
-import { RollupProcessorV2 as RollupProcessorAbi, PermitHelper } from '../../abis.js';
+import { RollupProcessorV3 as RollupProcessorAbi, PermitHelper } from '../../abis.js';
 import { decodeErrorFromContract, decodeErrorFromContractByTxHash } from '../decode_error.js';
 import { DefiInteractionEvent } from '@aztec/barretenberg/block_source';
 import { solidityFormatSignatures } from './solidity_format_signatures.js';
@@ -959,5 +959,20 @@ export class RollupProcessor {
 
   public async getRevertError(txHash: TxHash) {
     return await decodeErrorFromContractByTxHash(this.contract, txHash, this.ethereumProvider);
+  }
+
+  public async getAaveAssetDeposited(assetId: number) {
+    const deposited = await this.rollupProcessor.aaveAssetDeposited(assetId)
+    return BigInt(deposited);
+  }
+
+  public async withdrawFromLP(assetId: number, amount: bigint) {
+    const txResponse = await this.rollupProcessor.withdrawFromLP(assetId, amount, true).catch(fixEthersStackTrace);
+    return TxHash.fromString(txResponse.hash);
+  }
+
+  public async depositToLP(assetId: number, amount: bigint) {
+    const txResponse = await this.rollupProcessor.depositToLP(assetId, amount).catch(fixEthersStackTrace);
+    return TxHash.fromString(txResponse.hash);
   }
 }

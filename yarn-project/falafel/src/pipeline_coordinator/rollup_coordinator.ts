@@ -21,6 +21,7 @@ import { BridgeSubsidyProvider } from '../bridge/bridge_subsidy_provider.js';
 import { Blockchain } from '@aztec/barretenberg/blockchain';
 import { fromBaseUnits } from '@aztec/blockchain';
 import { configurator } from '../configurator.js';
+import { Notifier } from '../notifier.js';
 
 enum RollupCoordinatorState {
   BUILDING,
@@ -31,6 +32,11 @@ enum RollupCoordinatorState {
 interface AssetTransfer {
   deposit: bigint;
   withdraw: bigint;
+}
+
+interface HeldAsset {
+  aave: bigint;
+  inContract: bigint;
 }
 
 export class RollupCoordinator {
@@ -57,6 +63,7 @@ export class RollupCoordinator {
     private metrics: Metrics,
     private blockchain: Blockchain,
     private log = console.log,
+    private notifier = new Notifier('RollupCoordinator'),
   ) {
     this.totalSlots = this.numOuterRollupProofs * this.numInnerRollupTxs;
   }
@@ -614,19 +621,58 @@ export class RollupCoordinator {
   private async performAaveTransfers() {
     const { aavePaused, aaveBuffer } = configurator.getConfVars().runtimeConfig;
 
+    console.log(aaveBuffer);
+
     const blockchainStatus = this.blockchain.getBlockchainStatus();
 
-    // TODO: Get amount of each Aave deposited asset
+    // Get amount of each Aave deposited asset
+    const heldAssets: HeldAsset[] = this.fillArray(blockchainStatus.assets.length, { aave: 0n, inContract: 0n });
 
+    const heldAssetPromises = [];
+    for (let assetId = 0; assetId < heldAssets.length; assetId++) {
+      heldAssetPromises.push(this.blockchain.getAaveAssetDeposited(assetId));
+      heldAssetPromises.push(this.blockchain.getRollupBalance(assetId));
+    }
+
+    try {
+      const results = await Promise.all(heldAssetPromises);
+      for (let i = 0; i < heldAssets.length; i++) {
+        heldAssets[i].aave = results[i * 2];
+        heldAssets[i].inContract = results[(i * 2) + 1];
+      }
+    }
+    catch (e) {
+      this.log('RollupCoordinator: performAaveTransfers error, could not get held assets', e);
+
+      let errorMessage = `\u{1F6A8} performAaveTransfers error`;
+      errorMessage += `\n\n<b>Could not get held assets</b>\n${e.toString()}`;
+      await this.notifier.send(errorMessage);
+
+      return;
+    }
+
+    console.log(heldAssets);
+    
     if (aavePaused) {
-      // TODO: If there are any assets with Aave, withdraw them
+      // If there are any assets with Aave, withdraw them
+      const withdrawPromises = [];
+      for (let assetId = 0; assetId < heldAssets.length; assetId++) {
+        if (heldAssets[assetId].aave > 0n) {
+          this.log(`RollupCoordinator: Withdrawing ${heldAssets[assetId].aave} ${blockchainStatus.assets[assetId].symbol} from Aave LP`);
+          withdrawPromises.push(this.blockchain.withdrawFromLP(assetId, heldAssets[assetId].aave));
+        }
+      }
+
+      await Promise.all(withdrawPromises);
+
       return;
     }
 
     // For each asset determine the total amount deposited or withdrawn to/from the contract
-
-    const contractTransfers: AssetTransfer[] = new Array(blockchainStatus.assets.length);
-    contractTransfers.fill({ deposit: 0n, withdraw: 0n });
+    const contractTransfers: AssetTransfer[] = this.fillArray(
+      blockchainStatus.assets.length, 
+      { deposit: 0n, withdraw: 0n }
+    );
 
     // TxType[0] = DEPOSIT;
     // TxType[1] = TRANSFER;
@@ -658,7 +704,19 @@ export class RollupCoordinator {
       } 
     });
 
+    console.log(contractTransfers);
+
     // TODO: Deposit/withdraw assets from Aave.
     // After the rollup has been processed, the amount of each asset in the contract should be 'aaveBuffer'.
+  }
+
+  // Array.prototype.fill() with object passes by reference
+  private fillArray(length: number, obj: any) {
+    const arr = new Array();
+    for (let i = 0; i < length; i++) {
+      arr[i] = Object.assign({}, obj);
+    }
+
+    return arr;
   }
 }

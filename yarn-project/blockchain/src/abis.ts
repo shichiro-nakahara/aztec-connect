@@ -20,6 +20,7 @@ export { default as DefiBridgeProxy } from './abis/contracts/DefiBridgeProxy.sol
 export { default as AztecFeeDistributor } from './abis/contracts/AztecFeeDistributor.sol/AztecFeeDistributor.json' assert { type: 'json' };
 export { default as RollupProcessor } from './abis/contracts/RollupProcessor.sol/RollupProcessor.json' assert { type: 'json' };
 export { default as RollupProcessorV2 } from './abis/contracts/RollupProcessorV2.sol/RollupProcessorV2.json' assert { type: 'json' };
+export { default as RollupProcessorV3 } from './abis/contracts/RollupProcessorV3.sol/RollupProcessorV3.json' assert { type: 'json' };
 
 export { default as AlwaysTrueVerifier } from './abis/contracts/AlwaysTrueVerifier.sol/AlwaysTrueVerifier.json' assert { type: 'json' };
 export { default as MockVerifier } from './abis/contracts/MockVerifier.sol/MockVerifier.json' assert { type: 'json' };

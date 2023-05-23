@@ -110,4 +110,10 @@ export interface Blockchain extends BlockSource, BlockchainStatusSource, Ethereu
   getBridgeData(bridgeAddressId: number): Promise<BridgeData>;
 
   callbackRollupBlocksFrom(rollupId: number, cb: (block: Block) => Promise<void>);
+
+  getAaveAssetDeposited(assetId: number): Promise<bigint>;
+
+  withdrawFromLP(assetId: number, amount: bigint) : Promise<TxHash>;
+
+  depositToLP(assetId: number, amount: bigint) : Promise<TxHash>;
 }
