@@ -99,6 +99,7 @@ export class RollupPipeline {
       maxCallDataPerRollup,
       gasLimit,
       metrics,
+      blockchain,
     );
   }
 

@@ -16,6 +16,7 @@ import { InterruptError } from '@aztec/barretenberg/errors';
 import { RollupProfile, emptyProfile } from './rollup_profiler.js';
 import { Metrics } from '../metrics/index.js';
 import { InterruptableSleep } from '@aztec/barretenberg/sleep';
+import { Blockchain } from '@aztec/barretenberg/blockchain';
 
 export class PipelineCoordinator {
   private flush = false;
@@ -45,6 +46,7 @@ export class PipelineCoordinator {
     private maxCallDataPerRollup: number,
     private maxGasPerRollup: number,
     private metrics: Metrics,
+    private blockchain: Blockchain,
     private pollIntervalSeconds = 5,
   ) {
     this.publishTimeManager = new PublishTimeManager(this.publishInterval);
@@ -193,6 +195,7 @@ export class PipelineCoordinator {
       this.maxGasPerRollup,
       this.maxCallDataPerRollup,
       this.metrics,
+      this.blockchain
     );
   }
 

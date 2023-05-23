@@ -93,6 +93,8 @@ const defaultStartupConfig: StartupConfig = {
 export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   telegramSendMessageEndpoint: string | undefined;
   telegramChannelId: string | undefined;
+  aavePaused: boolean,
+  aaveBuffer: number
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
@@ -115,7 +117,9 @@ const defaultRuntimeConfig: RuntimeConfig = {
   depositLimit: 10,
   blacklist: [],
   telegramSendMessageEndpoint: undefined,
-  telegramChannelId: undefined
+  telegramChannelId: undefined,
+  aavePaused: true,
+  aaveBuffer: 0.2 // Reserve 20% of assets
 };
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {
@@ -187,7 +191,7 @@ function getRuntimeConfigEnvVars(): Partial<RuntimeConfig> {
     FEE_DISTRIBUTOR_ADDRESS,
     DEPOSIT_LIMIT,
     TELEGRAM_SEND_MESSAGE_ENDPOINT,
-    TELEGRAM_CHANNEL_ID
+    TELEGRAM_CHANNEL_ID,    
   } = process.env;
 
   const envVars = {
