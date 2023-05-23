@@ -88,9 +88,11 @@ contract UpgradeV4 is Test {
         // Update roles
         bytes32 lister = ROLLUP.LISTER_ROLE();
         bytes32 resume = ROLLUP.RESUME_ROLE();
+        bytes32 aaveAdmin = ROLLUP.AAVE_ADMIN_ROLE();
         vm.startBroadcast();
         ROLLUP.grantRole(lister, tx.origin);
         ROLLUP.grantRole(resume, tx.origin);
+        ROLLUP.grantRole(aaveAdmin, tx.origin);
         vm.stopBroadcast();
 
         // Checks
