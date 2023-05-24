@@ -18,7 +18,7 @@ import { profileRollup, RollupProfile } from './rollup_profiler.js';
 import { RollupDao, RollupProcessTimeDao } from '../entity/index.js';
 import { InterruptError } from '@aztec/barretenberg/errors';
 import { BridgeSubsidyProvider } from '../bridge/bridge_subsidy_provider.js';
-import { Blockchain } from '@aztec/barretenberg/blockchain';
+import { Blockchain, TxHash } from '@aztec/barretenberg/blockchain';
 import { fromBaseUnits } from '@aztec/blockchain';
 import { configurator } from '../configurator.js';
 import { Notifier } from '../notifier.js';
@@ -621,7 +621,7 @@ export class RollupCoordinator {
   private async performAaveTransfers() {
     const { aavePaused, aaveBuffer } = configurator.getConfVars().runtimeConfig;
 
-    console.log(aaveBuffer);
+    this.log(`RollupCoordinator: performAaveTransfers, buffer: ${aaveBuffer}`);
 
     const blockchainStatus = this.blockchain.getBlockchainStatus();
 
@@ -706,8 +706,48 @@ export class RollupCoordinator {
 
     console.log(contractTransfers);
 
-    // TODO: Deposit/withdraw assets from Aave.
+    // Deposit/withdraw assets from Aave.
     // After the rollup has been processed, the amount of each asset in the contract should be 'aaveBuffer'.
+    const aavePromises: Promise<TxHash>[] = [];
+
+    for (let assetId = 0; assetId < contractTransfers.length; assetId++) {
+      const symbol = blockchainStatus.assets[assetId].symbol;
+      const inContract = heldAssets[assetId].inContract + contractTransfers[assetId].deposit 
+        - contractTransfers[assetId].withdraw;
+      const total = inContract + heldAssets[assetId].aave;
+
+      this.log(`RollupCoordinator: ${total} ${symbol} (a: ${heldAssets[assetId].aave}, c: ${inContract})`);
+
+      const expectedInContract = BigInt(aaveBuffer * Number(inContract + heldAssets[assetId].aave));
+
+      if (expectedInContract > inContract) {
+        const toWithdraw = expectedInContract - inContract;
+        this.log(`RollupCoordinator: Withdrawing ${toWithdraw} ${symbol} from Aave LP`);
+        aavePromises.push(this.blockchain.withdrawFromLP(assetId, toWithdraw));
+        return;
+      }      
+
+      if (expectedInContract < inContract) {
+        const toDeposit = inContract - expectedInContract;
+        this.log(`RollupCoordinator: Depositing ${toDeposit} ${symbol} to Aave LP`);
+        aavePromises.push(this.blockchain.depositToLP(assetId, toDeposit));
+        return;
+      }
+    }
+
+    if (aavePromises.length == 0) return;
+
+    try {
+      const txHashes = await Promise.all(aavePromises);
+      console.log(txHashes.map((txHash) => txHash.toString()));
+    }
+    catch (e) {
+      this.log('RollupCoordinator: performAaveTransfers error, could not action Aave transfers', e);
+
+      let errorMessage = `\u{1F6A8} performAaveTransfers error`;
+      errorMessage += `\n\n<b>Could not action Aave transfers</b>\n${e.toString()}`;
+      await this.notifier.send(errorMessage);
+    }
   }
 
   // Array.prototype.fill() with object passes by reference
