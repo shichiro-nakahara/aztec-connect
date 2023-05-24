@@ -639,9 +639,9 @@ export class RollupCoordinator {
       }
     }
     catch (e) {
-      this.log('RollupCoordinator: performAaveTransfers error, could not get held assets', e);
+      this.log('RollupCoordinator: Aave transfer error, could not get held assets', e);
 
-      let errorMessage = `\u{1F6A8} performAaveTransfers error`;
+      let errorMessage = `\u{1F6A8} Aave transfer error`;
       errorMessage += `\n\n<b>Could not get held assets</b>\n${e.toString()}`;
       await this.notifier.send(errorMessage);
 
@@ -706,12 +706,14 @@ export class RollupCoordinator {
       const inContract = heldAssets[assetId].inContract - contractWithdrawals[assetId];
       const total = inContract + heldAssets[assetId].aave;
 
-      const totalReadable = fromBaseUnits(total, 18, 4);
-      const heldReadable = fromBaseUnits(heldAssets[assetId].aave, 18, 4);
-      const inContractReadable = fromBaseUnits(inContract, 18, 4);
-      this.log(`RollupCoordinator: ${totalReadable} ${symbol} (a: ${heldReadable}, c: ${inContractReadable})`);
-
+      const totalHR = fromBaseUnits(total, 18, 4);
+      const aaveHR = fromBaseUnits(heldAssets[assetId].aave, 18, 4);
+      const inContractHR = fromBaseUnits(inContract, 18, 4);
+      this.log(`RollupCoordinator: Post-rollup values ${totalHR} ${symbol} (a: ${aaveHR}, c: ${inContractHR})`);
+      
       const expectedInContract = BigInt(aaveBuffer * Number(total));
+      const expectedInContractHR = fromBaseUnits(expectedInContract, 18, 4);
+      this.log(`RollupCoordinator: Expected in contract ${expectedInContractHR} ${symbol}`);
 
       if (expectedInContract > inContract) {
         const toWithdraw = expectedInContract - inContract;
@@ -733,12 +735,17 @@ export class RollupCoordinator {
     try {
       console.log('Sending Aave transactions!');
       const txHashes = await Promise.all(aavePromises);
-      console.log(txHashes.map((txHash) => txHash.toString()));
+
+      let message = `\u{2705} Aave transfers successful!\n\n`;
+      txHashes.forEach((txHash) => {
+        message += `{{ ${txHash.toString()} }}\n`;
+      });
+      await this.notifier.send(message);
     }
     catch (e) {
-      this.log('RollupCoordinator: performAaveTransfers error, could not action Aave transfers', e);
+      this.log('RollupCoordinator: Aave transfer error, could not action Aave transfers', e);
 
-      let errorMessage = `\u{1F6A8} performAaveTransfers error`;
+      let errorMessage = `\u{1F6A8} Aave transfer error`;
       errorMessage += `\n\n<b>Could not action Aave transfers</b>\n${e.toString()}`;
       await this.notifier.send(errorMessage);
     }
