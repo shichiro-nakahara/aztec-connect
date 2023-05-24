@@ -30,11 +30,6 @@ enum RollupCoordinatorState {
   INTERRUPTED,
 }
 
-interface AssetTransfer {
-  deposit: bigint;
-  withdraw: bigint;
-}
-
 interface HeldAsset {
   aave: bigint;
   inContract: bigint;
@@ -671,11 +666,9 @@ export class RollupCoordinator {
       return;
     }
 
-    // For each asset determine the total amount deposited or withdrawn to/from the contract
-    const contractTransfers: AssetTransfer[] = this.fillArray(
-      blockchainStatus.assets.length, 
-      { deposit: 0n, withdraw: 0n }
-    );
+    // For each asset determine the total amount withdrawn from the contract
+    // Note: The deposits are already included in HeldAasset.inContract
+    const contractWithdrawals: bigint[] = (new Array(blockchainStatus.assets.length)).fill(0n);
 
     // TxType[0] = DEPOSIT;
     // TxType[1] = TRANSFER;
@@ -697,26 +690,20 @@ export class RollupCoordinator {
         assetId: assetId
       });
 
-      if (processedTx.tx.txType == 0) {
-        contractTransfers[assetId].deposit += publicValue;
-        return;
-      }
-
       if (processedTx.tx.txType == 2 || processedTx.tx.txType == 3) {
-        contractTransfers[assetId].withdraw += publicValue;
+        contractWithdrawals[assetId] += publicValue;
       } 
     });
 
-    console.log(contractTransfers);
+    console.log(contractWithdrawals);
 
     // Deposit/withdraw assets from Aave.
     // After the rollup has been processed, the amount of each asset in the contract should be 'aaveBuffer'.
     const aavePromises: Promise<TxHash>[] = [];
 
-    for (let assetId = 0; assetId < contractTransfers.length; assetId++) {
+    for (let assetId = 0; assetId < contractWithdrawals.length; assetId++) {
       const symbol = blockchainStatus.assets[assetId].symbol;
-      const inContract = heldAssets[assetId].inContract + contractTransfers[assetId].deposit 
-        - contractTransfers[assetId].withdraw;
+      const inContract = heldAssets[assetId].inContract - contractWithdrawals[assetId];
       const total = inContract + heldAssets[assetId].aave;
 
       const totalReadable = fromBaseUnits(total, 18, 4);
@@ -724,7 +711,7 @@ export class RollupCoordinator {
       const inContractReadable = fromBaseUnits(inContract, 18, 4);
       this.log(`RollupCoordinator: ${totalReadable} ${symbol} (a: ${heldReadable}, c: ${inContractReadable})`);
 
-      const expectedInContract = BigInt(aaveBuffer * Number(inContract + heldAssets[assetId].aave));
+      const expectedInContract = BigInt(aaveBuffer * Number(total));
 
       if (expectedInContract > inContract) {
         const toWithdraw = expectedInContract - inContract;
