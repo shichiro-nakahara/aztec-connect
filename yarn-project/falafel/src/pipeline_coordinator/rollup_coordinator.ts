@@ -22,6 +22,7 @@ import { Blockchain, TxHash } from '@aztec/barretenberg/blockchain';
 import { fromBaseUnits } from '@aztec/blockchain';
 import { configurator } from '../configurator.js';
 import { Notifier } from '../notifier.js';
+import { EthAddress } from '@aztec/barretenberg/address';
 
 enum RollupCoordinatorState {
   BUILDING,
@@ -62,6 +63,7 @@ export class RollupCoordinator {
     private maxCallDataForRollup: number,
     private metrics: Metrics,
     private blockchain: Blockchain,
+    private signingAddress: EthAddress,
     private log = console.log,
     private notifier = new Notifier('RollupCoordinator'),
   ) {
@@ -621,7 +623,7 @@ export class RollupCoordinator {
   private async performAaveTransfers() {
     const { aavePaused, aaveBuffer } = configurator.getConfVars().runtimeConfig;
 
-    this.log(`RollupCoordinator: performAaveTransfers, buffer: ${aaveBuffer}`);
+    this.log(`RollupCoordinator: Aave - buffer: ${aaveBuffer}, signingAddress: ${this.signingAddress.toString()}`);
 
     const blockchainStatus = this.blockchain.getBlockchainStatus();
 
@@ -658,8 +660,9 @@ export class RollupCoordinator {
       const withdrawPromises = [];
       for (let assetId = 0; assetId < heldAssets.length; assetId++) {
         if (heldAssets[assetId].aave > 0n) {
-          this.log(`RollupCoordinator: Withdrawing ${heldAssets[assetId].aave} ${blockchainStatus.assets[assetId].symbol} from Aave LP`);
-          withdrawPromises.push(this.blockchain.withdrawFromLP(assetId, heldAssets[assetId].aave));
+          const symbol = blockchainStatus.assets[assetId].symbol;
+          this.log(`RollupCoordinator: Withdrawing ${heldAssets[assetId].aave} ${symbol} from Aave LP`);
+          withdrawPromises.push(this.blockchain.withdrawFromLP(assetId, heldAssets[assetId].aave, this.signingAddress));
         }
       }
 
@@ -723,14 +726,14 @@ export class RollupCoordinator {
       if (expectedInContract > inContract) {
         const toWithdraw = expectedInContract - inContract;
         this.log(`RollupCoordinator: Withdrawing ${toWithdraw} ${symbol} from Aave LP`);
-        aavePromises.push(this.blockchain.withdrawFromLP(assetId, toWithdraw));
+        aavePromises.push(this.blockchain.withdrawFromLP(assetId, toWithdraw, this.signingAddress));
         return;
       }      
 
       if (expectedInContract < inContract) {
         const toDeposit = inContract - expectedInContract;
         this.log(`RollupCoordinator: Depositing ${toDeposit} ${symbol} to Aave LP`);
-        aavePromises.push(this.blockchain.depositToLP(assetId, toDeposit));
+        aavePromises.push(this.blockchain.depositToLP(assetId, toDeposit, this.signingAddress));
         return;
       }
     }

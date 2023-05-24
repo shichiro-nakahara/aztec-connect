@@ -272,11 +272,11 @@ export class Contracts {
     return this.rollupProcessor.getAaveAssetDeposited(assetId);
   }
 
-  public async withdrawFromLP(assetId: number, amount: bigint) {
-    return this.rollupProcessor.withdrawFromLP(assetId, amount);
+  public async withdrawFromLP(assetId: number, amount: bigint, signingAddress: EthAddress) {    
+    return this.rollupProcessor.withdrawFromLP(assetId, amount, signingAddress);
   }
 
-  public async depositToLP(assetId: number, amount: bigint) {
-    return this.rollupProcessor.depositToLP(assetId, amount);
+  public async depositToLP(assetId: number, amount: bigint, signingAddress: EthAddress) {
+    return this.rollupProcessor.depositToLP(assetId, amount, signingAddress);
   }
 }

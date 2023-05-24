@@ -36,6 +36,7 @@ export class RollupPipeline {
     numOuterRollupProofs: number,
     bridgeResolver: BridgeResolver,
     maxCallDataPerRollup: number,
+    signingAddress: EthAddress,
     private log = createLogger('RollupPipeline'),
   ) {
     const innerRollupSize = 1 << Math.ceil(Math.log2(numInnerRollupTxs));
@@ -100,6 +101,7 @@ export class RollupPipeline {
       gasLimit,
       metrics,
       blockchain,
+      signingAddress
     );
   }
 
@@ -143,6 +145,7 @@ export class RollupPipelineFactory {
     private numOuterRollupProofs: number,
     private bridgeResolver: BridgeResolver,
     private maxCallDataPerRollup: number,
+    private signingAddress: EthAddress
   ) {}
 
   public setConf(
@@ -188,6 +191,7 @@ export class RollupPipelineFactory {
       this.numOuterRollupProofs,
       this.bridgeResolver,
       this.maxCallDataPerRollup,
+      this.signingAddress
     );
   }
 }
