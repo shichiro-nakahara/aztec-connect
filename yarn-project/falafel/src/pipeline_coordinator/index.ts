@@ -17,6 +17,7 @@ import { RollupProfile, emptyProfile } from './rollup_profiler.js';
 import { Metrics } from '../metrics/index.js';
 import { InterruptableSleep } from '@aztec/barretenberg/sleep';
 import { Blockchain } from '@aztec/barretenberg/blockchain';
+import { EthAddress } from '@aztec/barretenberg/address';
 
 export class PipelineCoordinator {
   private flush = false;
@@ -47,6 +48,7 @@ export class PipelineCoordinator {
     private maxGasPerRollup: number,
     private metrics: Metrics,
     private blockchain: Blockchain,
+    private signingAddress: EthAddress,
     private pollIntervalSeconds = 5,
   ) {
     this.publishTimeManager = new PublishTimeManager(this.publishInterval);
@@ -195,7 +197,8 @@ export class PipelineCoordinator {
       this.maxGasPerRollup,
       this.maxCallDataPerRollup,
       this.metrics,
-      this.blockchain
+      this.blockchain,
+      this.signingAddress
     );
   }
 

@@ -966,13 +966,15 @@ export class RollupProcessor {
     return BigInt(deposited);
   }
 
-  public async withdrawFromLP(assetId: number, amount: bigint) {
-    const txResponse = await this.rollupProcessor.withdrawFromLP(assetId, amount, true).catch(fixEthersStackTrace);
+  public async withdrawFromLP(assetId: number, amount: bigint, signingAddress: EthAddress) {
+    const rollupProcessor = this.getContractWithSigner({ signingAddress });
+    const txResponse = await rollupProcessor.withdrawFromLP(assetId, amount, true).catch(fixEthersStackTrace);
     return TxHash.fromString(txResponse.hash);
   }
 
-  public async depositToLP(assetId: number, amount: bigint) {
-    const txResponse = await this.rollupProcessor.depositToLP(assetId, amount).catch(fixEthersStackTrace);
+  public async depositToLP(assetId: number, amount: bigint, signingAddress: EthAddress) {
+    const rollupProcessor = this.getContractWithSigner({ signingAddress });
+    const txResponse = await rollupProcessor.depositToLP(assetId, amount).catch(fixEthersStackTrace);
     return TxHash.fromString(txResponse.hash);
   }
 }

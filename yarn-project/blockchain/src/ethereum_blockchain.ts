@@ -401,11 +401,11 @@ export class EthereumBlockchain extends EventEmitter implements Blockchain {
     return this.contracts.getAaveAssetDeposited(assetId);
   }
 
-  public async withdrawFromLP(assetId: number, amount: bigint) {
-    return this.contracts.withdrawFromLP(assetId, amount);
+  public async withdrawFromLP(assetId: number, amount: bigint, signingAddress: EthAddress) {
+    return this.contracts.withdrawFromLP(assetId, amount, signingAddress);
   }
 
-  public async depositToLP(assetId: number, amount: bigint) {
-    return this.contracts.depositToLP(assetId, amount);
+  public async depositToLP(assetId: number, amount: bigint, signingAddress: EthAddress) {
+    return this.contracts.depositToLP(assetId, amount, signingAddress);
   }
 }
