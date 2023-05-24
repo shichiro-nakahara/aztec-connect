@@ -719,28 +719,32 @@ export class RollupCoordinator {
         - contractTransfers[assetId].withdraw;
       const total = inContract + heldAssets[assetId].aave;
 
-      this.log(`RollupCoordinator: ${total} ${symbol} (a: ${heldAssets[assetId].aave}, c: ${inContract})`);
+      const totalReadable = fromBaseUnits(total, 18, 4);
+      const heldReadable = fromBaseUnits(heldAssets[assetId].aave, 18, 4);
+      const inContractReadable = fromBaseUnits(inContract, 18, 4);
+      this.log(`RollupCoordinator: ${totalReadable} ${symbol} (a: ${heldReadable}, c: ${inContractReadable})`);
 
       const expectedInContract = BigInt(aaveBuffer * Number(inContract + heldAssets[assetId].aave));
 
       if (expectedInContract > inContract) {
         const toWithdraw = expectedInContract - inContract;
-        this.log(`RollupCoordinator: Withdrawing ${toWithdraw} ${symbol} from Aave LP`);
+        this.log(`RollupCoordinator: Withdrawing ${fromBaseUnits(toWithdraw, 18, 4)} ${symbol} from Aave LP`);
         aavePromises.push(this.blockchain.withdrawFromLP(assetId, toWithdraw, this.signingAddress));
-        return;
+        continue;
       }      
 
       if (expectedInContract < inContract) {
         const toDeposit = inContract - expectedInContract;
-        this.log(`RollupCoordinator: Depositing ${toDeposit} ${symbol} to Aave LP`);
+        this.log(`RollupCoordinator: Depositing ${fromBaseUnits(toDeposit, 18, 4)} ${symbol} to Aave LP`);
         aavePromises.push(this.blockchain.depositToLP(assetId, toDeposit, this.signingAddress));
-        return;
+        continue;
       }
     }
 
     if (aavePromises.length == 0) return;
 
     try {
+      console.log('Sending Aave transactions!');
       const txHashes = await Promise.all(aavePromises);
       console.log(txHashes.map((txHash) => txHash.toString()));
     }
