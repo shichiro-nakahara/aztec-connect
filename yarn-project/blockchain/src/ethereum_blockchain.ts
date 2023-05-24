@@ -396,4 +396,16 @@ export class EthereumBlockchain extends EventEmitter implements Blockchain {
   public async getBridgeData(bridgeAddressId: number) {
     return await this.contracts.getBridgeData(bridgeAddressId);
   }
+
+  public async getAaveAssetDeposited(assetId: number) {
+    return this.contracts.getAaveAssetDeposited(assetId);
+  }
+
+  public async withdrawFromLP(assetId: number, amount: bigint) {
+    return this.contracts.withdrawFromLP(assetId, amount);
+  }
+
+  public async depositToLP(assetId: number, amount: bigint) {
+    return this.contracts.depositToLP(assetId, amount);
+  }
 }
