@@ -94,7 +94,8 @@ export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   telegramSendMessageEndpoint: string | undefined;
   telegramChannelId: string | undefined;
   aavePaused: boolean,
-  aaveBuffer: number
+  aaveBuffer: number,
+  aaveGasMultiplier: number
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
@@ -104,11 +105,11 @@ const defaultRuntimeConfig: RuntimeConfig = {
   flushAfterIdle: 0,
   gasLimit: 12000000,
   verificationGas: 500000,
-  maxFeeGasPrice: 250000000000n, // 250 gwei
+  maxFeeGasPrice: 500000000000n, // 500 gwei
   feeGasPriceMultiplier: 1,
   feeRoundUpSignificantFigures: 2,
-  maxFeePerGas: 250000000000n, // 250 gwei
-  maxPriorityFeePerGas: 2500000000n, // 2.5 gwei
+  maxFeePerGas: 500000000000n, // 500 gwei
+  maxPriorityFeePerGas: 50000000000n, // 50 gwei
   maxUnsettledTxs: 10000,
   defaultDeFiBatchSize: 5,
   bridgeConfigs: [],
@@ -119,7 +120,8 @@ const defaultRuntimeConfig: RuntimeConfig = {
   telegramSendMessageEndpoint: undefined,
   telegramChannelId: undefined,
   aavePaused: true,
-  aaveBuffer: 0.2 // Reserve 20% of assets
+  aaveBuffer: 0.2, // Reserve 20% of assets. Don't set this to 0 (see rollup_coordinator:performAaveTransfers())
+  aaveGasMultiplier: 1
 };
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {

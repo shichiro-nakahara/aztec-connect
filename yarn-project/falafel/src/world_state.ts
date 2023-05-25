@@ -33,6 +33,7 @@ import { RollupDb } from './rollup_db/index.js';
 import { RollupPipeline, RollupPipelineFactory } from './rollup_pipeline.js';
 import { TxFeeResolver } from './tx_fee_resolver/index.js';
 import { BridgeStatsQueryHandler } from './bridge/bridge_stats_query.js';
+import { Notifier } from './notifier.js';
 
 const innerProofDataToTxDao = (
   tx: InnerProofData,
@@ -86,6 +87,7 @@ export class WorldState {
     private disablePipeline = false,
     private expireTxPoolAfter = 60 * 1000,
     private log = createLogger('WorldState'),
+    private notifier = new Notifier('WorldState')
   ) {
     this.bridgeStatsQueryHandler = new BridgeStatsQueryHandler(rollupDb, txFeeResolver);
   }
@@ -317,6 +319,10 @@ export class WorldState {
       this.pipeline = undefined;
       this.log('PIPELINE PANIC! Handle the exception!');
       this.log(err);
+
+      let errorMessage = `\u{1F6A8} PIPELINE PANIC!`;
+      errorMessage += `\n\n${err}`;
+      this.notifier.send(errorMessage);
     });
   }
 
