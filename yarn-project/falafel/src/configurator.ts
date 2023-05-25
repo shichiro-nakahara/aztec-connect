@@ -93,6 +93,9 @@ const defaultStartupConfig: StartupConfig = {
 export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   telegramSendMessageEndpoint: string | undefined;
   telegramChannelId: string | undefined;
+  aavePaused: boolean,
+  aaveBuffer: number,
+  aaveGasMultiplier: number
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
@@ -102,11 +105,11 @@ const defaultRuntimeConfig: RuntimeConfig = {
   flushAfterIdle: 0,
   gasLimit: 12000000,
   verificationGas: 500000,
-  maxFeeGasPrice: 250000000000n, // 250 gwei
+  maxFeeGasPrice: 500000000000n, // 500 gwei
   feeGasPriceMultiplier: 1,
   feeRoundUpSignificantFigures: 2,
-  maxFeePerGas: 250000000000n, // 250 gwei
-  maxPriorityFeePerGas: 2500000000n, // 2.5 gwei
+  maxFeePerGas: 500000000000n, // 500 gwei
+  maxPriorityFeePerGas: 50000000000n, // 50 gwei
   maxUnsettledTxs: 10000,
   defaultDeFiBatchSize: 5,
   bridgeConfigs: [],
@@ -115,7 +118,10 @@ const defaultRuntimeConfig: RuntimeConfig = {
   depositLimit: 10,
   blacklist: [],
   telegramSendMessageEndpoint: undefined,
-  telegramChannelId: undefined
+  telegramChannelId: undefined,
+  aavePaused: true,
+  aaveBuffer: 0.2, // Reserve 20% of assets. Don't set this to 0 (see rollup_coordinator:performAaveTransfers())
+  aaveGasMultiplier: 1
 };
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {
@@ -187,7 +193,7 @@ function getRuntimeConfigEnvVars(): Partial<RuntimeConfig> {
     FEE_DISTRIBUTOR_ADDRESS,
     DEPOSIT_LIMIT,
     TELEGRAM_SEND_MESSAGE_ENDPOINT,
-    TELEGRAM_CHANNEL_ID
+    TELEGRAM_CHANNEL_ID,    
   } = process.env;
 
   const envVars = {
