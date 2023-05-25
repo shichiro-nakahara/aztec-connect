@@ -28,6 +28,7 @@ import { DefiInteractionEvent } from '@aztec/barretenberg/block_source';
 import { solidityFormatSignatures } from './solidity_format_signatures.js';
 import { getEarliestBlock } from '../../earliest_block/index.js';
 import { MemoryFifo, Semaphore } from '@aztec/barretenberg/fifo';
+import { WalletProvider } from '../../index.js';
 
 const fixEthersStackTrace = (err: Error) => {
   err.stack! += new Error().stack;
@@ -966,15 +967,29 @@ export class RollupProcessor {
     return BigInt(deposited);
   }
 
-  public async withdrawFromLP(assetId: number, amount: bigint, signingAddress: EthAddress) {
-    const rollupProcessor = this.getContractWithSigner({ signingAddress });
-    const txResponse = await rollupProcessor.withdrawFromLP(assetId, amount, true).catch(fixEthersStackTrace);
+  public async withdrawFromLP(assetId: number, amount: bigint, signingAddress:EthAddress, options: SendTxOptions = {}) {
+    // The contract from getContractWithSigner() doesn't allow options to be overriden properly.
+    // Setting maxFeePerGas and maxPriorityFeePerGas reverts to default values.
+    // I know this.ethereumProvider is a WalletProvider, so get the Wallet from there and instantiate
+    // the contract manually.
+    const wallet = (<WalletProvider>this.ethereumProvider).getWallet(signingAddress);
+    
+    const rollupProcessor = new Contract(this.rollupContractAddress.toString(), RollupProcessorAbi.abi, wallet);
+    const txResponse = await rollupProcessor.withdrawFromLP(assetId, amount, true, options).catch(fixEthersStackTrace);
+    
     return TxHash.fromString(txResponse.hash);
   }
 
-  public async depositToLP(assetId: number, amount: bigint, signingAddress: EthAddress) {
-    const rollupProcessor = this.getContractWithSigner({ signingAddress });
-    const txResponse = await rollupProcessor.depositToLP(assetId, amount).catch(fixEthersStackTrace);
+  public async depositToLP(assetId: number, amount: bigint, signingAddress: EthAddress, options: SendTxOptions = {}) {
+    // The contract from getContractWithSigner() doesn't allow options to be overriden properly.
+    // Setting maxFeePerGas and maxPriorityFeePerGas reverts to default values.
+    // I know this.ethereumProvider is a WalletProvider, so get the Wallet from there and instantiate
+    // the contract manually.
+    const wallet = (<WalletProvider>this.ethereumProvider).getWallet(signingAddress);
+
+    const rollupProcessor = new Contract(this.rollupContractAddress.toString(), RollupProcessorAbi.abi, wallet);
+    const txResponse = await rollupProcessor.depositToLP(assetId, amount, options).catch(fixEthersStackTrace);
+    
     return TxHash.fromString(txResponse.hash);
   }
 }
