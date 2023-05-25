@@ -123,6 +123,7 @@ export class Server {
       numOuterRollupProofs,
       this.bridgeResolver,
       rollupCallDataLimit,
+      signingAddress
     );
     this.worldState = new WorldState(
       rollupDb,

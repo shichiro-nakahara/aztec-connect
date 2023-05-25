@@ -18,11 +18,35 @@ import { profileRollup, RollupProfile } from './rollup_profiler.js';
 import { RollupDao, RollupProcessTimeDao } from '../entity/index.js';
 import { InterruptError } from '@aztec/barretenberg/errors';
 import { BridgeSubsidyProvider } from '../bridge/bridge_subsidy_provider.js';
+import { Blockchain, TxHash, EthereumRpc } from '@aztec/barretenberg/blockchain';
+import { fromBaseUnits } from '@aztec/blockchain';
+import { configurator } from '../configurator.js';
+import { Notifier } from '../notifier.js';
+import { EthAddress } from '@aztec/barretenberg/address';
+import { sleep } from '@aztec/barretenberg/sleep';
 
 enum RollupCoordinatorState {
   BUILDING,
   PUBLISHING,
   INTERRUPTED,
+}
+
+enum AaveTransactionType {
+  DEPOSIT,
+  WITHDRAW
+}
+
+interface HeldAsset {
+  aave: bigint;
+  inContract: bigint;
+}
+
+interface AaveTransaction {
+  type: AaveTransactionType,
+  txHash: TxHash | null,
+  success: boolean,
+  assetId: number,
+  amount: bigint
 }
 
 export class RollupCoordinator {
@@ -47,7 +71,10 @@ export class RollupCoordinator {
     private maxGasForRollup: number,
     private maxCallDataForRollup: number,
     private metrics: Metrics,
+    private blockchain: Blockchain,
+    private signingAddress: EthAddress,
     private log = console.log,
+    private notifier = new Notifier('RollupCoordinator'),
   ) {
     this.totalSlots = this.numOuterRollupProofs * this.numInnerRollupTxs;
   }
@@ -451,12 +478,24 @@ export class RollupCoordinator {
         ),
     );
 
+    const error = await this.performAaveTransfers();
+    if (error) {
+      this.log(`RollupCoordinator: Aave transfers could not complete: ${error.title}`);
+      this.log(error.message);
+
+      let errorMessage = `\u{1F6A8} Aave transfer error`;
+      errorMessage += `\n\n<b>${error.title}</b>\n${error.message}`;
+      await this.notifier.send(errorMessage);
+
+      return rollupProfile;
+    }
+
     // Record basic stats on rollup (used to implement custom block timer)
     const rollupProcessTime = new RollupProcessTimeDao({
       innerRollupCount: txRollups.length,
       started: new Date()
     });
-    this.rollupDb.addProcessTime(rollupProcessTime);
+    this.rollupDb.addProcessTime(rollupProcessTime); 
 
     // Trigger building of inner rollups in parallel.
     const rollupProofDaos = await Promise.all(
@@ -520,7 +559,7 @@ export class RollupCoordinator {
   }
 
   private async printRollupState(rollupProfile: RollupProfile, timeout: boolean, flush: boolean, limit: boolean) {
-    this.log(`RollupCoordinator: Creating rollup...`);
+    this.log(`RollupCoordinator:   Creating rollup...`);
     this.log(`RollupCoordinator:   rollupSize: ${rollupProfile.rollupSize}`);
     const secondClassStr = rollupProfile.totalSecondClassTxs ? ` (${rollupProfile.totalSecondClassTxs} 2nd-class)` : '';
     this.log(`RollupCoordinator:   numTxs: ${rollupProfile.totalTxs}${secondClassStr}`);
@@ -538,7 +577,7 @@ export class RollupCoordinator {
     for (const bp of rollupProfile.bridgeProfiles.values()) {
       const bridgeDescription = await this.bridgeResolver.getBridgeDescription(bp.bridgeCallData);
       const descriptionLog = bridgeDescription ? `(${bridgeDescription})` : '';
-      this.log(`RollupCoordinator: Defi bridge published: ${bp.bridgeCallData.toString()} ${descriptionLog}`);
+      this.log(`RollupCoordinator:   Defi bridge published: ${bp.bridgeCallData.toString()} ${descriptionLog}`);
       this.log(`RollupCoordinator:   numTxs: ${bp.numTxs}`);
       this.log(
         `RollupCoordinator:   gas balance (subsidy): ${bp.gasAccrued + bp.gasSubsidy - bp.gasThreshold} (${
@@ -598,5 +637,267 @@ export class RollupCoordinator {
     const outOfSlots = rollupProfile.totalTxs == this.totalSlots;
 
     return { isProfitable, deadline, outOfGas, outOfCallData, outOfSlots };
+  }
+
+  private async performAaveTransfers() {
+    const { 
+      aavePaused, 
+      aaveBuffer, 
+      maxPriorityFeePerGas, 
+      aaveGasMultiplier 
+    } = configurator.getConfVars().runtimeConfig;
+
+    this.log(`RollupCoordinator: Aave - buffer: ${aaveBuffer}, signingAddress: ${this.signingAddress.toString()}`);
+
+    const maxTxAttempts = 5;
+    const heldAssets = await this.getHeldAssets(maxTxAttempts);
+
+    if (!heldAssets) {
+      return {
+        title: `Held asset retrieval failure`,
+        message: `Could not get held assets after ${maxTxAttempts} attempts!`
+      };
+    }
+
+    const blockchainStatus = this.blockchain.getBlockchainStatus();
+    const transactions: AaveTransaction[] = [];
+    
+    if (aavePaused) {
+      // If there are any assets with Aave, withdraw them
+      for (let assetId = 0; assetId < heldAssets.length; assetId++) {
+        if (heldAssets[assetId].aave > 0n) {
+          const symbol = blockchainStatus.assets[assetId].symbol;
+          const amountHR = fromBaseUnits(heldAssets[assetId].aave, 18, 4);
+
+          this.log(`RollupCoordinator: Added Aave withdraw tx ${amountHR} ${symbol}`);
+          transactions.push({
+            type: AaveTransactionType.WITHDRAW,
+            txHash: null,
+            success: false,
+            assetId: assetId,
+            amount: heldAssets[assetId].aave
+          });
+        }
+      }
+    }
+    else { // Aave is not paused
+      // For each asset determine the total amount withdrawn from the contract
+      // Note: The deposits are already included in HeldAasset.inContract
+      const contractWithdrawals: bigint[] = (new Array(blockchainStatus.assets.length)).fill(0n);
+
+      // TxType[0] = DEPOSIT;
+      // TxType[1] = TRANSFER;
+      // TxType[2] = WITHDRAW_TO_WALLET;
+      // TxType[3] = WITHDRAW_HIGH_GAS;
+      // TxType[4] = ACCOUNT;
+      // TxType[5] = DEFI_DEPOSIT;
+      // TxType[6] = DEFI_CLAIM;
+
+      this.processedTxs.forEach((processedTx) => {
+        const publicValue = BigInt(`0x${processedTx.tx.proofData.slice(0xa0, 0xa0 + 32).toString('hex')}`);
+        // const publicOwner = `0x${processedTx.tx.proofData.slice(0xc0 + 12, 0xc0 + 32).toString('hex')}`;
+        const assetId = Number(`0x${processedTx.tx.proofData.slice(0xe0, 0xe0 + 32).toString('hex')}`);
+
+        if (processedTx.tx.txType == 2 || processedTx.tx.txType == 3) {
+          contractWithdrawals[assetId] += publicValue;
+        } 
+      });
+
+      // Add Deposit/withdraw Aave transactions.
+      // After the rollup has been processed, the amount of each asset in the contract should be 'aaveBuffer'.
+      // DANGER: If buffer is set to 0, RollupProcessorV3.sol:transferFee() may fail because there are not enough
+      // assets in the contract. transferFee() doesn't bubble errors, so rollup will still be successfully posted.
+      for (let assetId = 0; assetId < contractWithdrawals.length; assetId++) {
+        const symbol = blockchainStatus.assets[assetId].symbol;
+        const inContract = heldAssets[assetId].inContract - contractWithdrawals[assetId];
+        const total = inContract + heldAssets[assetId].aave;
+
+        const totalHR = fromBaseUnits(total, 18, 4);
+        const aaveHR = fromBaseUnits(heldAssets[assetId].aave, 18, 4);
+        const inContractHR = fromBaseUnits(inContract, 18, 4);
+        this.log(`RollupCoordinator: Post-rollup values ${totalHR} ${symbol} (a: ${aaveHR}, c: ${inContractHR})`);
+        
+        const expectedInContract = BigInt(aaveBuffer * Number(total));
+        const expectedInContractHR = fromBaseUnits(expectedInContract, 18, 4);
+        this.log(`RollupCoordinator: Expected in contract ${expectedInContractHR} ${symbol}`);
+
+        if (expectedInContract > inContract) {
+          const toWithdraw = expectedInContract - inContract;
+
+          this.log(`RollupCoordinator: Added Aave withdraw tx ${fromBaseUnits(toWithdraw, 18, 4)} ${symbol}`);
+          transactions.push({
+            type: AaveTransactionType.WITHDRAW,
+            txHash: null,
+            success: false,
+            assetId: assetId,
+            amount: toWithdraw
+          });
+
+          continue;
+        }      
+
+        if (expectedInContract < inContract) {
+          const toDeposit = inContract - expectedInContract;
+
+          this.log(`RollupCoordinator: Added Aave deposit tx ${fromBaseUnits(toDeposit, 18, 4)} ${symbol}`);
+          transactions.push({
+            type: AaveTransactionType.DEPOSIT,
+            txHash: null,
+            success: false,
+            assetId: assetId,
+            amount: toDeposit
+          });
+
+          continue;
+        }
+      }
+    }
+
+    if (transactions.length == 0) {
+      this.log(`RollupCoordinator: No Aave transactions to perform, continuing...`);
+      return null; // No Aave transactions to perform
+    }
+
+    const ethereumRpc = new EthereumRpc(this.blockchain.getProvider());
+    const { baseFeePerGas } = await ethereumRpc.getBlockByNumber('latest');
+    const estimatedFeePerGas = maxPriorityFeePerGas + baseFeePerGas;
+    const adjustedEstimatedFeePerGas = this.multiply(estimatedFeePerGas, aaveGasMultiplier);
+
+    const estimatedHR = fromBaseUnits(estimatedFeePerGas, 9, 3);
+    const adjustedHR = fromBaseUnits(adjustedEstimatedFeePerGas, 9, 3);
+    this.log(`RollupCoordinator: Aave txs estimatedfeePerGas ${estimatedHR} gwei (adjusted ${adjustedHR} gwei)`);
+
+    transactionLoop:
+    while (true) {
+      let nonce = await ethereumRpc.getTransactionCount(this.signingAddress);
+
+      for (let i = 0; i < transactions.length; i++) {
+        const { success, type, assetId, amount } = transactions[i];
+        if (success) {
+          continue;
+        }
+
+        const options = {
+          nonce: nonce++,
+          maxFeePerGas: adjustedEstimatedFeePerGas,
+          maxPriorityFeePerGas: maxPriorityFeePerGas 
+        };
+
+        if (type == AaveTransactionType.DEPOSIT) {
+          this.log(`RollupCoordinator: Sending Aave deposit tx with nonce ${options.nonce}`);
+          transactions[i].txHash = await this.blockchain.depositToLP(assetId, amount, this.signingAddress, options);
+          continue;
+        }
+        
+        if (type == AaveTransactionType.WITHDRAW) {
+          this.log(`RollupCoordinator: Sending Aave withdraw tx with nonce ${options.nonce}`);
+          transactions[i].txHash = await this.blockchain.withdrawFromLP(assetId, amount, this.signingAddress, options);
+          continue;
+        }
+      }
+
+      // Check receipts
+      for (let i = 0; i < transactions.length; i++) {
+        const { success, txHash } = transactions[i];
+        if (success) {
+          continue;
+        }
+
+        const receipt = await this.getTransactionReceipt(txHash!);
+
+        if (receipt.status) {
+          transactions[i].success = true;
+        } else {
+          this.log(`RollupCoordinator: Aave transaction failed: ${txHash!.toString()}`);
+          if (receipt.revertError) {
+            this.log(`Revert Error: ${receipt.revertError.name}(${receipt.revertError.params.join(', ')})`);
+          }
+          await sleep(10000);
+
+          // We will loop back around, to resend any unsuccessful txs.
+          continue transactionLoop;
+        }
+      }
+
+      this.log(`RollupCoordinator: Successfully sent Aave transactions!`);
+
+      let message = `\u{2705} Aave transfers successful!\n\n`;
+      transactions.forEach((transactions) => {
+        message += `{{ ${transactions.txHash!.toString()} }}\n`;
+      });
+      await this.notifier.send(message);
+
+      return null;
+    }
+  }
+
+  // Array.prototype.fill() with object passes by reference
+  private fillArray(length: number, obj: any) {
+    const arr = new Array();
+    for (let i = 0; i < length; i++) {
+      arr[i] = Object.assign({}, obj);
+    }
+
+    return arr;
+  }
+
+  private async getHeldAssets(attempts: number): Promise<HeldAsset[] | false> {
+    const blockchainStatus = this.blockchain.getBlockchainStatus();
+
+    // Get amount of each Aave deposited asset
+    const heldAssets: HeldAsset[] = this.fillArray(blockchainStatus.assets.length, { aave: 0n, inContract: 0n });
+
+    const heldAssetPromises = [];
+    for (let assetId = 0; assetId < heldAssets.length; assetId++) {
+      heldAssetPromises.push(this.blockchain.getAaveAssetDeposited(assetId));
+      heldAssetPromises.push(this.blockchain.getRollupBalance(assetId));
+    }
+
+    try {
+      const results = await Promise.all(heldAssetPromises);
+      for (let i = 0; i < heldAssets.length; i++) {
+        heldAssets[i].aave = results[i * 2];
+        heldAssets[i].inContract = results[(i * 2) + 1];
+      }
+    }
+    catch (e) {
+      const remainingAttempts = attempts - 1;
+
+      if (remainingAttempts <= 0) return false;
+
+      this.log(`RollupCoordinator: Held asset retrieval error (${remainingAttempts} attempts remaining)`, e);
+
+      await sleep(1000);
+
+      return await this.getHeldAssets(remainingAttempts);
+    }
+
+    return heldAssets;
+  }
+ 
+  private multiply(
+    amount    : bigint,
+    multiplier: number
+  ) {
+    if (!multiplier.toString().includes('.')) {
+      return amount * BigInt(multiplier);
+    }
+
+    const split = multiplier.toString().split('.');
+    const mul   = split[1];
+    const div   = 1 * 10 ** split[1].length;
+
+    return ((amount * BigInt(mul)) / BigInt(div)) + (amount * BigInt(split[0]));
+  }
+
+  private async getTransactionReceipt(txHash: TxHash) {
+    while (true) {
+      try {
+        return await this.blockchain.getTransactionReceiptSafe(txHash, 300);
+      } catch (err) {
+        this.log(`RollupCoordinator: Couldn't get receipt for ${txHash}`);
+        await sleep(10000);
+      }
+    }
   }
 }

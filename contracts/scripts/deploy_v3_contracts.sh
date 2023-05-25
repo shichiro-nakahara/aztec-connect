@@ -34,7 +34,7 @@ echo "Deploying contracts from: $DEPLOYER_ADDRESS"
 
 # Execute deployment solidity script
 # On Polygon zkEVM testnet you may get the error "Failed to get EIP-1559 fees", use the "--legacy" flag below to get around that.
-forge script E2ESetup --ffi --private-key $PRIVATE_KEY --broadcast --rpc-url $ETHEREUM_HOST --sig "deployV3(address,address,address,address,string,bool)" \
+forge script E2ESetupV3 --ffi --private-key $PRIVATE_KEY --broadcast --rpc-url $ETHEREUM_HOST --sig "deploy(address,address,address,address,string,bool)" \
   $DEPLOYER_ADDRESS \
   $SAFE_ADDRESS \
   $FAUCET_CONTROLLER \
