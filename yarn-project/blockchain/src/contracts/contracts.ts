@@ -267,4 +267,16 @@ export class Contracts {
   public async getBridgeData(bridgeAddressId: number) {
     return await this.bridgeDataProvider.getBridgeData(bridgeAddressId);
   }
+
+  public async getAaveAssetDeposited(assetId: number) {
+    return this.rollupProcessor.getAaveAssetDeposited(assetId);
+  }
+
+  public async withdrawFromLP(assetId: number, amount: bigint, signingAddress: EthAddress, options: SendTxOptions = {}) {    
+    return this.rollupProcessor.withdrawFromLP(assetId, amount, signingAddress, options);
+  }
+
+  public async depositToLP(assetId: number, amount: bigint, signingAddress: EthAddress, options: SendTxOptions = {}) {
+    return this.rollupProcessor.depositToLP(assetId, amount, signingAddress, options);
+  }
 }

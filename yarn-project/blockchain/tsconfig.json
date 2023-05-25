@@ -27,6 +27,7 @@
     "src/abis/contracts/AztecFeeDistributor.sol/AztecFeeDistributor.json",
     "src/abis/contracts/RollupProcessor.sol/RollupProcessor.json",
     "src/abis/contracts/RollupProcessorV2.sol/RollupProcessorV2.json",
+    "src/abis/contracts/RollupProcessorV3.sol/RollupProcessorV3.json",
     "src/abis/contracts/AlwaysTrueVerifier.sol/AlwaysTrueVerifier.json",
     "src/abis/contracts/MockVerifier.sol/MockVerifier.json",
     "src/abis/contracts/Verifier1x1.sol/Verifier1x1.json",
