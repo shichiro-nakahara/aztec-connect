@@ -321,6 +321,18 @@ export function appFactory(server: Server, prefix: string, metrics: Metrics, ser
     ctx.status = 200;
   });
 
+  router.post('/alias-fee', recordMetric, async (ctx: Koa.Context) => {
+    const stream = new PromiseReadable(ctx.req);
+    const data = JSON.parse((await stream.readAll()) as string);
+    
+    const assetId = +data.assetId;
+    const aliasFee = server.getAliasFee(assetId, data.alias);
+
+    ctx.set('content-type', 'application/json');
+    ctx.body = assetValueToJson(aliasFee);
+    ctx.status = 200;
+  });
+
   router.post('/defi-fees', recordMetric, async (ctx: Koa.Context) => {
     const stream = new PromiseReadable(ctx.req);
     const data = JSON.parse((await stream.readAll()) as string);
