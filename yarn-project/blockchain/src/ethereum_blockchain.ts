@@ -408,4 +408,8 @@ export class EthereumBlockchain extends EventEmitter implements Blockchain {
   public async depositToLP(assetId: number, amount: bigint, signingAddress: EthAddress, options: SendTxOptions = {}) {
     return this.contracts.depositToLP(assetId, amount, signingAddress, options);
   }
+
+  public onEvent(event: string, callback: (...args: any[]) => void) {
+    this.contracts.onEvent(event, callback);
+  }
 }

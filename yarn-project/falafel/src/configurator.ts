@@ -95,7 +95,8 @@ export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   telegramChannelId: string | undefined;
   aavePaused: boolean,
   aaveBuffer: number,
-  aaveGasMultiplier: number
+  aaveGasMultiplier: number,
+  publishIfProfitable: boolean
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
@@ -121,7 +122,8 @@ const defaultRuntimeConfig: RuntimeConfig = {
   telegramChannelId: undefined,
   aavePaused: true,
   aaveBuffer: 0.2, // Reserve 20% of assets. Don't set this to 0 (see rollup_coordinator:performAaveTransfers())
-  aaveGasMultiplier: 1
+  aaveGasMultiplier: 1,
+  publishIfProfitable: false
 };
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {

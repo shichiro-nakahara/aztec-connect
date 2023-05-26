@@ -70,6 +70,21 @@ export class FeeCalculator {
     ]);
   }
 
+  public getAliasFee(txAssetId: number, aliasLength: number) {
+    const ether = 1000000000000000000n * BigInt(aliasLength);
+    const price = this.priceTracker.getAssetPrice(txAssetId);
+
+    console.log(`Price of 2 is ${this.priceTracker.getAssetPrice(2)}`);
+    console.log(`Price of 1 is ${this.priceTracker.getAssetPrice(1)}`);
+    console.log(`Price of ${txAssetId} is ${price}`);
+    console.log(`aliasLength: ${aliasLength}, ether: ${ether}`);
+
+    return {
+      assetId: txAssetId,
+      value: ether
+    };
+  }
+
   private getAsset(assetId: number) {
     const assets = this.getAssets();
     return assets[assetId];

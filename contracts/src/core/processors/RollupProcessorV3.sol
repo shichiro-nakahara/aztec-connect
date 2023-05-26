@@ -97,6 +97,7 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
     event DelayBeforeEscapeHatchUpdated(uint32 delay);
     event AssetCapUpdated(uint256 assetId, uint256 pendingCap, uint256 dailyCap);
     event CappedUpdated(bool isCapped);
+    event FeeTransferred(uint256 indexed assetId, uint256 value);
 
     /*----------------------------------------
       STRUCTS
@@ -1314,6 +1315,7 @@ contract RollupProcessorV3 is IRollupProcessorV2, Decoder, Initializable, Access
                         assetAddress, _feeReceiver, txFee, assetGasLimits[assetId]
                     );
                 }
+                emit FeeTransferred(assetId, txFee);
             }
             unchecked {
                 ++i;
