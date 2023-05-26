@@ -105,6 +105,19 @@ export class WorldState {
     // Subscribe to sync any new rollups.
     this.blockchain.on('block', block => this.serialQueue.put(() => this.handleBlock(block)));
     await this.blockchain.start(await this.rollupDb.getNextRollupId());
+
+    const blockchainStatus = this.blockchain.getBlockchainStatus();
+    this.blockchain.onEvent(
+      'FeeTransferred',
+      (assetId: bigint, value: bigint) => {
+        const valueHR = fromBaseUnits(value, 18, 5);
+        const asset = blockchainStatus.assets[Number(assetId)].symbol;
+        const message = `Transferred ${valueHR} ${asset} to rollup beneficiary!`;
+
+        this.log(message);
+        this.notifier.send(message);
+      }
+    );
   }
 
   public setTxFeeResolver(txFeeResolver: TxFeeResolver) {
@@ -574,7 +587,7 @@ export class WorldState {
     this.log(`Rollup subtree root: ${subtreeRoot.toString('hex')}`);
     this.log(`Rollup gas used: ${block.gasUsed}`);
     this.log(`Rollup gas price: ${fromBaseUnits(block.gasPrice, 9, 2)} gwei`);
-    this.log(`Rollup cost: ${fromBaseUnits(block.gasPrice * BigInt(block.gasUsed), 18, 6)} ETH`);
+    this.log(`Rollup cost: ${fromBaseUnits(block.gasPrice * BigInt(block.gasUsed), 18, 6)} MATIC`);
 
     if (rollupProof) {
       // Our rollup. Confirm mined and track settlement times.

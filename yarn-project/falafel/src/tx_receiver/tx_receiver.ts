@@ -89,7 +89,7 @@ export class TxReceiver {
       let shouldReject = exitOnly;
       const txTypes: TxType[] = [];
       for (let i = 0; i < txs.length; ++i) {
-        const { proof } = txs[i];
+        const { proof, offchainTxData } = txs[i];
         const txType = await getTxTypeFromProofData(proof, this.blockchain);
 
         // AC SUNSET CODE
@@ -110,6 +110,19 @@ export class TxReceiver {
               );
             }
           }
+        }
+
+        if (txType == TxType.ACCOUNT) {
+          const { aliasHash } = OffchainAccountData.fromBuffer(offchainTxData);
+          const aliasFee = await this.rollupDb.getAliasFee(aliasHash);
+          if (!aliasFee) {
+            throw new Error(`Alias fee has not been set.`);
+          }
+
+          console.log(aliasHash);
+          console.log(aliasFee.aliasHash);
+
+          throw new Error(`Registering a 1 character alias requires an additional 1 WETH in fees.`);
         }
 
         this.metrics.txReceived(txType, txRequest.requestSender.originUrl);
