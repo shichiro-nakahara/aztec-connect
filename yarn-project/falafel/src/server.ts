@@ -26,6 +26,7 @@ import { TxReceiver, TxRequest } from './tx_receiver/index.js';
 import { WorldState } from './world_state.js';
 import { AddressCheckProviders, AztecBlacklistProvider, RateLimiter } from './compliance/index.js';
 import { rollupDaoToBlockBuffer } from './rollup_db/rollup_dao_to_block_buffer.js';
+import { AliasDao } from './entity/alias.js';
 
 export interface RollupProviderStatus extends BarretenbergRollupProviderStatus {
   runtimeConfig: RuntimeConfig;
@@ -324,6 +325,19 @@ export class Server {
 
   public getDefiFees(bridgeCallData: bigint) {
     return this.txFeeResolver.getDefiFees(bridgeCallData);
+  }
+
+  public getAliasFee(assetId: number, alias: string) {
+    const aliasHash = AliasHash.fromAlias(alias, this.blake);
+    const assetValue = this.txFeeResolver.getAliasFee(assetId, alias.length);
+
+    const aliasDao = new AliasDao({
+      hash: aliasHash.toBuffer(),
+      length: alias.length
+    });
+    this.rollupDb.addAlias(aliasDao)
+
+    return assetValue;
   }
 
   public getInitialWorldState(): InitialWorldState {
