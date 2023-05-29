@@ -14,7 +14,7 @@ import {
   AccountDao,
   BridgeMetricsDao,
   RollupProcessTimeDao,
-  AliasFeeDao
+  AliasDao
 } from './entity/index.js';
 import { CachedRollupDb, LogRollupDb, SyncRollupDb, TypeOrmRollupDb } from './rollup_db/index.js';
 import { VERSION_HASH } from './package_version.js';
@@ -44,7 +44,7 @@ async function getProvider(ethereumHost: string, privateKey: Buffer) {
 
 export function getOrmConfig(configurator: Configurator): DataSourceOptions {
   const { dbUrl, typeOrmLogging: logging } = configurator.getConfVars();
-  const entities = [TxDao, RollupProofDao, RollupDao, AccountDao, ClaimDao, AssetMetricsDao, BridgeMetricsDao, RollupProcessTimeDao, AliasFeeDao];
+  const entities = [TxDao, RollupProofDao, RollupDao, AccountDao, ClaimDao, AssetMetricsDao, BridgeMetricsDao, RollupProcessTimeDao, AliasDao];
   if (!dbUrl) {
     return {
       type: 'sqlite',

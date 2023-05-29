@@ -12,7 +12,7 @@ import {
   AccountDao,
   ClaimDao,
   RollupProcessTimeDao,
-  AliasFeeDao
+  AliasDao
 } from '../entity/index.js';
 import { RollupDb } from './rollup_db.js';
 
@@ -290,13 +290,13 @@ export class CachedRollupDb implements RollupDb {
     return this.totalTxCount;
   }
 
-  public async addAliasFee(aliasFee: AliasFeeDao) {
-    await this.underlying.addAliasFee(aliasFee);
+  public async addAlias(aliasFee: AliasDao) {
+    await this.underlying.addAlias(aliasFee);
     this.refreshPromise = undefined;
   }
 
-  public async getAliasFee(aliasHash: AliasHash) {
-    return await this.underlying.getAliasFee(aliasHash);
+  public async getAlias(aliasHash: AliasHash) {
+    return await this.underlying.getAlias(aliasHash);
   }
 
   public async addProcessTime(rollupProcessTime: RollupProcessTimeDao) {

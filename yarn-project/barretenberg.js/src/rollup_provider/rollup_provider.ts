@@ -126,6 +126,7 @@ export interface RollupProvider extends BlockSource {
   getInitialWorldState(): Promise<InitialWorldState>;
   isAccountRegistered(accountPublicKey: GrumpkinAddress): Promise<boolean>;
   isAliasRegistered(alias: string): Promise<boolean>;
+  getAliasFee(alias: string, assetId: number): Promise<AssetValue>;
   isAliasRegisteredToAccount(accountPublicKey: GrumpkinAddress, alias: string): Promise<boolean>;
   getAccountRegistrationRollupId(accountPublicKey: GrumpkinAddress): Promise<number>;
   queryDefiPublishStats(query: BridgePublishQuery): Promise<BridgePublishQueryResult>;
