@@ -114,15 +114,24 @@ export class TxReceiver {
 
         if (txType == TxType.ACCOUNT) {
           const { aliasHash } = OffchainAccountData.fromBuffer(offchainTxData);
-          const aliasFee = await this.rollupDb.getAliasFee(aliasHash);
-          if (!aliasFee) {
+          const alias = await this.rollupDb.getAlias(aliasHash);
+          if (!alias) {
             throw new Error(`Alias fee has not been set.`);
           }
 
-          console.log(aliasHash);
-          console.log(aliasFee.aliasHash);
+          const aliasFee = this.txFeeResolver.getAliasFee(proof.feeAssetId, alias.length);
 
-          throw new Error(`Registering a 1 character alias requires an additional 1 WETH in fees.`);
+          // There should be another deposit proof
+          const depositTx = txs.find((tx) => tx.proof.proofId == ProofId.DEPOSIT);
+          if (!depositTx) {
+            throw new Error(`Deposit proof required when registering an account.`);
+          }
+
+          const depositTxFee = toBigIntBE(depositTx.proof.txFee);
+
+          if (depositTxFee < aliasFee.value) {
+            throw new Error(`Registering a ${alias.length} character alias requires an additional fee.`);
+          }
         }
 
         this.metrics.txReceived(txType, txRequest.requestSender.originUrl);

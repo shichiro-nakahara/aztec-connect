@@ -96,7 +96,8 @@ export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   aavePaused: boolean,
   aaveBuffer: number,
   aaveGasMultiplier: number,
-  publishIfProfitable: boolean
+  publishIfProfitable: boolean,
+  aliasFee: number[]
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
@@ -123,7 +124,8 @@ const defaultRuntimeConfig: RuntimeConfig = {
   aavePaused: true,
   aaveBuffer: 0.2, // Reserve 20% of assets. Don't set this to 0 (see rollup_coordinator:performAaveTransfers())
   aaveGasMultiplier: 1,
-  publishIfProfitable: false
+  publishIfProfitable: false,
+  aliasFee: [2000, 1000, 500, 200],
 };
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {
