@@ -311,6 +311,10 @@ export class CoreSdk extends EventEmitter {
     );
   }
 
+  public async getAliasFee(alias: string, assetId: number) {
+    return await this.rollupProvider.getAliasFee(alias, assetId);
+  }
+
   public async isAliasRegisteredToAccount(accountPublicKey: GrumpkinAddress, alias: string, includePending: boolean) {
     const aliasHash = this.computeAliasHash(alias);
     const savedAlias = await this.db.getAlias(accountPublicKey);
