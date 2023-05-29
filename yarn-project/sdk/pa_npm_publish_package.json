@@ -1,6 +1,6 @@
 {
   "name": "@polyaztec/sdk",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "main": "./dest/index.js",
   "exports": {
     "node": "./dest/index.js",
@@ -37,8 +37,8 @@
     "last 1 chrome version"
   ],
   "dependencies": {
-    "@aztec/barretenberg": "workspace:^",
-    "@aztec/blockchain": "workspace:^",
+    "@aztec/barretenberg": "2.1.95",
+    "@aztec/blockchain": "2.1.95",
     "async-mutex": "^0.4.0",
     "detect-node": "^2.1.0",
     "dexie": "3.0.1",
