@@ -17,7 +17,7 @@ import {
   TxDao,
   BridgeMetricsDao,
   RollupProcessTimeDao,
-  AliasFeeDao
+  AliasDao
 } from '../entity/index.js';
 import { getNewAccountDaos } from './tx_dao_to_account_dao.js';
 
@@ -38,7 +38,7 @@ export class TypeOrmRollupDb implements RollupDb {
   private assetMetricsRep: Repository<AssetMetricsDao>;
   private bridgeMetricsRep: Repository<BridgeMetricsDao>;
   private rollupProcessTimeRep: Repository<RollupProcessTimeDao>;
-  private aliasFeeRep: Repository<AliasFeeDao>;
+  private aliasFeeRep: Repository<AliasDao>;
   private debug = createDebugLogger('bb:typeorm_rollup_db');
 
   constructor(private connection: DataSource, private initialDataRoot: Buffer = WorldStateConstants.EMPTY_DATA_ROOT) {
@@ -50,7 +50,7 @@ export class TypeOrmRollupDb implements RollupDb {
     this.assetMetricsRep = this.connection.getRepository(AssetMetricsDao);
     this.bridgeMetricsRep = this.connection.getRepository(BridgeMetricsDao);
     this.rollupProcessTimeRep = this.connection.getRepository(RollupProcessTimeDao);
-    this.aliasFeeRep = this.connection.getRepository(AliasFeeDao);
+    this.aliasFeeRep = this.connection.getRepository(AliasDao);
   }
 
   public init() {
@@ -61,14 +61,14 @@ export class TypeOrmRollupDb implements RollupDb {
     await this.connection.destroy();
   }
 
-  public async addAliasFee(aliasFee: AliasFeeDao) {
+  public async addAlias(aliasFee: AliasDao) {
     await this.connection.transaction(async transactionalEntityManager => {
       await transactionalEntityManager.save(aliasFee);
     });
   }
 
-  public async getAliasFee(aliasHash: AliasHash) {
-    const aliasFee = await this.aliasFeeRep.findOne({ where: { aliasHash: aliasHash.toBuffer() } });
+  public async getAlias(aliasHash: AliasHash) {
+    const aliasFee = await this.aliasFeeRep.findOne({ where: { hash: aliasHash.toBuffer() } });
     return aliasFee;
   }
 

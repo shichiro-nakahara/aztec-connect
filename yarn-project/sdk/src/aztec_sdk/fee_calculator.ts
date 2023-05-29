@@ -210,6 +210,13 @@ export class FeeCalculator {
     return await this.getAccountFees(assetId, options);
   }
 
+  public async getAliasFee(
+    alias: string,
+    assetId: number
+  ) : Promise<AssetValue> {
+    return await this.core.getAliasFee(alias, assetId);
+  }
+
   public async getRecoverAccountFees(
     assetId: number,
     options: { feeSignificantFigures?: number } = {},

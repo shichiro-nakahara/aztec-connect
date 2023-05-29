@@ -3,6 +3,7 @@ import { createLogger } from '@aztec/barretenberg/log';
 import { roundUp } from '@aztec/barretenberg/rounding';
 import { getGasOverhead, getTxCallData } from './get_gas_overhead.js';
 import { PriceTracker } from './price_tracker.js';
+import { configurator } from '../configurator.js';
 
 const allTxTypes = [
   TxType.DEPOSIT,
@@ -71,17 +72,31 @@ export class FeeCalculator {
   }
 
   public getAliasFee(txAssetId: number, aliasLength: number) {
-    const ether = 1000000000000000000n * BigInt(aliasLength);
-    const price = this.priceTracker.getAssetPrice(txAssetId);
+    // e.g. [2000, 1000, 500, 200], 2000 MATIC for 1 character, 1000 MATIC for 2 characters, etc.
+    const aliasFee = configurator.getConfVars().runtimeConfig.aliasFee;
 
-    console.log(`Price of 2 is ${this.priceTracker.getAssetPrice(2)}`);
-    console.log(`Price of 1 is ${this.priceTracker.getAssetPrice(1)}`);
-    console.log(`Price of ${txAssetId} is ${price}`);
-    console.log(`aliasLength: ${aliasLength}, ether: ${ether}`);
+    if (aliasLength > aliasFee.length) {
+      return {
+        assetId: txAssetId,
+        value: 0n
+      };
+    }
+    
+    const maticFeeBigInt = BigInt(Math.round(aliasFee[aliasLength - 1]) * (10 ** 18));
+    if (txAssetId == 0) {
+      return {
+        assetId: 0,
+        value: maticFeeBigInt
+      };
+    }
+
+    // Conversion is required
+    const assetPrice = this.priceTracker.getAssetPrice(txAssetId);
+    const assetFee = (maticFeeBigInt * assetPrice) / BigInt(10 ** 18);
 
     return {
       assetId: txAssetId,
-      value: ether
+      value: assetFee
     };
   }
 
