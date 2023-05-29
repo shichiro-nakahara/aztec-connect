@@ -97,6 +97,10 @@ export class TxFeeResolver {
     return this.feeCalculator.getTxFees(txAssetId, feePayingAsset);
   }
 
+  getAliasFee(txAssetId: number, aliasLength: number) {
+    return this.feeCalculator.getAliasFee(txAssetId, aliasLength);
+  }
+
   getTxCallData(txType: TxType) {
     return getTxCallData(txType);
   }

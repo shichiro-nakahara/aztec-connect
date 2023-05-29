@@ -3,6 +3,7 @@ import { createLogger } from '@aztec/barretenberg/log';
 import { roundUp } from '@aztec/barretenberg/rounding';
 import { getGasOverhead, getTxCallData } from './get_gas_overhead.js';
 import { PriceTracker } from './price_tracker.js';
+import { configurator } from '../configurator.js';
 
 const allTxTypes = [
   TxType.DEPOSIT,
@@ -68,6 +69,35 @@ export class FeeCalculator {
           this.getFeeConstant(txAssetId, feeAssetId, txType),
       },
     ]);
+  }
+
+  public getAliasFee(txAssetId: number, aliasLength: number) {
+    // e.g. [2000, 1000, 500, 200], 2000 MATIC for 1 character, 1000 MATIC for 2 characters, etc.
+    const aliasFee = configurator.getConfVars().runtimeConfig.aliasFee;
+
+    if (aliasLength > aliasFee.length) {
+      return {
+        assetId: txAssetId,
+        value: 0n
+      };
+    }
+    
+    const maticFeeBigInt = BigInt(Math.round(aliasFee[aliasLength - 1]) * (10 ** 18));
+    if (txAssetId == 0) {
+      return {
+        assetId: 0,
+        value: maticFeeBigInt
+      };
+    }
+
+    // Conversion is required
+    const assetPrice = this.priceTracker.getAssetPrice(txAssetId);
+    const assetFee = (maticFeeBigInt * assetPrice) / BigInt(10 ** 18);
+
+    return {
+      assetId: txAssetId,
+      value: assetFee
+    };
   }
 
   private getAsset(assetId: number) {

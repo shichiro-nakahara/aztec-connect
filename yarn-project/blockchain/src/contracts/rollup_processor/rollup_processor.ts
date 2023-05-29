@@ -992,4 +992,8 @@ export class RollupProcessor {
     
     return TxHash.fromString(txResponse.hash);
   }
+
+  public onEvent(event: string, callback: (...args: any[]) => void) {
+    this.rollupProcessor.on(event, callback);
+  }
 }

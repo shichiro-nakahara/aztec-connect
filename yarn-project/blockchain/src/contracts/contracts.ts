@@ -279,4 +279,8 @@ export class Contracts {
   public async depositToLP(assetId: number, amount: bigint, signingAddress: EthAddress, options: SendTxOptions = {}) {
     return this.rollupProcessor.depositToLP(assetId, amount, signingAddress, options);
   }
+
+  public onEvent(event: string, callback: (...args: any[]) => void) {
+    this.rollupProcessor.onEvent(event, callback);
+  }
 }

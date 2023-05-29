@@ -24,6 +24,7 @@ import { configurator } from '../configurator.js';
 import { Notifier } from '../notifier.js';
 import { EthAddress } from '@aztec/barretenberg/address';
 import { sleep } from '@aztec/barretenberg/sleep';
+import { createLogger } from '@aztec/barretenberg/log';
 
 enum RollupCoordinatorState {
   BUILDING,
@@ -73,7 +74,7 @@ export class RollupCoordinator {
     private metrics: Metrics,
     private blockchain: Blockchain,
     private signingAddress: EthAddress,
-    private log = console.log,
+    private log = createLogger('RollupCoordinator'),
     private notifier = new Notifier('RollupCoordinator'),
   ) {
     this.totalSlots = this.numOuterRollupProofs * this.numInnerRollupTxs;
@@ -379,11 +380,18 @@ export class RollupCoordinator {
       return rollupProfile;
     }
 
+    const { publishIfProfitable } = configurator.getConfVars().runtimeConfig;
+
     const conditions = this.getRollupPublishConditions(txsToRollup, rollupProfile, rollupTimeouts);
     const { isProfitable, deadline } = conditions;
     let { outOfGas, outOfCallData, outOfSlots } = conditions;
 
-    const shouldPublish = flush || isProfitable || deadline || outOfGas || outOfCallData || outOfSlots;
+    const shouldPublish = flush || 
+      (isProfitable && publishIfProfitable) || 
+      deadline || 
+      outOfGas || 
+      outOfCallData || 
+      outOfSlots;
 
     if (!shouldPublish) {
       try {

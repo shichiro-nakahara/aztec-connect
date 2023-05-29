@@ -89,7 +89,7 @@ export class TxReceiver {
       let shouldReject = exitOnly;
       const txTypes: TxType[] = [];
       for (let i = 0; i < txs.length; ++i) {
-        const { proof } = txs[i];
+        const { proof, offchainTxData } = txs[i];
         const txType = await getTxTypeFromProofData(proof, this.blockchain);
 
         // AC SUNSET CODE
@@ -109,6 +109,28 @@ export class TxReceiver {
                 `Rejecting defi tx for bridge ${bridgeCallData.toString()}, output assets A/B: ${outputAssetIdA}/${outputAssetIdB}`,
               );
             }
+          }
+        }
+
+        if (txType == TxType.ACCOUNT) {
+          const { aliasHash } = OffchainAccountData.fromBuffer(offchainTxData);
+          const alias = await this.rollupDb.getAlias(aliasHash);
+          if (!alias) {
+            throw new Error(`Alias fee has not been set.`);
+          }
+
+          const aliasFee = this.txFeeResolver.getAliasFee(proof.feeAssetId, alias.length);
+
+          // There should be another deposit proof
+          const depositTx = txs.find((tx) => tx.proof.proofId == ProofId.DEPOSIT);
+          if (!depositTx) {
+            throw new Error(`Deposit proof required when registering an account.`);
+          }
+
+          const depositTxFee = toBigIntBE(depositTx.proof.txFee);
+
+          if (depositTxFee < aliasFee.value) {
+            throw new Error(`Registering a ${alias.length} character alias requires an additional fee.`);
           }
         }
 

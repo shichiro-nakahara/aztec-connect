@@ -174,15 +174,15 @@ export class TerminalHandler {
     } else {
       this.printQueue.put(
         'deposit <amount>\n' +
-          'defi <amount> <call data> <input asset>\n' +
-          '     <output asset> [aux data]\n' +
-          'withdraw <amount>\n' +
-          'transfer <to> <amount>\n' +
-          'register <alias> [amount]\n' +
-          'balance\n' +
-          'fees\n' +
-          'status [num] [from]\n' +
-          'user\n',
+        'defi <amount> <call data> <input asset>\n' +
+        '     <output asset> [aux data]\n' +
+        'withdraw <amount>\n' +
+        'transfer <to> <amount>\n' +
+        'register <alias> [amount]\n' +
+        'balance\n' +
+        'fees\n' +
+        'status [num] [from]\n' +
+        'user\n',
       );
     }
   }
@@ -362,7 +362,12 @@ export class TerminalHandler {
     }
     const deposit = this.sdk.toBaseUnits(0, valueStr);
     const [, fee] = await this.sdk.getRegisterFees(deposit.assetId);
+    const aliasFee = await this.sdk.getAliasFee(alias, deposit.assetId);
     const spendingKey = await this.sdk.generateSpendingKeyPair(this.ethAddress);
+    this.printQueue.put(`register fee: ${this.sdk.fromBaseUnits(fee)}\n`);
+    this.printQueue.put(`alias fee: ${this.sdk.fromBaseUnits(aliasFee)}\n`);
+    const combinedFee = { assetId: fee.assetId, value: fee.value + aliasFee.value };
+    this.printQueue.put(`combined fee: ${this.sdk.fromBaseUnits(combinedFee)}\n`);
     const controller = this.sdk.createRegisterController(
       this.user.id,
       alias,
@@ -370,7 +375,7 @@ export class TerminalHandler {
       spendingKey.publicKey,
       undefined,
       deposit,
-      fee,
+      combinedFee,
       this.ethAddress,
     );
     const requiredFunds = await controller.getRequiredFunds();
