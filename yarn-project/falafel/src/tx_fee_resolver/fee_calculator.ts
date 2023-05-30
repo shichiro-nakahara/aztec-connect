@@ -92,7 +92,7 @@ export class FeeCalculator {
 
     // Conversion is required
     const assetPrice = this.priceTracker.getAssetPrice(txAssetId);
-    const assetFee = (maticFeeBigInt * assetPrice) / BigInt(10 ** 18);
+    const assetFee = (maticFeeBigInt * BigInt(10 ** 18)) / assetPrice;
 
     return {
       assetId: txAssetId,

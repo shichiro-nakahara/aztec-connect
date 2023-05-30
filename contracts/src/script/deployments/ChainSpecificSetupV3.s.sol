@@ -121,10 +121,10 @@ contract ChainSpecificSetupV3 is Test {
         MockChainlinkOracle gasPriceFeed = new MockChainlinkOracle(5 gwei);
 
         vm.broadcast();
-        MockChainlinkOracle daiPriceFeed = new MockChainlinkOracle(1 ether);
+        MockChainlinkOracle daiPriceFeed = new MockChainlinkOracle(1.25 ether); // 1.25 MATIC = 1 DAI
 
         vm.broadcast();
-        MockChainlinkOracle ethPriceFeed = new MockChainlinkOracle(0.001 ether);
+        MockChainlinkOracle ethPriceFeed = new MockChainlinkOracle(2000 ether); // 2000 MATIC = 1 WETH
 
         // Deploy faucet
         address faucet = deployFaucet(_faucetOperator);
