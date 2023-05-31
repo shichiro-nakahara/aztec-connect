@@ -5,7 +5,7 @@ pragma solidity >=0.8.4;
 import {Test} from "forge-std/Test.sol";
 
 import {RollupProcessor} from "core/processors/RollupProcessor.sol";
-import {RollupProcessorV2} from "core/processors/RollupProcessorV2.sol";
+import {RollupProcessorV3} from "core/processors/RollupProcessorV3.sol";
 import {DefiBridgeProxy} from "core/DefiBridgeProxy.sol";
 import {PermitHelper} from "periphery/PermitHelper.sol";
 import {ProxyDeployer} from "periphery/ProxyDeployer.sol";
@@ -47,7 +47,7 @@ abstract contract TestBase is Test {
     bool private constant ALLOW_THIRD_PARTY_CONTRACTS = false;
 
     ProxyAdmin internal proxyAdmin;
-    RollupProcessorV2 internal rollupProcessor;
+    RollupProcessorV3 internal rollupProcessor;
     PermitHelper internal permitHelper;
     ProxyDeployer internal proxyDeployer;
     RollupEncoder internal rollupEncoder;
@@ -79,7 +79,7 @@ abstract contract TestBase is Test {
 
         proxyAdmin = ProxyAdmin(admin);
 
-        rollupProcessor = RollupProcessorV2(proxy);
+        rollupProcessor = RollupProcessorV3(payable(proxy));
 
         rollupProcessor.setRollupProvider(ROLLUP_PROVIDER, true);
 
