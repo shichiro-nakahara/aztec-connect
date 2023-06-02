@@ -12,8 +12,8 @@ import {RollupProcessorV4} from "core/processors/RollupProcessorV4.sol";
 contract UpgradeV4Prod is Test {
     error StorageAltered(uint256 index, bytes32 expected, bytes32 actual);
 
-    uint256 internal constant VERSION_BEFORE = 17;
-    uint256 internal constant VERSION_AFTER = 18;
+    uint256 internal constant VERSION_BEFORE = 3;
+    uint256 internal constant VERSION_AFTER = 4;
 
     bytes32 internal constant MOCK_KEY_HASH = 0xe93606306cfda92d3e8937e91d4467ecb74c7092eb49e932be66a2f488ca7003;
     bytes32 internal constant PROD_KEY_HASH = 0x8c16a95cccbb8c49aaf2bf27970df31180f348dfd3bbda93acb7fa800840ce5d;
