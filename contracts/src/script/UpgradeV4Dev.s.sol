@@ -15,7 +15,7 @@ import {MockVerifier} from "core/verifier/instances/MockVerifier.sol";
 import {Verifier28x32} from "core/verifier/instances/Verifier28x32.sol";
 import {IVerifier} from "core/interfaces/IVerifier.sol";
 
-contract UpgradeV4 is Test {
+contract UpgradeV4Dev is Test {
     error StorageAltered(uint256 index, bytes32 expected, bytes32 actual);
 
     uint256 internal constant VERSION_BEFORE = 3;
