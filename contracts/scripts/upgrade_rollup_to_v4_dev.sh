@@ -12,6 +12,6 @@ set -eu
 MOCK_VERIFIER=${MOCK_VERIFIER:=true}
 
 # Execute deployment solidity script
-forge script UpgradeV4 --ffi --private-key $PRIVATE_KEY --broadcast --rpc-url $ETHEREUM_HOST --sig "upgrade(address,bool)" \
+forge script UpgradeV4Dev --ffi --private-key $PRIVATE_KEY --broadcast --rpc-url $ETHEREUM_HOST --sig "upgrade(address,bool)" \
   $PROXY \
   $MOCK_VERIFIER
