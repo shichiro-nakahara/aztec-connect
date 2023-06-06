@@ -334,7 +334,7 @@ export class WorldState {
       this.log(err);
 
       let errorMessage = `\u{1F6A8} PIPELINE PANIC!`;
-      errorMessage += `\n\n${err}`;
+      errorMessage += `\n\n${typeof err == 'object' ? JSON.stringify(err) : err}`;
       this.notifier.send(errorMessage);
     });
   }
