@@ -52,6 +52,7 @@ export class RollupPipeline {
     this.log(`  maxCallDataPerRollup: ${maxCallDataPerRollup}`);
     this.log(`  maxFeePerGas: ${fromBaseUnits(maxFeePerGas, 9, 2)} gwei`);
     this.log(`  maxPriorityFeePerGas: ${fromBaseUnits(maxPriorityFeePerGas, 9, 2)} gwei`);
+    this.log(`  rollupBeneficiary: ${rollupBeneficiary.toString()}`)
 
     const rollupPublisher = new RollupPublisher(
       rollupDb,
