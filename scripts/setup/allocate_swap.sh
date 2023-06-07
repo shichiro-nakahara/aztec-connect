@@ -1,11 +1,11 @@
 #!/bin/bash
 
-dd if=/dev/zero of=/swapfile_256 bs=1024 count=268435456
+echo "Allocating 512GB swap at /swapfile_512..."
 
-chmod 0600 /swapfile_256
+dd if=/dev/zero of=/swapfile_512 bs=1024 count=536870912
 
-mkswap /swapfile_256
+chmod 0600 /swapfile_512
 
-swapon /swapfile_256
+mkswap /swapfile_512
 
-echo "Warn: The halloumi instance which computes the outer rollup requires >512GB memory."
+swapon /swapfile_512
