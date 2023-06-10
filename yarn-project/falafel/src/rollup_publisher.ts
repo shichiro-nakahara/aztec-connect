@@ -195,10 +195,31 @@ export class RollupPublisher {
   private async sendTx(txData: Buffer, options: SendTxOptions) {
     while (true) {
       try {
+        this.log(`Sending tx...`);
+        const maxFeePerGas = options.maxFeePerGas;
+        const maxPriorityFeePerGas = options.maxPriorityFeePerGas;
+        const gasLimit = options.gasLimit;
+
+        if (maxFeePerGas) this.log(`maxFeePerGas        : ${fromBaseUnits(maxFeePerGas, 18, 3)} MATIC`);
+        if (maxPriorityFeePerGas) this.log(`maxPriorityFeePerGas: ${fromBaseUnits(maxPriorityFeePerGas, 18, 3)} MATIC`);
+        if (gasLimit) this.log(`gasLimit            : ${gasLimit}`);
+
         return await this.blockchain.sendTx(txData, options);
       } catch (err: any) {
         this.log(err.message.slice(0, 500));
+        
+        if (err.message.includes('transaction underpriced')) {
+          this.maxFeePerGas += 50000000000n;
+          this.maxPriorityFeePerGas += 10000000000n;
+          this.log(`Bumping maxFeePerGas by 50 gwei and maxPriorityFeePerGas by 10 gwei, retrying in 2s...`);
+
+          await sleep(2000);
+
+          return;
+        }
+
         this.log('Will retry in 60s...');
+
         await sleep(60000);
       }
     }
