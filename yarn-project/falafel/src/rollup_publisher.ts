@@ -208,16 +208,6 @@ export class RollupPublisher {
       } catch (err: any) {
         this.log(err.message.slice(0, 500));
         
-        if (err.message.includes('transaction underpriced')) {
-          this.maxFeePerGas += 20000000000n;
-          this.maxPriorityFeePerGas += 10000000000n;
-          this.log(`Bumping maxFeePerGas by 20 gwei and maxPriorityFeePerGas by 10 gwei, retrying in 2s...`);
-
-          await sleep(2000);
-
-          return;
-        }
-
         this.log('Will retry in 60s...');
 
         await sleep(60000);
