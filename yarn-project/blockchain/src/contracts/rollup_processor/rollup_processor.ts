@@ -59,6 +59,22 @@ export class RollupProcessor {
   private provider: Web3Provider;
   private debug = createDebug('bb:rollup_processor');
 
+  // Something weird happened here. 2x offchain data got posted for this rollup, one was posted before
+  // the rollup tx and the other one after. The offchain data that was posted before (i.e. lower block number)
+  // was incorrect. This hack was added to look for the correct offchain data for that particular transaction.
+  private offchainDataFixes = {
+    // rollupTx
+    '0x9c7d51dd39255ee8b3c2c3e93fa69f9736183ed2d1dd41f7f7e8966797bb847e': {
+      invalidOffchainTxs: [
+        '0xfb2006ca38b3b0bc1977d2e57566dd3d5936c2a6591d625de8dd267414c6ea0a'
+      ],
+      correctOffchainTx: {
+        block: 43779573,
+        hash: '0x621934386a2f01b3858a758891ef7a2089686431cb5a08a68ac048083c90ab26'
+      }
+    }
+  };
+
   constructor(
     protected rollupContractAddress: EthAddress,
     private ethereumProvider: EthereumProvider,
@@ -831,14 +847,30 @@ export class RollupProcessor {
     );
     // Search from 1 days worth of blocks before, up to the last rollup block.
     const { offchainSearchLead } = await this.getEarliestBlock();
-    const start = rollupEvents[0].blockNumber - offchainSearchLead;
-    const end = rollupEvents[rollupEvents.length - 1].blockNumber;
+    let start = rollupEvents[0].blockNumber - offchainSearchLead;
+    let end = rollupEvents[rollupEvents.length - 1].blockNumber;
+
+    const rollupTxHash = rollupEvents[0].transactionHash;
+    const rollupTxsToFix = Object.keys(this.offchainDataFixes);
+    if (rollupTxsToFix.includes(rollupTxHash)) {
+      this.debug(`broken rollup tx found, offsetting block search to find correct offchain data event`);
+      end = (<any>this.offchainDataFixes)[rollupTxHash].correctOffchainTx.block;
+    }
+
     this.debug(`fetching offchain data events from blocks ${start} - ${end}...`);
-    const offchainEvents = await this.rollupProcessor.queryFilter(
+    let offchainEvents = await this.rollupProcessor.queryFilter(
       filter,
-      rollupEvents[0].blockNumber - offchainSearchLead,
-      rollupEvents[rollupEvents.length - 1].blockNumber,
+      start,
+      end,
     );
+
+    if (rollupTxsToFix.includes(rollupTxHash)) {
+      this.debug(`filtering incorrect offchain data event`);
+      offchainEvents = offchainEvents.filter((e) => {
+        return !(<any>this.offchainDataFixes)[rollupTxHash].invalidOffchainTxs.includes(e.transactionHash);
+      })
+    }
+
     this.debug(`found ${offchainEvents.length} offchain events.`);
     // Key the offchain data event on the rollup id and sender.
     const offchainEventMap = offchainEvents.reduce<{ [key: string]: Event[] }>((a, e) => {
@@ -849,7 +881,9 @@ export class RollupProcessor {
 
       // if the rollup event occurs before the offchain event, then ignore the off chain event
       const rollupLogIndex = rollupLogs.findIndex(x => x.args.rollupId.toNumber() === rollupId.toNumber());
-      if (rollupLogIndex !== -1) {
+      if (e.transactionHash != (<any>this.offchainDataFixes)[rollupTxHash]?.correctOffchainTx.hash &&
+        rollupLogIndex !== -1
+      ) {
         const rollupEvent = rollupEvents[rollupLogIndex];
         if (rollupEvent.blockNumber < e.blockNumber) {
           this.debug(
