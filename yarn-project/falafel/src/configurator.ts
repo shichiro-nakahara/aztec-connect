@@ -110,8 +110,8 @@ const defaultRuntimeConfig: RuntimeConfig = {
   maxFeeGasPrice: 500000000000n, // 500 gwei
   feeGasPriceMultiplier: 1,
   feeRoundUpSignificantFigures: 2,
-  maxFeePerGas: 500000000000n, // 500 gwei
-  maxPriorityFeePerGas: 50000000000n, // 50 gwei
+  maxFeePerGas: 700000000000n, // 700 gwei
+  maxPriorityFeePerGas: 200000000000n, // 200 gwei
   maxUnsettledTxs: 10000,
   defaultDeFiBatchSize: 5,
   bridgeConfigs: [],
