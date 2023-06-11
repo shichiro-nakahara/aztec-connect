@@ -59,12 +59,6 @@ export class RollupProcessor {
   private provider: Web3Provider;
   private debug = createDebug('bb:rollup_processor');
 
-  // Filter out these transactions from events. They include blocks which were submitted to chain but contain
-  // errors (e.g. Offchain data has unexpected length for given proof ids).
-  private blacklist = [
-    '0x9c7d51dd39255ee8b3c2c3e93fa69f9736183ed2d1dd41f7f7e8966797bb847e' // Polygon (137)
-  ];
-
   constructor(
     protected rollupContractAddress: EthAddress,
     private ethereumProvider: EthereumProvider,
@@ -582,8 +576,7 @@ export class RollupProcessor {
     const currentBlockNumber = await new EthereumRpc(this.ethereumProvider).blockNumber();
     const events = allEvents
       .filter(e => currentBlockNumber - e.blockNumber + 1 >= minConfirmations)
-      .filter(e => e.args!.rollupId.toNumber() >= rollupId)
-      .filter(e => !this.blacklist.includes(e.transactionHash));
+      .filter(e => e.args!.rollupId.toNumber() >= rollupId);
 
     if (events.length) {
       const processStartTime = new Timer();
@@ -617,9 +610,7 @@ export class RollupProcessor {
         this.debug(`fetching rollup events between blocks ${start} and ${end}...`);
         const rollupFilter = this.rollupProcessor.filters.RollupProcessed();
         const allEvents = await this.rollupProcessor.queryFilter(rollupFilter, start, end);
-        const events = allEvents
-          .filter(e => currentBlockNumber - e.blockNumber + 1 >= minConfirmations)
-          .filter(e => !this.blacklist.includes(e.transactionHash));
+        const events = allEvents.filter(e => currentBlockNumber - e.blockNumber + 1 >= minConfirmations);
         for (let i = events.length - 1; i >= 0 && !block; i--) {
           await this.getRollupBlocksFromEvents([events[i]], b => Promise.resolve(void (block = b)));
         }
@@ -633,9 +624,7 @@ export class RollupProcessor {
     const findSpecificBlock = async () => {
       const specificRollupFilter = this.rollupProcessor.filters.RollupProcessed(rollupId);
       const allEvents = await this.rollupProcessor.queryFilter(specificRollupFilter);
-      const events = allEvents
-        .filter(e => currentBlockNumber - e.blockNumber + 1 >= minConfirmations)
-        .filter(e => !this.blacklist.includes(e.transactionHash));
+      const events = allEvents.filter(e => currentBlockNumber - e.blockNumber + 1 >= minConfirmations);
       if (!events.length) {
         return;
       }
