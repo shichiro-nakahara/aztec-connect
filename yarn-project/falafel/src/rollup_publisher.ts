@@ -115,6 +115,7 @@ export class RollupPublisher {
           gasLimit: this.gasLimit,
           maxFeePerGas: this.maxFeePerGas,
           maxPriorityFeePerGas: this.maxPriorityFeePerGas,
+          signingAddress: defaultSignerAddress
         });
       }
 
