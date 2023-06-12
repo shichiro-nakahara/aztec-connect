@@ -6,14 +6,14 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract GasOracle is Ownable {
     // is IChainlinkOracle
 
-    int256 public priorityFee;
+    int256 public multiplier; // 100 = 1x, 150 = 2x
 
-    constructor(int256 _priorityFee) {
-        priorityFee = _priorityFee;
+    constructor(int256 _multiplier) {
+        multiplier = _multiplier;
     }
 
     function latestAnswer() external view returns (int256) {
-        return int(block.basefee) + priorityFee;
+        return (int(block.basefee) * multiplier) / 100;
     }
 
     function getAnswer(uint256) external view returns (int256) {
@@ -23,7 +23,7 @@ contract GasOracle is Ownable {
     function latestRound() external view returns (uint80, int256, uint256, uint256, uint80) {
         return (
             uint80(1), // roundId
-            int(block.basefee) + priorityFee, // answer
+            this.latestAnswer(), // answer
             block.timestamp - 1, // startedAt
             block.timestamp, // updatedAt
             uint80(1) // answeredInRound
@@ -34,7 +34,7 @@ contract GasOracle is Ownable {
         return this.latestRound();
     }
 
-    function setPriorityFee(int256 _priorityFee) external onlyOwner {
-        priorityFee = _priorityFee;
+    function setMultiplier(int256 _multiplier) external onlyOwner {
+        multiplier = _multiplier;
     }
 }

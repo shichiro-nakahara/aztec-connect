@@ -87,7 +87,7 @@ contract ChainSpecificSetupV3 is Test {
 
         // Use custom gas oracle with fixed priority fee
         vm.broadcast();
-        GasOracle gasOracle = new GasOracle(5 gwei);
+        GasOracle gasOracle = new GasOracle(150); // 1.5x multiplier
 
         return BridgePeripheryAddresses({
             dataProvider: address(0),
