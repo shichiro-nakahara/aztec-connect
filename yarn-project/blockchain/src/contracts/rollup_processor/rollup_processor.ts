@@ -393,8 +393,18 @@ export class RollupProcessor {
 
   public async sendTx(data: Buffer, options: SendTxOptions = {}) {
     const { signingAddress, gasLimit, nonce, maxFeePerGas, maxPriorityFeePerGas } = options;
-    const signer = signingAddress ? this.provider.getSigner(signingAddress.toString()) : this.provider.getSigner(0);
-    const from = await signer.getAddress();
+    
+    if (!signingAddress) throw new Error('Signing address must be set for sendTx');
+
+    // The signer from this.provider.getSigner() doesn't allow options to be overriden properly.
+    // Setting maxFeePerGas and maxPriorityFeePerGas reverts to default values.
+    // I know this.ethereumProvider is a WalletProvider, so get the Wallet from there and instantiate
+    // and use that instead.
+    const wallet = (<WalletProvider>this.ethereumProvider).getWallet(signingAddress);
+
+    if (!wallet) throw new Error(`Wallet for ${signingAddress} does not exist`);
+
+    const from = wallet.address;
     const txRequest: TransactionRequest = {
       to: this.rollupContractAddress.toString(),
       from,
@@ -404,7 +414,7 @@ export class RollupProcessor {
       maxFeePerGas,
       maxPriorityFeePerGas,
     };
-    const txResponse = await signer.sendTransaction(txRequest).catch(fixEthersStackTrace);
+    const txResponse = await wallet.sendTransaction(txRequest).catch(fixEthersStackTrace);
     return TxHash.fromString(txResponse.hash);
   }
 
