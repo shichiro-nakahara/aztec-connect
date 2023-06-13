@@ -7,6 +7,7 @@ import { Configurator } from './configurator.js';
 import { Server } from './server.js';
 import { appFactory } from './app.js';
 import { EthLogsDb } from './log_db.js';
+import { Notifier } from './notifier.js';
 
 const configurator = new Configurator();
 
@@ -33,7 +34,12 @@ async function main() {
   process.once('SIGINT', shutdown);
   process.once('SIGTERM', shutdown);
 
-  const app = appFactory(server, apiPrefix);
+  const appNotifier = new Notifier(
+    'Kebab: App', 
+    configuration.telegramSendMessageEndpoint, 
+    configuration.telegramChannelId
+  );
+  const app = appFactory(server, apiPrefix, appNotifier);
   const httpServer = http.createServer(app.callback());
   httpServer.listen(port);
   console.log(`Kebab Server listening on port ${port}.`);
