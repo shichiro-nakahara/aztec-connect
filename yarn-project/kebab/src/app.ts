@@ -4,6 +4,7 @@ import bodyParser from 'koa-bodyparser';
 import compress from 'koa-compress';
 import cors from '@koa/cors';
 import { Server } from './server.js';
+import { Notifier } from './notifier.js';
 
 // Not sure why the declaration in koa-bodyparser is not being picked up. Workaround...
 // Maybe you, dear reader, can fix and let me (Charlie) know why?
@@ -14,7 +15,7 @@ declare module 'koa' {
   }
 }
 
-export function appFactory(server: Server, prefix: string) {
+export function appFactory(server: Server, prefix: string, notifier: Notifier) {
   const router = new Router<DefaultState, Context>({ prefix });
 
   const checkReady = async (ctx: Koa.Context, next: () => Promise<void>) => {
@@ -70,6 +71,10 @@ export function appFactory(server: Server, prefix: string) {
       }
       console.log('RPC request: ', JSON.stringify(ctx.request.body));
       console.log('RPC error response: ', JSON.stringify(ctx.body));
+
+      notifier.send(
+        `<b>RPC Request</b>\n${ctx.request.body?.method}\n\n<b>Error Response</b>\n${(<any>ctx.body)?.error?.message}`
+      );
     }
   });
 

@@ -3,6 +3,7 @@ import { createDebugLogger, createLogger } from '@aztec/barretenberg/log';
 import { JsonRpcProvider } from '@aztec/blockchain';
 import { EthLogsDb, EventStore } from './log_db.js';
 import { EthEvent } from './eth_event.js';
+import { Notifier } from './notifier.js';
 
 export enum EventRetrieverErrors {
   NONE,
@@ -46,6 +47,7 @@ export class TopicEventRetriever {
     private logsDb: EthLogsDb,
     private chainProperties: ChainProperties,
     public eventProprties: EventProperties,
+    private notifier: Notifier
   ) {}
 
   public async syncToLatest(latestBlock: number, eventStore: EventStore) {
@@ -139,8 +141,12 @@ export class TopicEventRetriever {
     }
   }
 
-  private throwError(type: EventRetrieverErrors, message: string) {
+  private throwError(type: EventRetrieverErrors, message: any) {
+    if (typeof message == 'object' && typeof message != 'string') message = JSON.stringify(message);
+
     this.log(`EventRetrieverError - ${EventRetrieverErrors[type]} ${message}`);
+    this.notifier.send(`<b>Type</b>\n${EventRetrieverErrors[type]}\n\n<b>Message</b>\n${message}`);
+
     throw new EventRetrieverError(type, message);
   }
 }
