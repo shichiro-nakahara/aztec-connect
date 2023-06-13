@@ -13,6 +13,7 @@ import {
 } from './topic_event_retriever.js';
 import { EVENT_PROPERTIES, REQUEST_TYPES_TO_CACHE } from './config.js';
 import { EthEvent } from './eth_event.js';
+import { Notifier } from './notifier.js';
 
 export interface RollupLogsParams {
   topics: string[];
@@ -55,7 +56,12 @@ export class Server {
         logBatchSize: chunk,
         rollupContractAddress: configuration.rollupContractAddress,
       } as ChainProperties;
-      return new TopicEventRetriever(provider, logsDb, chainProperties, ep);
+      const terNotifier = new Notifier(
+        'Kebab: TopicEventRetriever', 
+        configuration.telegramSendMessageEndpoint, 
+        configuration.telegramChannelId
+      );
+      return new TopicEventRetriever(provider, logsDb, chainProperties, ep, terNotifier);
     });
     for (const key of this.configuration.apiKeys) {
       this.apiKeys[key] = true;

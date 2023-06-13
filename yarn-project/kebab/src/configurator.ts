@@ -23,6 +23,8 @@ export interface StartupConfig {
   indexing: boolean;
   // The Ethereum address of the Aztec Connect contract. Env: ROLLUP_CONTRACT_ADDRESS
   rollupContractAddress: EthAddress;
+  telegramSendMessageEndpoint: string | undefined;
+  telegramChannelId: string | undefined;
 }
 
 const defaultStartupConfig: StartupConfig = {
@@ -35,6 +37,8 @@ const defaultStartupConfig: StartupConfig = {
   apiKeys: [],
   indexing: true,
   rollupContractAddress: EthAddress.ZERO,
+  telegramSendMessageEndpoint: undefined,
+  telegramChannelId: undefined
 };
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {
@@ -48,6 +52,8 @@ function getStartupConfigEnvVars(): Partial<StartupConfig> {
     API_KEYS,
     INDEXING,
     ROLLUP_CONTRACT_ADDRESS,
+    TELEGRAM_SEND_MESSAGE_ENDPOINT,
+    TELEGRAM_CHANNEL_ID
   } = process.env;
 
   const envVars: Partial<StartupConfig> = {
@@ -60,6 +66,8 @@ function getStartupConfigEnvVars(): Partial<StartupConfig> {
     apiKeys: API_KEYS ? API_KEYS.split(',') : undefined,
     indexing: INDEXING ? INDEXING === 'true' : undefined,
     rollupContractAddress: ROLLUP_CONTRACT_ADDRESS ? EthAddress.fromString(ROLLUP_CONTRACT_ADDRESS) : undefined,
+    telegramSendMessageEndpoint: TELEGRAM_SEND_MESSAGE_ENDPOINT ? TELEGRAM_SEND_MESSAGE_ENDPOINT : undefined,
+    telegramChannelId: TELEGRAM_CHANNEL_ID ? TELEGRAM_CHANNEL_ID : undefined
   };
   return Object.fromEntries(Object.entries(envVars).filter(e => e[1] !== undefined));
 }
