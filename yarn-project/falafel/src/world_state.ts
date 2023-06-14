@@ -330,6 +330,11 @@ export class WorldState {
     this.pipeline = this.pipelineFactory.create();
     this.pipeline.start().catch(err => {
       this.pipeline = undefined;
+      if (err.message == 'restart-pipeline') {
+        this.notifier.send(`\u{1F6A8} Pipeline restart!`);
+        return this.restartPipeline();
+      }
+
       this.log('PIPELINE PANIC! Handle the exception!');
       this.log(err);
 

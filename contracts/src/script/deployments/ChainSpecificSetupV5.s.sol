@@ -7,7 +7,7 @@ import {AggregateDeployment} from "bridge-deployments/AggregateDeployment.s.sol"
 import {ERC20Permit} from "../../test/mocks/ERC20Permit.sol";
 import {AztecFeeDistributor} from "periphery/AztecFeeDistributor.sol";
 import {GasOracle} from "core/libraries/GasOracle.sol";
-import {RollupProcessorV3} from "core/processors/RollupProcessorV3.sol";
+import {RollupProcessorV5} from "core/processors/RollupProcessorV5.sol";
 
 // Mocks
 import {DummyDefiBridge} from "../../test/mocks/DummyDefiBridge.sol";
@@ -18,7 +18,7 @@ import {AztecFaucet} from "periphery/AztecFaucet.sol";
 import {MockChainlinkOracle} from "../../test/mocks/MockChainlinkOracle.sol";
 import {MockBridgeDataProvider} from "../../test/mocks/MockBridgeDataProvider.sol";
 
-contract ChainSpecificSetupV3 is Test {
+contract ChainSpecificSetupV5 is Test {
     // Mainnet fork key addresses
     address internal constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address internal constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
@@ -64,7 +64,7 @@ contract ChainSpecificSetupV3 is Test {
             return setupAssetAndBridgesPolygon(_proxy, _permitHelper, _safe, _faucetOperator);
         }
         else {
-            return setupAssetsAndBridgesTestsV3(_proxy, _permitHelper, _faucetOperator);
+            return setupAssetsAndBridgesTestsV5(_proxy, _permitHelper, _faucetOperator);
         }
     }
 
@@ -108,7 +108,7 @@ contract ChainSpecificSetupV3 is Test {
      * @param _faucetOperator The address of the faucet operator
      * @return BridgePeripheryAddresses contains dataProvider, priceFeeds, faucet and fee distributor addresses
      */
-    function setupAssetsAndBridgesTestsV3(address _proxy, address _permitHelper, address _faucetOperator)
+    function setupAssetsAndBridgesTestsV5(address _proxy, address _permitHelper, address _faucetOperator)
         public
         returns (BridgePeripheryAddresses memory)
     {
@@ -181,7 +181,7 @@ contract ChainSpecificSetupV3 is Test {
             mockToken.setDecimals(_decimals);
         }
         vm.broadcast();
-        RollupProcessorV3(payable(_proxy)).setSupportedAsset(address(mockToken), dummyTokenMockGasLimit);
+        RollupProcessorV5(payable(_proxy)).setSupportedAsset(address(mockToken), dummyTokenMockGasLimit);
         vm.broadcast();
         PermitHelper(_permitHelper).preApprove(address(mockToken));
     }
