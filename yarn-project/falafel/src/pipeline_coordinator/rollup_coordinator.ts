@@ -50,6 +50,11 @@ interface AaveTransaction {
   amount: bigint
 }
 
+interface AaveTransferError {
+  title: string,
+  message: string   
+}
+
 export class RollupCoordinator {
   private processedTxs: RollupTx[] = [];
   private totalSlots: number;
@@ -488,7 +493,7 @@ export class RollupCoordinator {
 
     const error = await this.performAaveTransfers();
     if (error) {
-      this.log(`RollupCoordinator: Aave transfers could not complete: ${error.title}`);
+      this.log(`Aave transfers could not complete: ${error.title}`);
       this.log(error.message);
 
       let errorMessage = `\u{1F6A8} Aave transfer error`;
@@ -546,7 +551,7 @@ export class RollupCoordinator {
           bridgeSubsidyProvider,
         );
       } catch (err) {
-        this.log('RollupCoordinator: Error when registering published rollup metrics', err);
+        this.log('Error when registering published rollup metrics', err);
       }
     }
 
@@ -567,28 +572,28 @@ export class RollupCoordinator {
   }
 
   private async printRollupState(rollupProfile: RollupProfile, timeout: boolean, flush: boolean, limit: boolean) {
-    this.log(`RollupCoordinator:   Creating rollup...`);
-    this.log(`RollupCoordinator:   rollupSize: ${rollupProfile.rollupSize}`);
+    this.log(`  Creating rollup...`);
+    this.log(`  rollupSize: ${rollupProfile.rollupSize}`);
     const secondClassStr = rollupProfile.totalSecondClassTxs ? ` (${rollupProfile.totalSecondClassTxs} 2nd-class)` : '';
-    this.log(`RollupCoordinator:   numTxs: ${rollupProfile.totalTxs}${secondClassStr}`);
+    this.log(`  numTxs: ${rollupProfile.totalTxs}${secondClassStr}`);
     for (let t = 0; t < numTxTypes; t++) {
       const txType = TxType[t].toLowerCase();
       const numSecondClassForType = rollupProfile.numSecondClassTxsPerType[t];
       const secondClassStr = numSecondClassForType ? ` (${numSecondClassForType} 2nd-class)` : '';
-      this.log(`RollupCoordinator:     ${txType}: ${rollupProfile.numTxsPerType[t]}${secondClassStr}`);
+      this.log(`    ${txType}: ${rollupProfile.numTxsPerType[t]}${secondClassStr}`);
     }
-    this.log(`RollupCoordinator:   timeout/flush/limit: ${timeout}/${flush}/${limit}`);
-    this.log(`RollupCoordinator:   aztecGas balance: ${rollupProfile.gasBalance}`);
-    this.log(`RollupCoordinator:   inner/outer chains: ${rollupProfile.innerChains}/${rollupProfile.outerChains}`);
-    this.log(`RollupCoordinator:   estimated L1 gas: ${rollupProfile.totalGas}`);
-    this.log(`RollupCoordinator:   calldata: ${rollupProfile.totalCallData} bytes`);
+    this.log(`  timeout/flush/limit: ${timeout}/${flush}/${limit}`);
+    this.log(`  aztecGas balance: ${rollupProfile.gasBalance}`);
+    this.log(`  inner/outer chains: ${rollupProfile.innerChains}/${rollupProfile.outerChains}`);
+    this.log(`  estimated L1 gas: ${rollupProfile.totalGas}`);
+    this.log(`  calldata: ${rollupProfile.totalCallData} bytes`);
     for (const bp of rollupProfile.bridgeProfiles.values()) {
       const bridgeDescription = await this.bridgeResolver.getBridgeDescription(bp.bridgeCallData);
       const descriptionLog = bridgeDescription ? `(${bridgeDescription})` : '';
-      this.log(`RollupCoordinator:   Defi bridge published: ${bp.bridgeCallData.toString()} ${descriptionLog}`);
-      this.log(`RollupCoordinator:   numTxs: ${bp.numTxs}`);
+      this.log(`  Defi bridge published: ${bp.bridgeCallData.toString()} ${descriptionLog}`);
+      this.log(`  numTxs: ${bp.numTxs}`);
       this.log(
-        `RollupCoordinator:   gas balance (subsidy): ${bp.gasAccrued + bp.gasSubsidy - bp.gasThreshold} (${
+        `  gas balance (subsidy): ${bp.gasAccrued + bp.gasSubsidy - bp.gasThreshold} (${
           bp.gasSubsidy
         })`,
       );
@@ -647,23 +652,22 @@ export class RollupCoordinator {
     return { isProfitable, deadline, outOfGas, outOfCallData, outOfSlots };
   }
 
-  private async performAaveTransfers() {
+  private async performAaveTransfers(): Promise<AaveTransferError | null> {
     const { 
       aavePaused, 
       aaveBuffer, 
       maxPriorityFeePerGas, 
-      aaveGasMultiplier 
+      aaveGasMultiplier,
+      maxTxRetries 
     } = configurator.getConfVars().runtimeConfig;
 
-    this.log(`RollupCoordinator: Aave - buffer: ${aaveBuffer}, signingAddress: ${this.signingAddress.toString()}`);
+    this.log(`Aave - buffer: ${aaveBuffer}, signingAddress: ${this.signingAddress.toString()}`);
 
-    const maxTxAttempts = 5;
-    const heldAssets = await this.getHeldAssets(maxTxAttempts);
-
+    const heldAssets = await this.getHeldAssets(maxTxRetries);
     if (!heldAssets) {
       return {
         title: `Held asset retrieval failure`,
-        message: `Could not get held assets after ${maxTxAttempts} attempts!`
+        message: `Could not get held assets after ${maxTxRetries} attempts!`
       };
     }
 
@@ -677,7 +681,7 @@ export class RollupCoordinator {
           const symbol = blockchainStatus.assets[assetId].symbol;
           const amountHR = fromBaseUnits(heldAssets[assetId].aave, 18, 4);
 
-          this.log(`RollupCoordinator: Added Aave withdraw tx ${amountHR} ${symbol}`);
+          this.log(`Added Aave withdraw tx ${amountHR} ${symbol}`);
           transactions.push({
             type: AaveTransactionType.WITHDRAW,
             txHash: null,
@@ -723,16 +727,16 @@ export class RollupCoordinator {
         const totalHR = fromBaseUnits(total, 18, 4);
         const aaveHR = fromBaseUnits(heldAssets[assetId].aave, 18, 4);
         const inContractHR = fromBaseUnits(inContract, 18, 4);
-        this.log(`RollupCoordinator: Post-rollup values ${totalHR} ${symbol} (a: ${aaveHR}, c: ${inContractHR})`);
+        this.log(`Post-rollup values ${totalHR} ${symbol} (a: ${aaveHR}, c: ${inContractHR})`);
         
         const expectedInContract = BigInt(aaveBuffer * Number(total));
         const expectedInContractHR = fromBaseUnits(expectedInContract, 18, 4);
-        this.log(`RollupCoordinator: Expected in contract ${expectedInContractHR} ${symbol}`);
+        this.log(`Expected in contract ${expectedInContractHR} ${symbol}`);
 
         if (expectedInContract > inContract) {
           const toWithdraw = expectedInContract - inContract;
 
-          this.log(`RollupCoordinator: Added Aave withdraw tx ${fromBaseUnits(toWithdraw, 18, 4)} ${symbol}`);
+          this.log(`Added Aave withdraw tx ${fromBaseUnits(toWithdraw, 18, 4)} ${symbol}`);
           transactions.push({
             type: AaveTransactionType.WITHDRAW,
             txHash: null,
@@ -747,7 +751,7 @@ export class RollupCoordinator {
         if (expectedInContract < inContract) {
           const toDeposit = inContract - expectedInContract;
 
-          this.log(`RollupCoordinator: Added Aave deposit tx ${fromBaseUnits(toDeposit, 18, 4)} ${symbol}`);
+          this.log(`Added Aave deposit tx ${fromBaseUnits(toDeposit, 18, 4)} ${symbol}`);
           transactions.push({
             type: AaveTransactionType.DEPOSIT,
             txHash: null,
@@ -762,7 +766,7 @@ export class RollupCoordinator {
     }
 
     if (transactions.length == 0) {
-      this.log(`RollupCoordinator: No Aave transactions to perform, continuing...`);
+      this.log(`No Aave transactions to perform, continuing...`);
       return null; // No Aave transactions to perform
     }
 
@@ -773,10 +777,19 @@ export class RollupCoordinator {
 
     const estimatedHR = fromBaseUnits(estimatedFeePerGas, 9, 3);
     const adjustedHR = fromBaseUnits(adjustedEstimatedFeePerGas, 9, 3);
-    this.log(`RollupCoordinator: Aave txs estimatedfeePerGas ${estimatedHR} gwei (adjusted ${adjustedHR} gwei)`);
+    this.log(`Aave txs estimatedfeePerGas ${estimatedHR} gwei (adjusted ${adjustedHR} gwei)`);
+
+    let txRetries = 0;
 
     transactionLoop:
     while (true) {
+      if (txRetries >= maxTxRetries) {
+        this.log(`Could not complete Aave transfers after ${txRetries} retries, restarting...`);
+        await this.notifier.send(`\u{1F6A8} Aave transfer restart!`);
+        return this.performAaveTransfers();
+      }
+      txRetries++;
+
       let nonce = await ethereumRpc.getTransactionCount(this.signingAddress);
 
       for (let i = 0; i < transactions.length; i++) {
@@ -792,16 +805,38 @@ export class RollupCoordinator {
         };
 
         if (type == AaveTransactionType.DEPOSIT) {
-          this.log(`RollupCoordinator: Sending Aave deposit tx with nonce ${options.nonce}`);
-          transactions[i].txHash = await this.blockchain.depositToLP(assetId, amount, this.signingAddress, options);
+          this.log(`Sending Aave deposit tx with nonce ${options.nonce}`);
+          try {
+            transactions[i].txHash = await this.blockchain.depositToLP(assetId, amount, this.signingAddress, options);
+          }
+          catch (e) {
+            this.log(e);
+          }
           continue;
         }
         
         if (type == AaveTransactionType.WITHDRAW) {
-          this.log(`RollupCoordinator: Sending Aave withdraw tx with nonce ${options.nonce}`);
-          transactions[i].txHash = await this.blockchain.withdrawFromLP(assetId, amount, this.signingAddress, options);
+          this.log(`Sending Aave withdraw tx with nonce ${options.nonce}`);
+          try {
+            transactions[i].txHash = await this.blockchain.withdrawFromLP(
+              assetId, 
+              amount, 
+              this.signingAddress, 
+              options
+            );
+          }
+          catch (e) {
+            this.log(e);
+          }
           continue;
         }
+      }
+
+      const unsuccessfulTx = transactions.find((transaction) => !transaction.txHash);
+      if (unsuccessfulTx) {
+        this.log(`Aave ${AaveTransactionType[unsuccessfulTx.type]} transaction did not send, resending after 10s...`);
+        await sleep(10000);
+        continue;
       }
 
       // Check receipts
@@ -816,7 +851,7 @@ export class RollupCoordinator {
         if (receipt.status) {
           transactions[i].success = true;
         } else {
-          this.log(`RollupCoordinator: Aave transaction failed: ${txHash!.toString()}`);
+          this.log(`Aave transaction failed: ${txHash!.toString()}`);
           if (receipt.revertError) {
             this.log(`Revert Error: ${receipt.revertError.name}(${receipt.revertError.params.join(', ')})`);
           }
@@ -827,7 +862,7 @@ export class RollupCoordinator {
         }
       }
 
-      this.log(`RollupCoordinator: Successfully sent Aave transactions!`);
+      this.log(`Successfully sent Aave transactions!`);
 
       let message = `\u{2705} Aave transfers successful!\n\n`;
       transactions.forEach((transactions) => {
@@ -873,7 +908,7 @@ export class RollupCoordinator {
 
       if (remainingAttempts <= 0) return false;
 
-      this.log(`RollupCoordinator: Held asset retrieval error (${remainingAttempts} attempts remaining)`, e);
+      this.log(`Held asset retrieval error (${remainingAttempts} attempts remaining)`, e);
 
       await sleep(1000);
 
@@ -903,7 +938,7 @@ export class RollupCoordinator {
       try {
         return await this.blockchain.getTransactionReceiptSafe(txHash, 300);
       } catch (err) {
-        this.log(`RollupCoordinator: Couldn't get receipt for ${txHash}`);
+        this.log(`Couldn't get receipt for ${txHash}`);
         await sleep(10000);
       }
     }

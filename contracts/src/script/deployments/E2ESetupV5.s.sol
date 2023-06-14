@@ -6,15 +6,15 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Test} from "forge-std/Test.sol";
 import {RollupDeployer} from "./RollupDeployer.s.sol";
 import {PermitHelper} from "periphery/PermitHelper.sol";
-import {RollupProcessorV3} from "core/processors/RollupProcessorV3.sol";
+import {RollupProcessorV5} from "core/processors/RollupProcessorV5.sol";
 import {Verifier28x32} from "core/verifier/instances/Verifier28x32.sol";
 import {Verifier1x1} from "core/verifier/instances/Verifier1x1.sol";
 import {MockVerifier} from "core/verifier/instances/MockVerifier.sol";
 import {AlwaysTrueVerifier} from "../../test/mocks/AlwaysTrueVerifier.sol";
 import {stdJson} from "forge-std/StdJson.sol";
-import {ChainSpecificSetupV3} from "./ChainSpecificSetupV3.s.sol";
+import {ChainSpecificSetupV5} from "./ChainSpecificSetupV5.s.sol";
 
-contract E2ESetupV3 is Test {
+contract E2ESetupV5 is Test {
     using stdJson for string;
     using Strings for uint256;
 
@@ -41,7 +41,7 @@ contract E2ESetupV3 is Test {
     }
 
     /**
-     * @notice Deploy RollupProcessorV3 with input configuration
+     * @notice Deploy RollupProcessorV5 with input configuration
      * @param _deployer Deployer address
      * @param _safe Admin safe address
      * @param _faucetController Faucet Admin address - for testnets
@@ -112,19 +112,19 @@ contract E2ESetupV3 is Test {
             )
         );
 
-        RollupProcessorV3 rollupProcessorV3 = RollupProcessorV3(payable(proxy));
+        RollupProcessorV5 rollupProcessorV5 = RollupProcessorV5(payable(proxy));
 
         vm.broadcast();
-        rollupProcessorV3.setRollupProvider(_params.provider, true);
+        rollupProcessorV5.setRollupProvider(_params.provider, true);
 
-        rollupDeployer.upgradeV3(proxyAdmin, proxy);
+        rollupDeployer.upgradeV5(proxyAdmin, proxy);
 
         // Grant the deployer permission to list bridges and assets
         vm.broadcast();
-        rollupProcessorV3.grantRole(ROLES[3], _params.deployer);
+        rollupProcessorV5.grantRole(ROLES[3], _params.deployer);
 
-        ChainSpecificSetupV3 bridgesSetup = new ChainSpecificSetupV3();
-        ChainSpecificSetupV3.BridgePeripheryAddresses memory peripheryAddresses = bridgesSetup.setupAssetsAndBridges(
+        ChainSpecificSetupV5 bridgesSetup = new ChainSpecificSetupV5();
+        ChainSpecificSetupV5.BridgePeripheryAddresses memory peripheryAddresses = bridgesSetup.setupAssetsAndBridges(
             address(proxy), address(permitHelper), _params.faucetController, _params.safe
         );
 
@@ -194,7 +194,7 @@ contract E2ESetupV3 is Test {
      * @param _deployer The deployer address
      */
     function setupRoles(address _rollup, address _safe, address _deployer) public {
-        RollupProcessorV3 rollup = RollupProcessorV3(payable(_rollup));
+        RollupProcessorV5 rollup = RollupProcessorV5(payable(_rollup));
         for (uint256 i = 0; i < ROLES.length; i++) {
             if (!rollup.hasRole(ROLES[i], _safe)) {
                 vm.broadcast();
@@ -216,7 +216,7 @@ contract E2ESetupV3 is Test {
     /**
      * @notice Write deployed addreses to stdout and to a json file for consumption by other services
      * @param _params FullParam script input parameters
-     * @param _peripheryAddresses Addresses deployed in `ChainSpecificSetupV3.sol`
+     * @param _peripheryAddresses Addresses deployed in `ChainSpecificSetupV5.sol`
      *        contains dataProvider, priceFeeds, faucet and fee distributor addresses
      * @param _proxyAdmin Address holding the proxy admin role
      * @param _proxy Address of the rollup proxy contract
@@ -226,7 +226,7 @@ contract E2ESetupV3 is Test {
      */
     function outputAddresses(
         FullParam memory _params,
-        ChainSpecificSetupV3.BridgePeripheryAddresses memory _peripheryAddresses,
+        ChainSpecificSetupV5.BridgePeripheryAddresses memory _peripheryAddresses,
         address _proxyAdmin,
         address _proxy,
         address _permitHelper,
@@ -251,7 +251,7 @@ contract E2ESetupV3 is Test {
         json.serialize("DAI_CONTRACT_ADDRESS", _peripheryAddresses.dai);
         json.serialize("ETH_CONTRACT_ADDRESS", _peripheryAddresses.eth);
         json.serialize("FAUCET_CONTRACT_ADDRESS", _peripheryAddresses.faucet);
-        json = json.serialize("VERSION", RollupProcessorV3(payable(_proxy)).getImplementationVersion());
+        json = json.serialize("VERSION", RollupProcessorV5(payable(_proxy)).getImplementationVersion());
 
         string memory path = string(abi.encodePacked("serve/contract_addresses.json"));
         json.write(path);
@@ -276,7 +276,7 @@ contract E2ESetupV3 is Test {
         emit log_named_address("EthToken      ", _peripheryAddresses.eth);
         emit log_named_address("Faucet        ", _peripheryAddresses.faucet);
 
-        emit log_named_uint("Version      ", RollupProcessorV3(payable(_proxy)).getImplementationVersion());
+        emit log_named_uint("Version      ", RollupProcessorV5(payable(_proxy)).getImplementationVersion());
     }
 
     /**

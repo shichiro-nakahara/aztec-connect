@@ -20,6 +20,7 @@ export class RollupPublisher {
     private gasLimit: number,
     private callDataLimit: number,
     private metrics: Metrics,
+    private maxTxRetries: number,
     private log = createLogger('RollupPublisher'),
     private notifier = new Notifier('RollupPublisher')
   ) {
@@ -98,7 +99,15 @@ export class RollupPublisher {
     prePublishMessage += `\n\n<b>Wallet Balance</b>\n${fromBaseUnits(currentBalance, 18, 3)} MATIC`;
     await this.notifier.send(prePublishMessage);
 
+    let txRetries = 0;
+
     mainLoop: while (true) {
+      if (txRetries >= this.maxTxRetries) {
+        this.log(`Could not publish rollup after ${txRetries} retries, restarting pipeline`);
+        throw new Error('restart-pipeline');
+      }
+      txRetries++;
+
       await this.awaitGasPriceBelowThresholdAndSufficientBalance(defaultSignerAddress, estimatedGas);
 
       let nonce = await this.ethereumRpc.getTransactionCount(defaultSignerAddress);
@@ -117,6 +126,13 @@ export class RollupPublisher {
           maxPriorityFeePerGas: this.maxPriorityFeePerGas,
           signingAddress: defaultSignerAddress
         });
+      }
+
+      const unsuccessfulTx = txStatuses.find((txStatus) => !txStatus.txHash);
+      if (unsuccessfulTx) {
+        this.log(`Transaction ${unsuccessfulTx.name} did not send, resending after 60s...`);
+        await sleep(60000);
+        continue;
       }
 
       // All txs have been sent. Save the last txHash.
@@ -194,14 +210,11 @@ export class RollupPublisher {
   }
 
   private async sendTx(txData: Buffer, options: SendTxOptions) {
-    while (true) {
-      try {
-        return await this.blockchain.sendTx(txData, options);
-      } catch (err: any) {
-        this.log(err.message.slice(0, 500));
-        this.log('Will retry in 60s...');
-        await sleep(60000);
-      }
+    try {
+      return await this.blockchain.sendTx(txData, options);
+    } catch (err: any) {
+      this.log(err.message.slice(0, 500));
+      return undefined;
     }
   }
 
