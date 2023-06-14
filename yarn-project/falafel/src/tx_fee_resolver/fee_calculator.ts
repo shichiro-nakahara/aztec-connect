@@ -53,22 +53,34 @@ export class FeeCalculator {
   }
 
   public getTxFees(txAssetId: number, feeAssetId: number) {
+    // Our feeGasPriceQuoteMultiplier can be accurate to 8 decimal places (e.g. 0.00000001).
+    const multiplierPrecision = 10 ** 8;
+    const feeGasPriceQuoteMultiplier = BigInt(
+      configurator.getConfVars().runtimeConfig.feeGasPriceQuoteMultiplier * multiplierPrecision
+    );
+
     // AC SUNSET CODE
-    return allTxTypes.map(txType => [
-      {
-        assetId: feeAssetId,
-        // AC SUNSET CODE
-        value: this.exitOnly
-          ? 0n
-          : this.getBaseFee(txAssetId, feeAssetId, txType) + this.getFeeConstant(txAssetId, feeAssetId, txType),
-      },
-      {
-        assetId: feeAssetId,
-        value:
-          this.getEmptySlotFee(feeAssetId) * BigInt(this.txsPerRollup) +
-          this.getFeeConstant(txAssetId, feeAssetId, txType),
-      },
-    ]);
+    return allTxTypes.map(txType => {
+      const nextRollupFee = this.exitOnly ? // AC SUNSET CODE
+        0n
+        :
+        this.getBaseFee(txAssetId, feeAssetId, txType) + this.getFeeConstant(txAssetId, feeAssetId, txType);
+
+      const instantFee = this.getEmptySlotFee(feeAssetId) * BigInt(this.txsPerRollup) +
+        this.getFeeConstant(txAssetId, feeAssetId, txType);
+
+      return [
+        {
+          assetId: feeAssetId,
+          // AC SUNSET CODE
+          value: (nextRollupFee * feeGasPriceQuoteMultiplier) / BigInt(multiplierPrecision)
+        },
+        {
+          assetId: feeAssetId,
+          value: (instantFee * feeGasPriceQuoteMultiplier) / BigInt(multiplierPrecision)
+        },
+      ]
+    });
   }
 
   public getAliasFee(txAssetId: number, aliasLength: number) {
