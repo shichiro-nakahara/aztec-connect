@@ -98,7 +98,8 @@ export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   aaveGasMultiplier: number,
   publishIfProfitable: boolean,
   aliasFee: number[],
-  maxTxRetries: number
+  maxTxRetries: number,
+  feeGasPriceQuoteMultiplier: number
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
@@ -127,7 +128,11 @@ const defaultRuntimeConfig: RuntimeConfig = {
   aaveGasMultiplier: 1,
   publishIfProfitable: false,
   aliasFee: [2000, 1000, 500, 200],
-  maxTxRetries: 10 // The maximum number of times Aave or rollup transactions will be retried before restarting.
+  maxTxRetries: 10, // The maximum number of times Aave or rollup transactions will be retried before restarting.
+  // Gas price multiplier that ONLY applies to quotes (i.e. only /tx-fees, not the required amount calculated
+  // when a transaction is validated). Helps to prevent transactions being rejected due to highly flucuating
+  // gas prices on Polygon.
+  feeGasPriceQuoteMultiplier: 1.5
 };
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {
