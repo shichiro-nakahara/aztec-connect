@@ -74,6 +74,7 @@ export class Server {
         rollupBeneficiary = signingAddress,
         depositLimit,
         blacklist = [],
+        maxTxRetries
       },
     } = configurator.getConfVars();
 
@@ -124,7 +125,8 @@ export class Server {
       numOuterRollupProofs,
       this.bridgeResolver,
       rollupCallDataLimit,
-      signingAddress
+      signingAddress,
+      maxTxRetries
     );
     this.worldState = new WorldState(
       rollupDb,

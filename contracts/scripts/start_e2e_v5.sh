@@ -30,7 +30,7 @@ while ! curl -s $ETHEREUM_HOST > /dev/null; do sleep 1; done;
 
 # Deploy contracts.
 export PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # Test account #0
-./scripts/deploy_v3_contracts.sh
+./scripts/deploy_v5_contracts.sh
 
 PORT=${PORT:-8547}
 echo "Serving contracts output on $PORT"

@@ -37,6 +37,7 @@ export class RollupPipeline {
     bridgeResolver: BridgeResolver,
     maxCallDataPerRollup: number,
     signingAddress: EthAddress,
+    maxTxRetries: number,
     private log = createLogger('RollupPipeline'),
   ) {
     const innerRollupSize = 1 << Math.ceil(Math.log2(numInnerRollupTxs));
@@ -52,7 +53,8 @@ export class RollupPipeline {
     this.log(`  maxCallDataPerRollup: ${maxCallDataPerRollup}`);
     this.log(`  maxFeePerGas: ${fromBaseUnits(maxFeePerGas, 9, 2)} gwei`);
     this.log(`  maxPriorityFeePerGas: ${fromBaseUnits(maxPriorityFeePerGas, 9, 2)} gwei`);
-    this.log(`  rollupBeneficiary: ${rollupBeneficiary.toString()}`)
+    this.log(`  rollupBeneficiary: ${rollupBeneficiary.toString()}`);
+    this.log(`  maxTxRetries: ${maxTxRetries}`);
 
     const rollupPublisher = new RollupPublisher(
       rollupDb,
@@ -62,6 +64,7 @@ export class RollupPipeline {
       gasLimit,
       maxCallDataPerRollup,
       metrics,
+      maxTxRetries,
     );
     const rollupAggregator = new RollupAggregator(
       proofGenerator,
@@ -146,7 +149,8 @@ export class RollupPipelineFactory {
     private numOuterRollupProofs: number,
     private bridgeResolver: BridgeResolver,
     private maxCallDataPerRollup: number,
-    private signingAddress: EthAddress
+    private signingAddress: EthAddress,
+    private maxTxRetries: number
   ) {}
 
   public setConf(
@@ -192,7 +196,8 @@ export class RollupPipelineFactory {
       this.numOuterRollupProofs,
       this.bridgeResolver,
       this.maxCallDataPerRollup,
-      this.signingAddress
+      this.signingAddress,
+      this.maxTxRetries
     );
   }
 }

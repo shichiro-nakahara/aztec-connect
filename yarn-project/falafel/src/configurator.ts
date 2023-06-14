@@ -97,7 +97,8 @@ export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   aaveBuffer: number,
   aaveGasMultiplier: number,
   publishIfProfitable: boolean,
-  aliasFee: number[]
+  aliasFee: number[],
+  maxTxRetries: number
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
@@ -126,6 +127,7 @@ const defaultRuntimeConfig: RuntimeConfig = {
   aaveGasMultiplier: 1,
   publishIfProfitable: false,
   aliasFee: [2000, 1000, 500, 200],
+  maxTxRetries: 10 // The maximum number of times Aave or rollup transactions will be retried before restarting.
 };
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {
