@@ -6,8 +6,8 @@ const { mkdirpSync, pathExistsSync, readJsonSync, writeJsonSync } = fsExtra;
 export interface StartupConfig {
   // The port number on which to start the http service. Env: PORT
   port: number;
-  // The URL of an Ethereum node that Kebab uses to serve requests & build the Aztec Connect logs DB. Env: ETHEREUM_HOST
-  ethereumHost: string;
+  // Comma separated URLs of Ethereum nodes that Kebab uses to serve requests & build the Aztec Connect logs DB. Env: ETHEREUM_HOST
+  ethereumHosts: string;
   // The prefix used as part of Kebab's API routes e.g. https://aztec-connect-dev-eth-host.aztec.network:8545/<api prefix>/status. Env: API_PREFIX
   apiPrefix: string;
   // A flag specifying whether additional logging be added to DB calls. Env: TYPEORM_LOGGING
@@ -29,7 +29,7 @@ export interface StartupConfig {
 
 const defaultStartupConfig: StartupConfig = {
   port: 8545,
-  ethereumHost: 'http://localhost:8544',
+  ethereumHosts: 'http://localhost:8544',
   apiPrefix: '',
   typeOrmLogging: false,
   allowPrivilegedMethods: false,
@@ -43,7 +43,7 @@ const defaultStartupConfig: StartupConfig = {
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {
   const {
-    ETHEREUM_HOST,
+    ETHEREUM_HOSTS,
     PORT,
     API_PREFIX,
     TYPEORM_LOGGING,
@@ -58,7 +58,7 @@ function getStartupConfigEnvVars(): Partial<StartupConfig> {
 
   const envVars: Partial<StartupConfig> = {
     port: PORT ? +PORT : undefined,
-    ethereumHost: ETHEREUM_HOST,
+    ethereumHosts: ETHEREUM_HOSTS,
     apiPrefix: API_PREFIX,
     typeOrmLogging: TYPEORM_LOGGING ? TYPEORM_LOGGING === 'true' : undefined,
     allowPrivilegedMethods: ALLOW_PRIVILEGED_METHODS ? ALLOW_PRIVILEGED_METHODS === 'true' : undefined,

@@ -1,10 +1,10 @@
 import { ConnectionOptions } from 'typeorm';
-import { JsonRpcProvider } from '@aztec/blockchain';
 
 import { Configurator } from './configurator.js';
 import { EthEventDao } from './entity/eth_event.js';
 import { EventProperties } from './topic_event_retriever.js';
 import { EthEvent } from './eth_event.js';
+import { ProviderRoundRobin } from './providerRoundRobin.js';
 
 /**
  * Do not cache eth_getTransactionReceipt without careful consideration of how it impacts consistency.
@@ -64,18 +64,6 @@ export const EVENT_PROPERTIES: EventProperties[] = [
   },
 ];
 
-async function getProvider(ethereumHost: string) {
-  const provider = new JsonRpcProvider(ethereumHost, true);
-
-  const chainId = parseInt(
-    await provider.request({
-      method: 'eth_chainId',
-    }),
-  );
-
-  return { provider, chainId };
-}
-
 export function getOrmConfig(logging = false): ConnectionOptions {
   const entities = [EthEventDao];
   return {
@@ -90,12 +78,19 @@ export function getOrmConfig(logging = false): ConnectionOptions {
 export async function getComponents(configurator: Configurator) {
   const confVars = configurator.getConfVars();
 
-  const { ethereumHost, typeOrmLogging } = confVars;
-  const { provider, chainId } = await getProvider(ethereumHost);
+  const { ethereumHosts, typeOrmLogging } = confVars;
+
+  const providerRoundRobin = new ProviderRoundRobin(ethereumHosts);
+  const chainId = parseInt(
+    await providerRoundRobin.getNextProvider().request({
+      method: 'eth_chainId',
+    }),
+  );
+
   const ormConfig = getOrmConfig(typeOrmLogging);
 
   console.log(`Process Id: ${process.pid}`);
-  console.log(`Ethereum host: ${ethereumHost}`);
+  console.log(`Ethereum hosts: ${ethereumHosts}`);
 
-  return { ormConfig, provider, chainId };
+  return { ormConfig, providerRoundRobin, chainId };
 }
