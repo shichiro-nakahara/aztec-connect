@@ -1,7 +1,7 @@
-import { EthereumRpc, RequestArguments } from '@aztec/barretenberg/blockchain';
+import { RequestArguments } from '@aztec/barretenberg/blockchain';
 import { InterruptableSleep, sleep } from '@aztec/barretenberg/sleep';
 import { createLogger, createDebugLogger } from '@aztec/barretenberg/log';
-import { getEarliestBlock, JsonRpcProvider } from '@aztec/blockchain';
+import { getEarliestBlock } from '@aztec/blockchain';
 import { EthLogsDb, EventStore, RollupLogsParamsQuery } from './log_db.js';
 import { ConfVars } from './configurator.js';
 import { default as JSONNormalize } from 'json-normalize';
@@ -14,6 +14,7 @@ import {
 import { EVENT_PROPERTIES, REQUEST_TYPES_TO_CACHE } from './config.js';
 import { EthEvent } from './eth_event.js';
 import { Notifier } from './notifier.js';
+import { ProviderRoundRobin } from './providerRoundRobin.js';
 
 export interface RollupLogsParams {
   topics: string[];
@@ -26,29 +27,23 @@ export interface RollupLogsParams {
 export class Server {
   private ready = false;
   private eventRetrievers: TopicEventRetriever[] = [];
-  private readonly checkFrequency = 5 * 1000;
+  private readonly checkFrequency = 60 * 1000;
   private running = false;
   private runningSyncPromise!: Promise<void>;
   private interruptableSleep = new InterruptableSleep();
   private cachedResponses: { [key: string]: Promise<any> | undefined } = {};
   private apiKeys: { [key: string]: boolean } = {};
-  private provider: JsonRpcProvider;
-  private ethereumRpc: EthereumRpc;
   private blockNumber = -1;
   private eventSyncedToBlockNumber = -1;
   private log = createLogger('Server');
   private debug = createDebugLogger('aztec:server');
 
   constructor(
-    provider: JsonRpcProvider,
-    ethereumHost: string,
+    private providerRoundRobin: ProviderRoundRobin,
     private logsDb: EthLogsDb,
     chainId: number,
     private readonly configuration: ConfVars,
   ) {
-    this.provider = new JsonRpcProvider(ethereumHost);
-    this.ethereumRpc = new EthereumRpc(this.provider);
-
     const { chunk, earliestBlock } = getEarliestBlock(chainId);
     this.eventRetrievers = EVENT_PROPERTIES.map(ep => {
       const chainProperties = {
@@ -61,7 +56,7 @@ export class Server {
         configuration.telegramSendMessageEndpoint, 
         configuration.telegramChannelId
       );
-      return new TopicEventRetriever(provider, logsDb, chainProperties, ep, terNotifier);
+      return new TopicEventRetriever(this.providerRoundRobin, logsDb, chainProperties, ep, terNotifier);
     });
     for (const key of this.configuration.apiKeys) {
       this.apiKeys[key] = true;
@@ -73,7 +68,7 @@ export class Server {
     const { indexing } = this.configuration;
 
     this.running = true;
-    this.blockNumber = await this.ethereumRpc.blockNumber();
+    this.blockNumber = await this.providerRoundRobin.getNextEthereumRpc().blockNumber();
 
     if (indexing) {
       let success = false;
@@ -112,12 +107,14 @@ export class Server {
     this.ready = true;
 
     this.runningSyncPromise = (async () => {
-      this.blockNumber = await this.ethereumRpc.blockNumber();
+      this.blockNumber = await this.providerRoundRobin.getNextEthereumRpc().blockNumber();
 
       while (this.running) {
         await this.interruptableSleep.sleep(this.checkFrequency);
 
-        const newBlockNumber = await this.ethereumRpc.blockNumber().catch(() => this.blockNumber);
+        const newBlockNumber = await this.providerRoundRobin.getNextEthereumRpc().blockNumber().catch(
+          () => this.blockNumber
+        );
         if (this.blockNumber != newBlockNumber) {
           this.debug(`new block number ${newBlockNumber}, purging cache.`);
           this.cachedResponses = {};
@@ -268,7 +265,7 @@ export class Server {
       return await this.forwardEthRequestViaCache(args);
     }
 
-    const result = await this.provider.request(args);
+    const result = await this.providerRoundRobin.getNextProvider().request(args);
 
     // Imagine:
     // Alice makes a `call` request to check a bit of state. The result is cached.
@@ -314,7 +311,7 @@ export class Server {
     if (cacheResult === undefined) {
       this.cachedResponses[cacheKey] = new Promise((resolve, reject) => {
         this.debug(`cache key ${cacheKey} miss, adding response for request: ${JSON.stringify(args)}`);
-        this.provider.request(args).then(resolve).catch(reject);
+        this.providerRoundRobin.getNextProvider().request(args).then(resolve).catch(reject);
       });
       return await this.cachedResponses[cacheKey];
     } else {
