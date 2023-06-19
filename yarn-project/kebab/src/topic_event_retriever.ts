@@ -1,9 +1,9 @@
 import { EthAddress } from '@aztec/barretenberg/address';
 import { createDebugLogger, createLogger } from '@aztec/barretenberg/log';
-import { JsonRpcProvider } from '@aztec/blockchain';
 import { EthLogsDb, EventStore } from './log_db.js';
 import { EthEvent } from './eth_event.js';
 import { Notifier } from './notifier.js';
+import { ProviderRoundRobin } from './providerRoundRobin.js';
 
 export enum EventRetrieverErrors {
   NONE,
@@ -43,7 +43,7 @@ export class TopicEventRetriever {
   private log = createLogger('TopicEventRetriever');
 
   constructor(
-    private provider: JsonRpcProvider,
+    private providerRoundRobin: ProviderRoundRobin,
     private logsDb: EthLogsDb,
     private chainProperties: ChainProperties,
     public eventProprties: EventProperties,
@@ -116,7 +116,7 @@ export class TopicEventRetriever {
       toBlock: `0x${to.toString(16)}`,
     };
     try {
-      return await this.provider.request({
+      return await this.providerRoundRobin.getNextProvider().request({
         method: 'eth_getLogs',
         params: [param],
       });

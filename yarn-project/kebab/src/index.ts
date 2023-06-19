@@ -12,7 +12,7 @@ import { Notifier } from './notifier.js';
 const configurator = new Configurator();
 
 async function main() {
-  const { ormConfig, provider, chainId } = await getComponents(configurator);
+  const { ormConfig, providerRoundRobin, chainId } = await getComponents(configurator);
 
   const configuration = configurator.getConfVars();
   const { rollupContractAddress, allowPrivilegedMethods, port, apiPrefix } = configuration;
@@ -23,7 +23,7 @@ async function main() {
 
   const dbConn = await createConnection(ormConfig);
   const logDb = new EthLogsDb(dbConn);
-  const server = new Server(provider, configuration.ethereumHost, logDb, chainId, configuration);
+  const server = new Server(providerRoundRobin, logDb, chainId, configuration);
 
   const shutdown = async () => {
     await server.stop();
