@@ -99,7 +99,8 @@ export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   publishIfProfitable: boolean,
   aliasFee: number[],
   maxTxRetries: number,
-  feeGasPriceQuoteMultiplier: number
+  feeGasPriceQuoteMultiplier: number,
+  ipWhitelist: string[]
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
@@ -132,7 +133,8 @@ const defaultRuntimeConfig: RuntimeConfig = {
   // Gas price multiplier that ONLY applies to quotes (i.e. only /tx-fees, not the required amount calculated
   // when a transaction is validated). Helps to prevent transactions being rejected due to highly flucuating
   // gas prices on Polygon.
-  feeGasPriceQuoteMultiplier: 1.5
+  feeGasPriceQuoteMultiplier: 1.5,
+  ipWhitelist: []
 };
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {

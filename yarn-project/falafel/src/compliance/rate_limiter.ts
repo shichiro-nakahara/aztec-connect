@@ -1,4 +1,5 @@
 import { createLogger } from '@aztec/barretenberg/log';
+import { configurator } from '../configurator.js';
 
 interface ValueForDate {
   time: Date;
@@ -10,7 +11,10 @@ const MIDNIGHT_THRESHOLD = 60 * 1000; // set to 1 minute
 
 export class RateLimiter {
   private values: { [key: string]: ValueForDate } = {};
-  constructor(private limitPerDay: number, private log = createLogger('RateLimiter')) {
+  constructor(
+    private limitPerDay: number, 
+    private log = createLogger('RateLimiter')
+  ) {
     this.setDailyTimeout();
   }
 
@@ -24,9 +28,19 @@ export class RateLimiter {
       return true;
     }
 
+    const { ipWhitelist } = configurator.getConfVars().runtimeConfig;
+
+    if (ipWhitelist.includes(identifier)) {
+      this.log(`${identifier} is on IP whitelist, ignoring`);
+      return true;
+    }
+
     // check
     this.checkAndRefresh(identifier);
     const newQuantity = this.values[identifier].value + quantity;
+
+    this.log(`${identifier} new quantity: ${newQuantity}`);
+
     if (newQuantity > this.limitPerDay) {
       return false;
     }
