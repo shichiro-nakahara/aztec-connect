@@ -304,6 +304,7 @@ export function appFactory(server: Server, prefix: string, metrics: Metrics, ser
     const status = await server.getStatus();
     delete status.runtimeConfig.telegramSendMessageEndpoint; // don't expose Telegram config
     delete status.runtimeConfig.telegramChannelId; // don't expose Telegram config
+    status.runtimeConfig.ipWhitelist = []; // don't expost IP whitelist
     const response = rollupProviderStatusToJson(status);
     ctx.set('content-type', 'application/json');
     ctx.body = response;
