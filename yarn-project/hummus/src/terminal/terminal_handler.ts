@@ -264,6 +264,7 @@ export class TerminalHandler {
     await this.assertRegistered();
     const value = this.sdk.toBaseUnits(this.assetId, valueStr);
     const [, fee] = await this.sdk.getDepositFees(this.assetId);
+    this.printQueue.put(`deposit fee: ${this.sdk.fromBaseUnits(fee)}\n`);
     const publicInput = value.value + fee.value;
     const controller = this.sdk.createDepositController(this.ethAddress, value, fee, this.user.id, true);
     const assetBalance = await this.sdk.getPublicBalance(this.ethAddress, this.assetId);

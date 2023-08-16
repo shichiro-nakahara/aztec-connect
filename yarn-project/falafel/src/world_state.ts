@@ -34,6 +34,7 @@ import { RollupPipeline, RollupPipelineFactory } from './rollup_pipeline.js';
 import { TxFeeResolver } from './tx_fee_resolver/index.js';
 import { BridgeStatsQueryHandler } from './bridge/bridge_stats_query.js';
 import { Notifier } from './notifier.js';
+import pending_tx from './pending_tx.js';
 
 const innerProofDataToTxDao = (
   tx: InnerProofData,
@@ -90,6 +91,7 @@ export class WorldState {
     private notifier = new Notifier('WorldState')
   ) {
     this.bridgeStatsQueryHandler = new BridgeStatsQueryHandler(rollupDb, txFeeResolver);
+    pending_tx.start(async () => await this.getPendingTxCount());
   }
 
   public async start() {
@@ -849,5 +851,18 @@ export class WorldState {
     };
 
     return result;
+  }
+
+  public async getPendingTxCount() {
+    const pendingTxs = await this.rollupDb.getPendingTxs();
+    const processedTransactions = this.pipeline?.getProcessedTxs() || [];
+
+    const txsBeingProcessed = new Set(processedTransactions.map(tx => tx.id.toString('hex')));
+
+    const pendingTransactionsNotBeingProcessed = pendingTxs.filter(
+      elem => !txsBeingProcessed.has(elem.id.toString('hex')),
+    );
+
+    return pendingTransactionsNotBeingProcessed.length;
   }
 }
