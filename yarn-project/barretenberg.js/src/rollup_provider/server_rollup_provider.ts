@@ -151,6 +151,11 @@ export class ServerRollupProvider extends ServerBlockSource implements RollupPro
     return assetValueFromJson(await response.json());
   }
 
+  async getSurgeStatus() {
+    const response = await this.fetch('/surge-status');
+    return await response.json();
+  }
+
   async isAliasRegisteredToAccount(accountPublicKey: GrumpkinAddress, alias: string) {
     const response = await this.fetch('/is-alias-registered-to-account', {
       accountPublicKey: accountPublicKey.toString(),

@@ -34,7 +34,7 @@ import { RollupPipeline, RollupPipelineFactory } from './rollup_pipeline.js';
 import { TxFeeResolver } from './tx_fee_resolver/index.js';
 import { BridgeStatsQueryHandler } from './bridge/bridge_stats_query.js';
 import { Notifier } from './notifier.js';
-import pending_tx from './pending_tx.js';
+import surge from './surge.js';
 
 const innerProofDataToTxDao = (
   tx: InnerProofData,
@@ -91,7 +91,7 @@ export class WorldState {
     private notifier = new Notifier('WorldState')
   ) {
     this.bridgeStatsQueryHandler = new BridgeStatsQueryHandler(rollupDb, txFeeResolver);
-    pending_tx.start(async () => await this.getPendingTxCount());
+    surge.init(async () => await this.getPendingTxCount());
   }
 
   public async start() {

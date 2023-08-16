@@ -436,6 +436,10 @@ export class AztecSdk extends EventEmitter {
     return await this.feeCalculator.getAliasFee(alias, assetId);
   }
 
+  public async getSurgeStatus() {
+    return await this.core.getSurgeStatus();
+  }
+
   public createRegisterController(
     userId: GrumpkinAddress,
     alias: string,
