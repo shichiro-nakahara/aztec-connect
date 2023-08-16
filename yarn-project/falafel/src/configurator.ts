@@ -90,6 +90,11 @@ const defaultStartupConfig: StartupConfig = {
   blockExplorer: ''
 };
 
+interface SurgePrice {
+  pendingTxThreshold: number,
+  multiplier: number
+}
+
 export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   telegramSendMessageEndpoint: string | undefined;
   telegramChannelId: string | undefined;
@@ -100,7 +105,8 @@ export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   aliasFee: number[],
   maxTxRetries: number,
   feeGasPriceQuoteMultiplier: number,
-  ipWhitelist: string[]
+  ipWhitelist: string[],
+  surgeFeeGasPriceMultiplier: SurgePrice[]
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
@@ -134,7 +140,36 @@ const defaultRuntimeConfig: RuntimeConfig = {
   // when a transaction is validated). Helps to prevent transactions being rejected due to highly flucuating
   // gas prices on Polygon.
   feeGasPriceQuoteMultiplier: 1.5,
-  ipWhitelist: []
+  ipWhitelist: [],
+  /*
+    Gas price multiplier that applies a multiplier on top of feeGasPriceMultiplier and feeGasPriceQuoteMultiplier
+    depending on how many pending transactions there are.
+
+    E.g.
+    surgeFeeGasPriceMultiplier = [
+      {
+        pendingTxThreshold: 1000
+        multiplier: 2
+      },
+      {
+        pendingTxThreshold: 10000
+        multiplier: 4
+      }
+    ]
+
+    If pendingTx < 1000, then
+      quotedGasPrice = price * feeGasPriceQuoteMultiplier
+      requiredGasPrice = price * feeGasPriceMultiplier
+
+    If 1000 <= pendingTx < 10000, then
+      quotedGasPrice = price * feeGasPriceQuoteMultiplier * 2
+      requiredGasPrice = price * feeGasPriceMultiplier * 2
+
+    If pendingTx >= 10000, then
+      quotedGasPrice = price * feeGasPriceQuoteMultiplier * 4
+      requiredGasPrice = price * feeGasPriceMultiplier * 4
+  */
+  surgeFeeGasPriceMultiplier: []
 };
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {
