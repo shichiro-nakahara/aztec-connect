@@ -1,5 +1,5 @@
 import { EthAddress, GrumpkinAddress } from '../address/index.js';
-import { AssetValue } from '../asset/index.js';
+import { AssetValue, SurgeStatus } from '../asset/index.js';
 import { BlockSource } from '../block_source/index.js';
 import { BridgeCallData } from '../bridge_call_data/index.js';
 import { TxId } from '../tx_id/index.js';
@@ -127,6 +127,7 @@ export interface RollupProvider extends BlockSource {
   isAccountRegistered(accountPublicKey: GrumpkinAddress): Promise<boolean>;
   isAliasRegistered(alias: string): Promise<boolean>;
   getAliasFee(alias: string, assetId: number): Promise<AssetValue>;
+  getSurgeStatus(): Promise<SurgeStatus>;
   isAliasRegisteredToAccount(accountPublicKey: GrumpkinAddress, alias: string): Promise<boolean>;
   getAccountRegistrationRollupId(accountPublicKey: GrumpkinAddress): Promise<number>;
   queryDefiPublishStats(query: BridgePublishQuery): Promise<BridgePublishQueryResult>;

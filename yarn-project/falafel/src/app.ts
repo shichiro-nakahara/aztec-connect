@@ -25,6 +25,7 @@ import { RollupProcessTimeDao, TxDao } from './entity/index.js';
 import { Metrics } from './metrics/index.js';
 import { Server } from './server.js';
 import { Tx, TxRequest } from './tx_receiver/index.js';
+import surge from './surge.js';
 
 const { mkdirp, writeJson } = fsExtra;
 
@@ -278,6 +279,14 @@ export function appFactory(server: Server, prefix: string, metrics: Metrics, ser
 
   router.get('/reset', recordMetric, validateAuth, async (ctx: Koa.Context) => {
     await server.resetPipline();
+    ctx.status = 200;
+  });
+
+  router.get('/surge-status', recordMetric, async (ctx: Koa.Context) => {
+    ctx.body = {
+      pendingTxCount: surge.getPendingTxCount(),
+      multiplier: surge.getMultiplier()
+    }
     ctx.status = 200;
   });
 
