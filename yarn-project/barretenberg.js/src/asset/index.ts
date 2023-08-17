@@ -3,6 +3,11 @@ export interface AssetValue {
   value: bigint;
 }
 
+export interface SurgeStatus {
+  pendingTxCount: number;
+  multiplier: number;
+}
+
 export interface AssetValueJson {
   assetId: number;
   value: string;

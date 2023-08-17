@@ -1,10 +1,10 @@
 import { Blockchain, TxType } from '@aztec/barretenberg/blockchain';
-import { createLogger, createDebugLogger } from '@aztec/barretenberg/log';
+import { createLogger } from '@aztec/barretenberg/log';
 import { roundUp } from '@aztec/barretenberg/rounding';
 import { getGasOverhead, getTxCallData } from './get_gas_overhead.js';
 import { PriceTracker } from './price_tracker.js';
 import { configurator } from '../configurator.js';
-import pending_tx from '../pending_tx.js';
+import surge from '../surge.js';
 
 const allTxTypes = [
   TxType.DEPOSIT,
@@ -28,8 +28,7 @@ export class FeeCalculator {
     private readonly gasPerRollup: number,
     private readonly numSignificantFigures = 0,
     private readonly exitOnly: boolean,
-    private readonly log = createLogger('FeeCalculator'),
-    private readonly debug = createDebugLogger('fee_calculator')
+    private readonly log = createLogger('FeeCalculator')
   ) {
     this.log('Creating...');
     const txTypes = Object.values(TxType).filter(v => !isNaN(Number(v)));
@@ -59,7 +58,7 @@ export class FeeCalculator {
     const multiplierPrecision = 10 ** 8;
     const multiplier = BigInt(
       configurator.getConfVars().runtimeConfig.feeGasPriceQuoteMultiplier * 
-      this.getSurgeMultiplier() * 
+      surge.getMultiplier() * 
       multiplierPrecision
     );
 
@@ -138,7 +137,7 @@ export class FeeCalculator {
     const assetCostInWei = this.priceTracker.getAssetPrice(feeAssetId);
     // Our multiplier can be accurate to 8 decimal places (e.g. 0.00000001).
     const multiplierPrecision = 10 ** 8;
-    const multiplier = BigInt(this.feeGasPriceMultiplier * this.getSurgeMultiplier() * multiplierPrecision);
+    const multiplier = BigInt(this.feeGasPriceMultiplier * surge.getMultiplier() * multiplierPrecision);
     const gasPriceInWei = (
       this.priceTracker.getMinGasPrice() * multiplier
     ) / BigInt(multiplierPrecision);
@@ -252,7 +251,7 @@ export class FeeCalculator {
     const gasPrice = minPrice ? this.priceTracker.getMinGasPrice() : this.priceTracker.getGasPrice();
     const multiplierPrecision = 10 ** 8;
     const feeGasPriceMultiplier = BigInt(this.feeGasPriceMultiplier * multiplierPrecision);
-    const surgeMultiplier = BigInt(this.getSurgeMultiplier() * multiplierPrecision);
+    const surgeMultiplier = BigInt(surge.getMultiplier() * multiplierPrecision);
     const expectedValue = (value * gasPrice * feeGasPriceMultiplier * surgeMultiplier) / BigInt(multiplierPrecision);
     const maxValue = this.maxFeeGasPrice ? value * this.maxFeeGasPrice : expectedValue;
     return expectedValue > maxValue ? maxValue : expectedValue;
@@ -278,22 +277,5 @@ export class FeeCalculator {
     return this.getAssets()
       .flatMap((_, assetId) => allTxTypes.map(txType => ({ assetId, txType })))
       .reduce((prev, current) => Math.max(prev, this.getUnadjustedTxGas(current.assetId, current.txType)), 0);
-  }
-
-  private getSurgeMultiplier() {
-    const { surgeFeeGasPriceMultiplier } = configurator.getConfVars().runtimeConfig;
-
-    let result = 1;
-    for (let i = surgeFeeGasPriceMultiplier.length - 1; i >= 0; i--) {
-      const { pendingTxThreshold, multiplier } = surgeFeeGasPriceMultiplier[i];
-      if (pending_tx.getCount() >= pendingTxThreshold) {
-        result = multiplier;
-        break;
-      }
-    }
-
-    this.debug(`${pending_tx.getCount()} pendingTx, surge multiplier ${result}x`);
-
-    return result;
   }
 }
