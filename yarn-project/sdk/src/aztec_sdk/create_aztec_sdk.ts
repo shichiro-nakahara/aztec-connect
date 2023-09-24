@@ -7,7 +7,12 @@ import { AztecSdk } from './aztec_sdk.js';
 
 const debug = createDebugLogger('bb:create_aztec_sdk');
 
-async function createBlockchain(ethereumProvider: EthereumProvider, coreSdk: CoreSdk, confs = 3) {
+async function createBlockchain(
+  ethereumProvider: EthereumProvider, 
+  coreSdk: CoreSdk, 
+  confs = 3, 
+  allowOtherChains = false
+) {
   const { chainId, rollupContractAddress, permitHelperContractAddress } = await coreSdk.getLocalStatus();
   const {
     blockchainStatus: { assets, bridges },
@@ -21,7 +26,7 @@ async function createBlockchain(ethereumProvider: EthereumProvider, coreSdk: Cor
     confs,
   );
   const providerChainId = await blockchain.getChainId();
-  if (chainId !== providerChainId) {
+  if (!allowOtherChains && chainId !== providerChainId) {
     throw new Error(`Provider chainId ${providerChainId} does not match rollup provider chainId ${chainId}.`);
   }
   return blockchain;
@@ -34,7 +39,7 @@ export enum SdkFlavour {
   HOSTED,
 }
 
-type BlockchainOptions = { minConfirmation?: number };
+type BlockchainOptions = { minConfirmation?: number, allowOtherChains?: boolean };
 export type CreateSdkOptions = BlockchainOptions & CreateCoreSdkOptions & { flavour?: SdkFlavour };
 
 export async function createAztecSdk(ethereumProvider: EthereumProvider, options: CreateSdkOptions) {
@@ -48,7 +53,12 @@ export async function createAztecSdk(ethereumProvider: EthereumProvider, options
 
   const coreSdk = await createCoreSdk(options);
   try {
-    const blockchain = await createBlockchain(ethereumProvider, coreSdk, options.minConfirmation);
+    const blockchain = await createBlockchain(
+      ethereumProvider, 
+      coreSdk, 
+      options.minConfirmation, 
+      options.allowOtherChains
+    );
     return new AztecSdk(coreSdk, blockchain, ethereumProvider);
   } catch (err: any) {
     debug(`failed to create sdk: ${err.message}`);
