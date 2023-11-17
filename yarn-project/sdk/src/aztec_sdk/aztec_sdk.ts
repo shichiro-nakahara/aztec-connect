@@ -28,6 +28,7 @@ import {
   RegisterController,
   TransferController,
   WithdrawController,
+  XChainWithdrawController,
   createTxRefNo,
 } from '../controllers/index.js';
 import { CoreSdk, SdkEvent } from '../core_sdk/index.js';
@@ -354,6 +355,36 @@ export class AztecSdk extends EventEmitter {
     return new WithdrawController(userId, userSigner, assetValue, fee, to, this.core);
   }
 
+  public createXChainWithdrawController(
+    userId: GrumpkinAddress,
+    userSigner: Signer,
+    assetValue: AssetValue,
+    fee: AssetValue,
+    to: EthAddress,
+  ) {
+    return new XChainWithdrawController(userId, userSigner, assetValue, fee, to, this.core);
+  }
+
+  public async getXChainWithdrawFees(
+    from: EthAddress,
+    assetId: number,
+    srcSgChainId: number,
+    dstSgChainId: number,
+    srcPoolId: number,
+    dstPoolId: number, 
+    options?: GetFeesOptions & { assetValue?: AssetValue })
+  {
+    return await this.feeCalculator.getXChainWithdrawFees(
+      from,
+      assetId,
+      srcSgChainId,
+      dstSgChainId,
+      srcPoolId,
+      dstPoolId,
+      options
+    );
+  }
+
   public async getTransferFees(assetId: number, options?: GetFeesOptions & { assetValue?: AssetValue }) {
     return await this.feeCalculator.getTransferFees(assetId, options);
   }
@@ -434,6 +465,10 @@ export class AztecSdk extends EventEmitter {
 
   public async getAliasFee(alias: string, assetId: number) {
     return await this.feeCalculator.getAliasFee(alias, assetId);
+  }
+
+  public async getSgWithdrawFee(assetId: number, dstSgChainId: number, to: EthAddress) {
+    return await this.feeCalculator.getSgWithdrawFee(assetId, dstSgChainId, to);
   }
 
   public async getSurgeStatus() {

@@ -315,6 +315,10 @@ export class CoreSdk extends EventEmitter {
     return await this.rollupProvider.getAliasFee(alias, assetId);
   }
 
+  public async getSgWithdrawFee(assetId: number, dstSgChainId: number, to: EthAddress) {
+    return await this.rollupProvider.getSgWithdrawFee(assetId, dstSgChainId, to);
+  }
+
   public async getSurgeStatus() {
     return await this.rollupProvider.getSurgeStatus();
   }
