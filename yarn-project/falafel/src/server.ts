@@ -342,6 +342,10 @@ export class Server {
     return assetValue;
   }
 
+  public async getSgWithdrawFee(assetId: number, dstSgChainId: number, to: EthAddress) {
+    return await this.txFeeResolver.getSgWithdrawFee(assetId, dstSgChainId, to);
+  }
+
   public getInitialWorldState(): InitialWorldState {
     return {
       initialAccounts: this.initialAccounts,

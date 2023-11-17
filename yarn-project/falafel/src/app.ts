@@ -1,5 +1,6 @@
 import { GrumpkinAddress } from '@aztec/barretenberg/address';
 import { assetValueToJson } from '@aztec/barretenberg/asset';
+import { EthAddress } from '@aztec/barretenberg/address';
 import { JoinSplitProofData, ProofData, ProofId } from '@aztec/barretenberg/client_proofs';
 import { fetch } from '@aztec/barretenberg/iso_fetch';
 import {
@@ -340,6 +341,25 @@ export function appFactory(server: Server, prefix: string, metrics: Metrics, ser
 
     ctx.set('content-type', 'application/json');
     ctx.body = assetValueToJson(aliasFee);
+    ctx.status = 200;
+  });
+
+  router.post('/sg-withdraw-fee', recordMetric, async (ctx: Koa.Context) => {
+    const stream = new PromiseReadable(ctx.req);
+    const data = JSON.parse((await stream.readAll()) as string);
+    
+    const assetId = +data.assetId;
+    const dstSgChainId = +data.dstSgChainId;
+    const to = data.to;
+    const sgWithdrawFee = await server.getSgWithdrawFee(assetId, dstSgChainId, EthAddress.fromString(to));
+
+    if (!sgWithdrawFee) {
+      ctx.status = 500;
+      return;
+    }
+
+    ctx.set('content-type', 'application/json');
+    ctx.body = assetValueToJson(sgWithdrawFee);
     ctx.status = 200;
   });
 

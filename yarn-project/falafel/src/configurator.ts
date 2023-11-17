@@ -59,6 +59,8 @@ interface StartupConfig {
   exitOnly: boolean;
   // Block explorer endpoint Env: BLOCK_EXPLORER
   blockExplorer: string;
+  // Address of Stargate composer contract. Env: STARGATE_COMPOSER
+  stargateComposer: EthAddress;
 }
 
 export interface ConfVars extends StartupConfig {
@@ -87,7 +89,8 @@ const defaultStartupConfig: StartupConfig = {
   proverless: false,
   exitOnly: false,
   rollupCallDataLimit: 120 * 1024,
-  blockExplorer: ''
+  blockExplorer: '',
+  stargateComposer: EthAddress.ZERO
 };
 
 interface SurgePrice {
@@ -106,7 +109,8 @@ export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   maxTxRetries: number,
   feeGasPriceQuoteMultiplier: number,
   ipWhitelist: string[],
-  surgeFeeGasPriceMultiplier: SurgePrice[]
+  surgeFeeGasPriceMultiplier: SurgePrice[],
+  sgWithdrawFeeMultiplier: number
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
@@ -169,7 +173,9 @@ const defaultRuntimeConfig: RuntimeConfig = {
       quotedGasPrice = price * feeGasPriceQuoteMultiplier * 4
       requiredGasPrice = price * feeGasPriceMultiplier * 4
   */
-  surgeFeeGasPriceMultiplier: []
+  surgeFeeGasPriceMultiplier: [],
+  // Multiplier applied to quoteLayerZeroFee to cover changes in fee between transaction submission and block settlement
+  sgWithdrawFeeMultiplier: 1.5
 };
 
 function getStartupConfigEnvVars(): Partial<StartupConfig> {
@@ -195,7 +201,8 @@ function getStartupConfigEnvVars(): Partial<StartupConfig> {
     TYPEORM_LOGGING,
     SERVER_AUTH_TOKEN,
     CALL_DATA_LIMIT_KB,
-    BLOCK_EXPLORER
+    BLOCK_EXPLORER,
+    STARGATE_COMPOSER
   } = process.env;
 
   const envVars: Partial<StartupConfig> = {
@@ -226,7 +233,8 @@ function getStartupConfigEnvVars(): Partial<StartupConfig> {
     exitOnly: EXIT_ONLY ? EXIT_ONLY === 'true' : undefined,
     serverAuthToken: SERVER_AUTH_TOKEN,
     rollupCallDataLimit: CALL_DATA_LIMIT_KB ? +CALL_DATA_LIMIT_KB * 1024 : undefined,
-    blockExplorer: BLOCK_EXPLORER ? BLOCK_EXPLORER : undefined
+    blockExplorer: BLOCK_EXPLORER ? BLOCK_EXPLORER : undefined,
+    stargateComposer: STARGATE_COMPOSER ? EthAddress.fromString(STARGATE_COMPOSER) : undefined
   };
   return Object.fromEntries(Object.entries(envVars).filter(e => e[1] !== undefined));
 }

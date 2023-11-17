@@ -19,6 +19,7 @@ import {
   initialWorldStateFromBuffer,
 } from './rollup_provider.js';
 import { rollupProviderStatusFromJson } from './rollup_provider_status.js';
+import { EthAddress } from '../address/index.js';
 
 /* Custom error for server/client version mismatches
  */
@@ -149,6 +150,16 @@ export class ServerRollupProvider extends ServerBlockSource implements RollupPro
   async getAliasFee(alias: string, assetId: number) {
     const response = await this.fetch('/alias-fee', { alias, assetId });
     return assetValueFromJson(await response.json());
+  }
+
+  async getSgWithdrawFee(assetId: number, dstSgChainId: number, to: EthAddress) {
+    try {
+      const response = await this.fetch('/sg-withdraw-fee', { assetId, dstSgChainId, to: to.toString() });
+      return assetValueFromJson(await response.json());
+    }
+    catch (e) {
+      throw new Error('Invalid response: getSgWithdrawFee()');
+    }
   }
 
   async getSurgeStatus() {

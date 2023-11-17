@@ -8,3 +8,4 @@ export * from './transfer_controller.js';
 export * from './withdraw_controller.js';
 export * from './fee_controller.js';
 export * from './create_tx_ref_no.js';
+export * from './x_chain_withdraw_controller.js';
