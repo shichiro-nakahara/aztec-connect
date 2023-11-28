@@ -104,6 +104,7 @@ export async function getComponents(configurator: Configurator) {
     rollupCallDataLimit,
     version,
     exitOnly,
+    stargateComposer
   } = confVars;
   const { provider, signingAddress } = await getProvider(ethereumHost, privateKey);
 
@@ -116,6 +117,7 @@ export async function getComponents(configurator: Configurator) {
   console.log(`Signing address: ${signingAddress}`);
   console.log(`Rollup contract address: ${rollupContractAddress || 'none'}`);
   console.log(`Permit Helper contract address: ${permitHelperContractAddress || 'none'}`);
+  console.log(`Stargate composer contract address: ${stargateComposer || 'none'}`);
   console.log(`Rollup fee beneficiary: ${rollupBeneficiary || signingAddress}`);
   console.log(`Fee paying asset ids: ${feePayingAssetIds}`);
   console.log(`Price feed addresses: ${priceFeedContractAddresses.map(a => a.toString()).join(',') || 'none'}`);
@@ -139,6 +141,7 @@ export async function getComponents(configurator: Configurator) {
     bridgeDataProviderAddress,
     priceFeedContractAddresses,
     provider,
+    stargateComposer
   );
   const chainId = await blockchain.getChainId();
 

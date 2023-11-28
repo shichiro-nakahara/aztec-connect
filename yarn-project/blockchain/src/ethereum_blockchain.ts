@@ -59,6 +59,7 @@ export class EthereumBlockchain extends EventEmitter implements Blockchain {
     bridgeDataProvider: EthAddress,
     priceFeedContractAddresses: EthAddress[],
     provider: EthereumProvider,
+    stargateComposerContractAddress: EthAddress
   ) {
     const confirmations = config.minConfirmation || EthereumBlockchain.DEFAULT_MIN_CONFIRMATIONS;
     const contracts = await Contracts.fromAddresses(
@@ -68,6 +69,7 @@ export class EthereumBlockchain extends EventEmitter implements Blockchain {
       bridgeDataProvider,
       provider,
       confirmations,
+      stargateComposerContractAddress
     );
     const eb = new EthereumBlockchain(config, contracts);
     await eb.init();
@@ -411,5 +413,9 @@ export class EthereumBlockchain extends EventEmitter implements Blockchain {
 
   public onEvent(event: string, callback: (...args: any[]) => void) {
     this.contracts.onEvent(event, callback);
+  }
+
+  public async quoteLayerZeroFee(sgChainId: number, to: EthAddress) {
+    return this.contracts.quoteLayerZeroFee(sgChainId, to);
   }
 }
