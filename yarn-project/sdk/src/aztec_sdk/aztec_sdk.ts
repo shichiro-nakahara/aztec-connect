@@ -361,8 +361,22 @@ export class AztecSdk extends EventEmitter {
     assetValue: AssetValue,
     fee: AssetValue,
     to: EthAddress,
+    sgChainId: number,
+    srcPoolId: number,
+    dstPoolId: number
   ) {
-    return new XChainWithdrawController(userId, userSigner, assetValue, fee, to, this.core);
+    return new XChainWithdrawController(
+      userId, 
+      userSigner, 
+      assetValue, 
+      fee, 
+      to, 
+      sgChainId, 
+      srcPoolId, 
+      dstPoolId, 
+      this.core,
+      this.provider
+    );
   }
 
   public async getXChainWithdrawFees(

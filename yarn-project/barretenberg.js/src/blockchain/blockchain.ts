@@ -118,4 +118,6 @@ export interface Blockchain extends BlockSource, BlockchainStatusSource, Ethereu
   depositToLP(assetId: number, amount: bigint, signingAddress: EthAddress, options: SendTxOptions) : Promise<TxHash>;
 
   onEvent(event: string, callback: (...args: any[]) => void): void;
+
+  quoteLayerZeroFee(sgChainId: number, to: EthAddress): Promise<bigint[]>;
 }

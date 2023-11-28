@@ -17,6 +17,7 @@ import { EthAsset, TokenAsset } from './asset/index.js';
 import { BridgeDataProvider } from './bridge_data_provider/bridge_data_provider.js';
 import { EthPriceFeed, GasPriceFeed, TokenPriceFeed } from './price_feed/index.js';
 import { RollupProcessor } from './rollup_processor/index.js';
+import { StargateComposer } from './stargate_composer/stargate_composer.js';
 
 /**
  * Facade around all Aztec smart contract classes.
@@ -36,6 +37,7 @@ export class Contracts {
     private readonly bridgeDataProvider: BridgeDataProvider,
     private readonly ethereumProvider: EthereumProvider,
     private readonly confirmations: number,
+    private readonly stargateComposer: StargateComposer
   ) {
     this.provider = new Web3Provider(ethereumProvider);
     this.ethereumRpc = new EthereumRpc(ethereumProvider);
@@ -48,6 +50,7 @@ export class Contracts {
     bridgeDataProviderAddress: EthAddress,
     ethereumProvider: EthereumProvider,
     confirmations: number,
+    stargateComposerContractAddress: EthAddress
   ) {
     const rollupProcessor = new RollupProcessor(rollupContractAddress, ethereumProvider, permitHelperContractAddress);
     const bridgeDataProvider = new BridgeDataProvider(bridgeDataProviderAddress, ethereumProvider);
@@ -61,6 +64,8 @@ export class Contracts {
       ...tokenPriceFeedAddresses.map(a => new TokenPriceFeed(a, ethereumProvider)),
     ];
 
+    const stargateComposer = new StargateComposer(stargateComposerContractAddress, ethereumProvider);
+
     const contracts = new Contracts(
       rollupProcessor,
       assets,
@@ -69,6 +74,7 @@ export class Contracts {
       bridgeDataProvider,
       ethereumProvider,
       confirmations,
+      stargateComposer
     );
 
     await contracts.updateAssets();
@@ -282,5 +288,9 @@ export class Contracts {
 
   public onEvent(event: string, callback: (...args: any[]) => void) {
     this.rollupProcessor.onEvent(event, callback);
+  }
+
+  public async quoteLayerZeroFee(sgChainId: number, to: EthAddress) {
+    return this.stargateComposer.quoteLayerZeroFee(sgChainId, to);
   }
 }

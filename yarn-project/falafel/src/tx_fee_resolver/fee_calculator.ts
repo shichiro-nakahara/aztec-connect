@@ -6,7 +6,6 @@ import { getGasOverhead, getTxCallData } from './get_gas_overhead.js';
 import { PriceTracker } from './price_tracker.js';
 import { configurator } from '../configurator.js';
 import { createDebugLogger } from '@aztec/barretenberg/log';
-import { ethers } from 'ethers';
 import surge from '../surge.js';
 
 const allTxTypes = [
@@ -122,43 +121,15 @@ export class FeeCalculator {
   public async getSgWithdrawFee(assetId: number, dstSgChainId: number, to: EthAddress) {
     const confVars = configurator.getConfVars();
     const { sgWithdrawFeeMultiplier } = confVars.runtimeConfig;
-    const { stargateComposer, ethereumHost } = confVars;
     
     this.debug(
       `getSgWithdrawFee()\nassetId: ${assetId}\ndstSgChainId: ${dstSgChainId}\nto: ${to.toString()}\n` +
-      `sgWithdrawFeeMultiplier: ${sgWithdrawFeeMultiplier}\nstargateComposer: ${stargateComposer.toString()}`
-    );
-
-    // This should probably be in @aztec/barretenberg/blockchain, but I'm going to argue that it's not an Aztec
-    // contract. Let's keep it simple and and interact with the LZ contract here. 
-    const provider = new ethers.JsonRpcProvider(ethereumHost);
-    const contract = new ethers.Contract( // ethers v6
-      stargateComposer.toString(),
-      [ 
-        'function quoteLayerZeroFee(' +
-          'uint16 _chainId, ' +
-          'uint8 _functionType, ' +
-          'bytes _toAddress, ' +
-          'bytes _transferAndCallPayload, ' +
-          'tuple(uint256 dstGasForCall, uint256 dstNativeAmount, bytes dstNativeAddr) _lzTxParams' +
-        ') view returns (uint256, uint256)'
-      ],
-      provider
+      `sgWithdrawFeeMultiplier: ${sgWithdrawFeeMultiplier}`
     );
 
     let response;
     try {
-      response = await contract.quoteLayerZeroFee(
-        dstSgChainId,
-        1,
-        to.toString(),
-        '0x',
-        {
-          dstGasForCall: 0,
-          dstNativeAmount: 0,
-          dstNativeAddr: '0x'
-        }
-      );
+      response = await this.blockchain.quoteLayerZeroFee(dstSgChainId, to);
     }
     catch (e) {
       this.log(`Could not get Stargate withdraw fee`);
@@ -167,12 +138,12 @@ export class FeeCalculator {
     }
     
     const mulPrecision = 10 ** 8;
-    const baseFeeMATIC = BigInt(response[0]);
+    const baseFeeMATIC = response[0];
     const feeMATIC = (baseFeeMATIC * BigInt(sgWithdrawFeeMultiplier * mulPrecision)) / BigInt(mulPrecision);
 
     this.debug(
-      `baseFeeMATIC: ${baseFeeMATIC} (${ethers.formatEther(baseFeeMATIC)} MATIC)\n` +
-      `feeMATIC: ${feeMATIC} (${ethers.formatEther(feeMATIC)} MATIC)`
+      `baseFeeMATIC: ${baseFeeMATIC}\n` +
+      `feeMATIC: ${feeMATIC}`
     );
 
     if (assetId == 0) {
@@ -185,7 +156,7 @@ export class FeeCalculator {
     const assetPrice = this.priceTracker.getAssetPrice(assetId);
     const feeAsset = (feeMATIC * BigInt(10 ** 18)) / assetPrice;
 
-    this.debug(`feeAsset: ${feeAsset} (${ethers.formatEther(feeAsset)})`);
+    this.debug(`feeAsset: ${feeAsset}`);
 
     return {
       assetId: assetId,
