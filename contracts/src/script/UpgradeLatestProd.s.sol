@@ -7,34 +7,31 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
-import {RollupProcessorV5} from "core/processors/RollupProcessorV5.sol";
+import {RollupProcessorLatest} from "core/processors/RollupProcessorLatest.sol";
 
-contract UpgradeV5Prod is Test {
+contract UpgradeLatestProd is Test {
     error StorageAltered(uint256 index, bytes32 expected, bytes32 actual);
-
-    uint256 internal constant VERSION_BEFORE = 4;
-    uint256 internal constant VERSION_AFTER = 5;
 
     bytes32 internal constant MOCK_KEY_HASH = 0xe93606306cfda92d3e8937e91d4467ecb74c7092eb49e932be66a2f488ca7003;
     bytes32 internal constant PROD_KEY_HASH = 0x8c16a95cccbb8c49aaf2bf27970df31180f348dfd3bbda93acb7fa800840ce5d;
 
-    function deployV5(address _proxy) public {
-        RollupProcessorV5 proxy = RollupProcessorV5(payable(_proxy));
+    function deploy(address _proxy, uint256 _oldVersion, uint256 _newVersion) public {
+        RollupProcessorLatest proxy = RollupProcessorLatest(payable(_proxy));
         ProxyAdmin proxyAdmin = _getProxyAdmin(_proxy);
 
-        require(proxy.getImplementationVersion() == VERSION_BEFORE, "Version before don't match");
+        require(proxy.getImplementationVersion() == _oldVersion, "Version before don't match");
         require(proxy.paused(), "Rollup is not paused");
 
         uint256 lowerBound = proxy.escapeBlockLowerBound();
         uint256 upperBound = proxy.escapeBlockUpperBound();
 
         vm.broadcast();
-        RollupProcessorV5 fix = new RollupProcessorV5(lowerBound, upperBound);
+        RollupProcessorLatest fix = new RollupProcessorLatest(lowerBound, upperBound);
 
         vm.expectRevert("Initializable: contract is already initialized");
         fix.initialize();
 
-        require(fix.getImplementationVersion() == VERSION_AFTER, "Fix Version not matching");
+        require(fix.getImplementationVersion() == _newVersion, "Fix Version not matching");
 
         emit log_named_address(
             "Old rollup ",
@@ -44,14 +41,14 @@ contract UpgradeV5Prod is Test {
         emit log_named_address("Proxy admin", address(proxyAdmin));
     }
 
-    function verify(address _proxy, address _newRollup, address _oldRollup) public {
-        RollupProcessorV5 proxy = RollupProcessorV5(payable(_proxy));
+    function verify(address _proxy, address _newRollup, address _oldRollup, uint256 _newVersion) public {
+        RollupProcessorLatest proxy = RollupProcessorLatest(payable(_proxy));
         ProxyAdmin proxyAdmin = _getProxyAdmin(_proxy);
 
         address implementation = proxyAdmin.getProxyImplementation(TransparentUpgradeableProxy(payable(_proxy)));
 
         require(implementation == _newRollup, "Proxy implementation does not match new rollup address");
-        require(proxy.getImplementationVersion() == VERSION_AFTER, "Version after don't match");
+        require(proxy.getImplementationVersion() == _newVersion, "Version after don't match");
 
         // Load storage values from old implementation. Skip initialising (_initialized, _initializing)
         bytes32[] memory values = new bytes32[](25);
@@ -67,7 +64,7 @@ contract UpgradeV5Prod is Test {
             }
         }
 
-        emit log("Upgrade to V5 successful");
+        emit log("Upgrade successful");
 
         emit log_named_address("Proxy                      ", _proxy);
         emit log_named_uint("Implementation version     ", proxy.getImplementationVersion());

@@ -4,6 +4,8 @@ import { ClientEthereumBlockchain } from '@aztec/blockchain';
 import { CoreSdk, createCoreSdk } from '../core_sdk/index.js';
 import { CreateCoreSdkOptions } from '../core_sdk/index.js';
 import { AztecSdk } from './aztec_sdk.js';
+import config from '../config.js';
+import { EthAddress } from '@aztec/barretenberg/address';
 
 const debug = createDebugLogger('bb:create_aztec_sdk');
 
@@ -19,6 +21,7 @@ async function createBlockchain(
   } = await coreSdk.getRemoteStatus();
   const blockchain = new ClientEthereumBlockchain(
     rollupContractAddress,
+    EthAddress.fromString(config.nataGateway.address),
     permitHelperContractAddress,
     assets,
     bridges,

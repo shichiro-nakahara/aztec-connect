@@ -5,4 +5,4 @@ forge verify-contract \
   --chain 137 --watch \
   --constructor-args $(cast abi-encode "constructor(uint256, uint256)" "2160" "2400") \
   $IMPLEMENTATION_ADDRESS \
-  RollupProcessorV6
+  RollupProcessorLatest

@@ -25,7 +25,7 @@ import {DataTypes} from "@aave/core-v3/contracts/protocol/libraries/types/DataTy
  * @dev Smart contract responsible for processing Aztec zkRollups, relaying them to a verifier
  *      contract for validation and performing all the relevant ERC20 token transfers
  */
-contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, AccessControl {
+contract RollupProcessorLatest is IRollupProcessorV2, Decoder, Initializable, AccessControl {
     using SafeCast for uint256;
     /*----------------------------------------
       ERROR TAGS
@@ -65,7 +65,7 @@ contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, Access
     error PROOF_VERIFICATION_FAILED();
     error PENDING_CAP_SURPASSED();
     error DAILY_CAP_SURPASSED();
-    error NOT_AVAILABLE_IN_V3();
+    error NOT_AVAILABLE_IN_NATA();
     error AAVE_NOT_INITIALIZED();
 
     /*----------------------------------------
@@ -98,6 +98,7 @@ contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, Access
     event AssetCapUpdated(uint256 assetId, uint256 pendingCap, uint256 dailyCap);
     event CappedUpdated(bool isCapped);
     event FeeTransferred(uint256 indexed assetId, uint256 value);
+    event xChainNotifyComplete();
 
     /*----------------------------------------
       STRUCTS
@@ -285,6 +286,9 @@ contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, Access
     // bounds used for escape hatch
     uint256 public immutable escapeBlockLowerBound;
     uint256 public immutable escapeBlockUpperBound;
+
+    address public constant NATA_GATEWAY = 0x03ebC6d159C41419747354bc819dF274Da9948B5;
+    bytes4 private constant X_CHAIN_NOTIFY_SELECTOR = 0xd994182f; // bytes4(keccak256('xChainNotify(uint256)'));
 
     /*----------------------------------------
       STATE VARIABLES
@@ -585,7 +589,6 @@ contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, Access
         external
         onlyRole(OWNER_ROLE)
         aaveInitialized
-        noReenter
     {
         address owner = msg.sender;
         uint256 interestBalance = getInterestBalance(_assetId);
@@ -770,7 +773,7 @@ contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, Access
         checkThirdPartyContractStatus
         noReenter
     {
-        revert NOT_AVAILABLE_IN_V3();
+        revert NOT_AVAILABLE_IN_NATA();
     }
 
     /**
@@ -826,7 +829,7 @@ contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, Access
      * @param _interactionNonce an interaction nonce that used as an ID of this payment
      */
     function receiveEthFromBridge(uint256 _interactionNonce) external payable override(IRollupProcessor) {
-        revert NOT_AVAILABLE_IN_V3();
+        revert NOT_AVAILABLE_IN_NATA();
     }
 
     /**
@@ -915,7 +918,7 @@ contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, Access
         noReenterButAsync
         returns (bool)
     {
-        revert NOT_AVAILABLE_IN_V3();
+        revert NOT_AVAILABLE_IN_NATA();
     }
 
     /*----------------------------------------
@@ -1284,7 +1287,7 @@ contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, Access
         uint256 _outputValue,
         uint256 _interactionNonce
     ) internal {
-        revert NOT_AVAILABLE_IN_V3();
+        revert NOT_AVAILABLE_IN_NATA();
     }
 
     /**
@@ -1346,6 +1349,10 @@ contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, Access
             TokenTransfers.transferToDoNotBubbleErrors(
                 assetAddress, _receiver, _withdrawValue, assetGasLimits[_assetId]
             );
+            if (_receiver == NATA_GATEWAY) {
+                xChainNotifyDoNotBubbleErrors(_withdrawValue, 75000);
+                emit xChainNotifyComplete();
+            }
         }
     }
 
@@ -1376,7 +1383,7 @@ contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, Access
      * @return version version number of the implementation
      */
     function getImplementationVersion() public view virtual returns (uint8 version) {
-        return 5;
+        return 7;
     }
 
     /**
@@ -1554,7 +1561,7 @@ contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, Access
         view
         returns (FullBridgeCallData memory fullBridgeCallData)
     {
-        revert NOT_AVAILABLE_IN_V3();
+        revert NOT_AVAILABLE_IN_NATA();
     }
 
     /**
@@ -1791,5 +1798,18 @@ contract RollupProcessorV5 is IRollupProcessorV2, Decoder, Initializable, Access
         returns (bytes32[] memory nextExpectedHashes)
     {
         return new bytes32[](0);
+    }
+
+    function xChainNotifyDoNotBubbleErrors(uint256 _amount, uint256 _gasToSend)
+        internal
+    {
+        assembly {
+            let callGas := gas()
+            if _gasToSend { callGas := _gasToSend }
+            let ptr := mload(0x40)
+            mstore(ptr, X_CHAIN_NOTIFY_SELECTOR)
+            mstore(add(ptr, 0x4), _amount)
+            pop(call(callGas, NATA_GATEWAY, 0, ptr, 0x24, 0x00, 0x00))
+        }
     }
 }

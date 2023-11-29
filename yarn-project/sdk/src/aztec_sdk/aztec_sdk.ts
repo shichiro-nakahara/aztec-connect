@@ -375,7 +375,7 @@ export class AztecSdk extends EventEmitter {
       srcPoolId, 
       dstPoolId, 
       this.core,
-      this.provider
+      this.blockchain
     );
   }
 

@@ -12,15 +12,17 @@ import {
 import { sleep } from '@aztec/barretenberg/sleep';
 import { Timer } from '@aztec/barretenberg/timer';
 import { Web3Provider } from '@ethersproject/providers';
-import { EthAsset, RollupProcessor, TokenAsset } from './contracts/index.js';
+import { EthAsset, RollupProcessor, TokenAsset, NataGateway } from './contracts/index.js';
 
 export class ClientEthereumBlockchain {
   private readonly rollupProcessor: RollupProcessor;
   private readonly provider: Web3Provider;
   private assets: Asset[];
+  private readonly nataGateway: NataGateway;
 
   constructor(
     rollupContractAddress: EthAddress,
+    nataGatewayContractAddress: EthAddress,
     permitHelperContractAddress: EthAddress,
     assets: BlockchainAsset[],
     private readonly bridges: BlockchainBridge[],
@@ -37,6 +39,7 @@ export class ClientEthereumBlockchain {
         return TokenAsset.new(asset, this.ethereumProvider);
       }
     });
+    this.nataGateway = new NataGateway(nataGatewayContractAddress, ethereumProvider);
   }
 
   public async getChainId() {
@@ -179,5 +182,9 @@ export class ClientEthereumBlockchain {
         throw new Error(`Timeout awaiting tx confirmation: ${txHash}`);
       }
     }
+  }
+
+  public async getXChainWithdrawal(id: number) {
+    return await this.nataGateway.getWithdraw(id);
   }
 }
