@@ -5,11 +5,10 @@ import { CoreSdk } from '../core_sdk/index.js';
 import { ProofOutput, proofOutputToProofTx } from '../proofs/index.js';
 import { Signer } from '../signer/index.js';
 import { createTxRefNo } from './create_tx_ref_no.js';
-import { EthereumProvider } from '@aztec/barretenberg/blockchain';
-import { ethers } from 'ethers';
-
-const NG_GATEKEEPER = 'http://localhost:3999';
-const NG_ADDRESS = '0x5F091Af1aBdF685eF91722f8912DF2423FFCBC1E';
+import { ClientEthereumBlockchain } from '@aztec/blockchain';
+import config from '../config.js';
+import { Timer } from '@aztec/barretenberg/timer';
+import { sleep } from '@aztec/barretenberg/sleep';
 
 export class XChainWithdrawController {
   private readonly requireFeePayingTx: boolean;
@@ -29,7 +28,7 @@ export class XChainWithdrawController {
     public readonly srcPoolId: number,
     public readonly dstPoolId: number,
     private readonly core: CoreSdk,
-    private readonly provider: EthereumProvider
+    private readonly blockchain: ClientEthereumBlockchain,
   ) {
     if (!assetValue.value) {
       throw new Error('Value must be greater than 0.');
@@ -39,77 +38,50 @@ export class XChainWithdrawController {
   }
 
   public async initWithdraw() {
-    // const result = await(
-    //   await fetch(
-    //     `${NG_GATEKEEPER}/x-chain-withdraw`,
-    //     {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json'
-    //       },
-    //       body: JSON.stringify({
-    //         sgChainId: this.sgChainId,
-    //         srcPoolId: this.srcPoolId,
-    //         dstPoolId: this.dstPoolId,
-    //         assetId: this.assetValue.assetId,
-    //         amount: this.assetValue.value.toString(),
-    //         destination: this.recipient.toString()
-    //       })
-    //     }
-    //   )
-    // ).json();
-
-    const result = {
-      "id": 8,
-      "txHash": "0x4adda0d80b9c60146fdd8f3aaf65641ac0e37157fdee7e5ab2588fedafc33ca0",
-      "withdrawAmount": 5000000000000000008n
-    };
+    const result = await(
+      await fetch(
+        `${config.nataGateway.keeper}/x-chain-withdraw`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            sgChainId: this.sgChainId,
+            srcPoolId: this.srcPoolId,
+            dstPoolId: this.dstPoolId,
+            assetId: this.assetValue.assetId,
+            amount: this.assetValue.value.toString(),
+            destination: this.recipient.toString()
+          })
+        }
+      )
+    ).json();
 
     this.withdrawId = result.id;
     this.withdrawAmount = result.withdrawAmount;
 
-    await new Promise((resolve, reject) => {
-      const checkTxSettled = async () => {
-        const receipt = await this.provider.request({ method: 'eth_getTransactionReceipt', params: [ result.txHash ] });
-        if (!receipt) {
-          setTimeout(checkTxSettled, 1000);
-          return;
-        }
-        if (receipt.status != 1) {
-          return reject('createWithdraw transaction reverted');
-        }
-        resolve(true);
+    let withdraw;
+    const timer = new Timer();
+    while (true) {
+      withdraw = await this.blockchain.getXChainWithdrawal(result.id);
+      if (withdraw) break;
+
+      await sleep(1000);
+
+      if (timer.s() > 300) {
+        throw new Error(`Could not verify createWithdraw transaction status after 300s`);
       }
-      checkTxSettled();
-    });
+    }
 
-    const signer = await (<any>this.provider).provider?.getSigner();
-    if (!signer) throw new Error(`Unable to get JsonRpcSigner from EthereumProvider`);
-    const nataGateway = new ethers.Contract(
-      NG_ADDRESS,
-      [
-        `function withdraws(uint256) view returns (
-          uint16 sgChainId, 
-          uint256 srcPoolId, 
-          uint256 dstPoolId, 
-          uint256 assetId, 
-          uint256 amount, 
-          address destination, 
-          bool complete
-        )`
-      ],
-      signer
-    );
-
-    const withdraw = await nataGateway.withdraws(this.withdrawId);
-    if (parseInt(withdraw[0]) != this.sgChainId || 
-      parseInt(withdraw[1]) != this.srcPoolId || 
-      parseInt(withdraw[2]) != this.dstPoolId || 
-      parseInt(withdraw[3]) != this.assetValue.assetId || 
-      withdraw[4] != this.assetValue.value ||
-      withdraw[5] != this.recipient.toString()
+    if (withdraw.sgChainId != this.sgChainId || 
+      withdraw.srcPoolId.toNumber() != this.srcPoolId || 
+      withdraw.dstPoolId.toNumber() != this.dstPoolId || 
+      withdraw.assetId.toNumber() != this.assetValue.assetId || 
+      withdraw.amount.toBigInt() != this.assetValue.value ||
+      withdraw.destination.toString() != this.recipient.toString()
     ) {
-      // throw new Error('Invalid withdraw id');
+      throw new Error('Invalid withdraw id');
     }
 
     return result;
@@ -135,7 +107,7 @@ export class XChainWithdrawController {
       BigInt(0),
       this.userId,
       spendingKeyRequired,
-      this.recipient,
+      EthAddress.fromString(config.nataGateway.address),
       spendingPublicKey,
       2,
     );

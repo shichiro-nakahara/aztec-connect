@@ -10,7 +10,6 @@ import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transpa
 import {IRollupProcessor} from "rollup-encoder/interfaces/IRollupProcessor.sol";
 import {RollupProcessor} from "core/processors/RollupProcessor.sol";
 import {RollupProcessorV2} from "core/processors/RollupProcessorV2.sol";
-import {RollupProcessorV5} from "core/processors/RollupProcessorV5.sol";
 import {RollupProcessorV2Reference as refV2} from "core/reference/RollupProcessorV2Reference.sol";
 import {DefiBridgeProxy} from "core/DefiBridgeProxy.sol";
 import {PermitHelper} from "periphery/PermitHelper.sol";
@@ -116,26 +115,5 @@ contract RollupDeployer is Test {
         proxyAdmin.upgradeAndCall(proxy, address(rollupProcessorV2), abi.encodeWithSignature("initialize()"));
 
         if (proxyAdmin.getProxyImplementation(proxy) != address(rollupProcessorV2)) revert("Incorrect implementation");
-    }
-
-    function upgradeV5(address _proxyAdmin, address _proxy) public {
-        ProxyAdmin proxyAdmin = ProxyAdmin(_proxyAdmin);
-        RollupProcessor old = RollupProcessor(_proxy);
-        TransparentUpgradeableProxy proxy = TransparentUpgradeableProxy(payable(_proxy));
-
-        uint256 lower = old.escapeBlockLowerBound();
-        uint256 upper = old.escapeBlockUpperBound();
-
-        if (isDeploying) vm.broadcast();
-        RollupProcessorV5 rollupProcessorV5 = new RollupProcessorV5(lower, upper);
-
-        vm.expectRevert("Initializable: contract is already initialized");
-        rollupProcessorV5.initialize();
-
-        if (isDeploying) vm.broadcast();
-        if (!isDeploying) vm.prank(proxyAdmin.owner());
-        proxyAdmin.upgradeAndCall(proxy, address(rollupProcessorV5), abi.encodeWithSignature("initialize()"));
-
-        if (proxyAdmin.getProxyImplementation(proxy) != address(rollupProcessorV5)) revert("Incorrect implementation");
     }
 }
