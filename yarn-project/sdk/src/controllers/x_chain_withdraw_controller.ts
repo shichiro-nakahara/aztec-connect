@@ -58,13 +58,15 @@ export class XChainWithdrawController {
       )
     ).json();
 
-    this.withdrawId = result.id;
-    this.withdrawAmount = result.withdrawAmount;
+    const { id, txHash, withdrawAmount } = result.data;
+
+    this.withdrawId = id;
+    this.withdrawAmount = BigInt(withdrawAmount);
 
     let withdraw;
     const timer = new Timer();
     while (true) {
-      withdraw = await this.blockchain.getXChainWithdrawal(result.id);
+      withdraw = await this.blockchain.getXChainWithdrawal(id);
       if (withdraw) break;
 
       await sleep(1000);
@@ -84,7 +86,7 @@ export class XChainWithdrawController {
       throw new Error('Invalid withdraw id');
     }
 
-    return result;
+    return { id, txHash, withdrawAmount };
   }
 
   public async createProof(timeout?: number) {
