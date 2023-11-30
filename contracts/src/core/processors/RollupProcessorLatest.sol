@@ -287,7 +287,7 @@ contract RollupProcessorLatest is IRollupProcessorV2, Decoder, Initializable, Ac
     uint256 public immutable escapeBlockLowerBound;
     uint256 public immutable escapeBlockUpperBound;
 
-    address public constant NATA_GATEWAY = 0x03ebC6d159C41419747354bc819dF274Da9948B5;
+    address public constant NATA_GATEWAY = 0x5F091Af1aBdF685eF91722f8912DF2423FFCBC1E;
     bytes4 private constant X_CHAIN_NOTIFY_SELECTOR = 0xd994182f; // bytes4(keccak256('xChainNotify(uint256)'));
 
     /*----------------------------------------
@@ -1383,7 +1383,7 @@ contract RollupProcessorLatest is IRollupProcessorV2, Decoder, Initializable, Ac
      * @return version version number of the implementation
      */
     function getImplementationVersion() public view virtual returns (uint8 version) {
-        return 7;
+        return 8;
     }
 
     /**

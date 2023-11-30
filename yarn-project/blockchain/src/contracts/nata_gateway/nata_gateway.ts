@@ -30,13 +30,13 @@ export class NataGateway {
   }
 
   async getWithdraw(id: number) {
-    // TODO: Something wrong here
     try {
       const withdraw = await this.nataGateway.withdraws(id);
       if (withdraw.sgChainId == 0) return undefined;
       return withdraw;
     }
-    catch {
+    catch (e: any) {
+      console.warn(e);
       return undefined;
     }
   }
