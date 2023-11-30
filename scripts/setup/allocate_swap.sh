@@ -9,3 +9,5 @@ chmod 0600 /swapfile_512
 mkswap /swapfile_512
 
 swapon /swapfile_512
+
+echo "...Done! You may want to update /etc/fstab to enable swap on startup"
