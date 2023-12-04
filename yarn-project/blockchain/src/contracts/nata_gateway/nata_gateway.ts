@@ -20,9 +20,11 @@ export class NataGateway {
           uint256 srcPoolId, 
           uint256 dstPoolId, 
           uint256 assetId, 
-          uint256 amount, 
+          uint256 rpWithdrawAmount, 
           address destination, 
-          bool complete
+          bool complete, 
+          string txHash, 
+          uint256 sgSendAmount
         )`
       ], 
       this.provider

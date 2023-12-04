@@ -80,7 +80,7 @@ export class XChainWithdrawController {
       withdraw.srcPoolId.toNumber() != this.srcPoolId || 
       withdraw.dstPoolId.toNumber() != this.dstPoolId || 
       withdraw.assetId.toNumber() != this.assetValue.assetId || 
-      withdraw.amount.toBigInt() != this.assetValue.value ||
+      withdraw.rpWithdrawAmount.toBigInt() != this.assetValue.value ||
       withdraw.destination.toString() != this.recipient.toString()
     ) {
       throw new Error('Invalid withdraw id');
