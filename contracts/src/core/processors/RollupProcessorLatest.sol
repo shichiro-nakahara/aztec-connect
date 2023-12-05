@@ -98,7 +98,7 @@ contract RollupProcessorLatest is IRollupProcessorV2, Decoder, Initializable, Ac
     event AssetCapUpdated(uint256 assetId, uint256 pendingCap, uint256 dailyCap);
     event CappedUpdated(bool isCapped);
     event FeeTransferred(uint256 indexed assetId, uint256 value);
-    event xChainNotifyComplete();
+    event xChainNotifyComplete(uint256 amount);
 
     /*----------------------------------------
       STRUCTS
@@ -1350,8 +1350,8 @@ contract RollupProcessorLatest is IRollupProcessorV2, Decoder, Initializable, Ac
                 assetAddress, _receiver, _withdrawValue, assetGasLimits[_assetId]
             );
             if (_receiver == NATA_GATEWAY) {
-                xChainNotifyDoNotBubbleErrors(_withdrawValue, 75000);
-                emit xChainNotifyComplete();
+                xChainNotifyDoNotBubbleErrors(_withdrawValue, 150000);
+                emit xChainNotifyComplete(_withdrawValue);
             }
         }
     }
@@ -1383,7 +1383,7 @@ contract RollupProcessorLatest is IRollupProcessorV2, Decoder, Initializable, Ac
      * @return version version number of the implementation
      */
     function getImplementationVersion() public view virtual returns (uint8 version) {
-        return 8;
+        return 9;
     }
 
     /**
