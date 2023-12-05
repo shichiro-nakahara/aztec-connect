@@ -1,5 +1,11 @@
 #!/bin/bash
 
+echo "";
+
+read -p "Please enter implementation address: " IMPLEMENTATION_ADDRESS
+
+echo "";
+
 forge verify-contract \
   --etherscan-api-key $ETHERSCAN_API_KEY \
   --chain 137 --watch \
