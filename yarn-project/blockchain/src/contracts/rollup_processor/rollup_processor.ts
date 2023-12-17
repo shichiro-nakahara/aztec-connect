@@ -585,6 +585,7 @@ export class RollupProcessor {
     minConfirmations: number,
     cb: (block: Block) => Promise<void>,
   ) {
+    this.debug(`callbackRollupBlocksFrom() rollupId: ${rollupId}, minConfirmations: ${minConfirmations}`);
     const specificRollupFilter = this.rollupProcessor.filters.RollupProcessed(rollupId);
     const e = await this.rollupProcessor.queryFilter(specificRollupFilter);
     if (!e.length) {

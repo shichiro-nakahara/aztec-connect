@@ -73,7 +73,7 @@ export function appFactory(server: Server, prefix: string, notifier: Notifier) {
       console.log('RPC error response: ', JSON.stringify(ctx.body));
 
       notifier.send(
-        `<b>RPC Request</b>\n${ctx.request.body?.method}\n\n<b>Error Response</b>\n${(<any>ctx.body)?.error?.message}`
+        `<b>From</b>\n${ctx.request.ip}\n\n<b>RPC Request</b>\n${ctx.request.body?.method}\n\n<b>Error Response</b>\n${(<any>ctx.body)?.error?.message}`
       );
     }
   });
