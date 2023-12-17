@@ -11,8 +11,11 @@ export function getEarliestBlock(chainId: number) {
     case 1337:
       return { earliestBlock: 0, chunk: 10, offchainSearchLead: 10 };
     case 137:
+      // Roughly 2 seconds per block on Polygon
+      return { earliestBlock: 43397697, chunk: 100000, offchainSearchLead: 30 * 60 * 24 }; 
     case 80001:
-      return { earliestBlock: 0, chunk: 100000, offchainSearchLead: 30 * 60 * 24 }; // Roughly 2 seconds per block on Polygon
+      // Roughly 2 seconds per block on Polygon
+      return { earliestBlock: 0, chunk: 100000, offchainSearchLead: 30 * 60 * 24 };
     default:
       return { earliestBlock: 0, chunk: 100000, offchainSearchLead: 6 * 60 * 24 };
   }
