@@ -587,7 +587,8 @@ export class RollupProcessor {
   ) {
     this.debug(`callbackRollupBlocksFrom() rollupId: ${rollupId}, minConfirmations: ${minConfirmations}`);
     const specificRollupFilter = this.rollupProcessor.filters.RollupProcessed(rollupId);
-    const e = await this.rollupProcessor.queryFilter(specificRollupFilter);
+    const { earliestBlock } = await this.getEarliestBlock();
+    const e = await this.rollupProcessor.queryFilter(specificRollupFilter, earliestBlock);
     if (!e.length) {
       this.debug(`no rollup with id ${rollupId} found. early out.`);
       return;
@@ -650,7 +651,8 @@ export class RollupProcessor {
 
     const findSpecificBlock = async () => {
       const specificRollupFilter = this.rollupProcessor.filters.RollupProcessed(rollupId);
-      const allEvents = await this.rollupProcessor.queryFilter(specificRollupFilter);
+      const { earliestBlock } = await this.getEarliestBlock();
+      const allEvents = await this.rollupProcessor.queryFilter(specificRollupFilter, earliestBlock);
       const events = allEvents.filter(e => currentBlockNumber - e.blockNumber + 1 >= minConfirmations);
       if (!events.length) {
         return;
