@@ -396,6 +396,7 @@ export class Configurator {
         : undefined,
       priceFeedContractAddresses: conf.priceFeedContractAddresses.map(EthAddress.fromString),
       privateKey: Buffer.from(conf.privateKey, 'hex'),
+      stargateComposer: EthAddress.fromString(conf.stargateComposer),
       runtimeConfig: {
         ...conf.runtimeConfig,
         maxFeeGasPrice: BigInt(conf.runtimeConfig.maxFeeGasPrice),
@@ -426,6 +427,7 @@ export class Configurator {
       bridgeDataProviderAddress: conf.bridgeDataProviderAddress ? conf.bridgeDataProviderAddress.toString() : undefined,
       priceFeedContractAddresses: conf.priceFeedContractAddresses.map(a => a.toString()),
       privateKey: conf.privateKey.toString('hex'),
+      stargateComposer: conf.stargateComposer.toString(),
       runtimeConfig: {
         ...conf.runtimeConfig,
         acceptingTxs: true,
