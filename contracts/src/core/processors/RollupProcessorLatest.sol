@@ -282,6 +282,7 @@ contract RollupProcessorLatest is IRollupProcessorV2, Decoder, Initializable, Ac
     bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
     bytes32 public constant LISTER_ROLE = keccak256("LISTER_ROLE");
     bytes32 public constant AAVE_ADMIN_ROLE = keccak256("AAVE_ADMIN_ROLE");
+    bytes32 public constant AAVE_WITHDRAW_ROLE = keccak256("AAVE_WITHDRAW_ROLE");
 
     // bounds used for escape hatch
     uint256 public immutable escapeBlockLowerBound;
@@ -587,7 +588,7 @@ contract RollupProcessorLatest is IRollupProcessorV2, Decoder, Initializable, Ac
      */
     function withdrawInterest(uint256 _assetId)
         external
-        onlyRole(OWNER_ROLE)
+        onlyRole(AAVE_WITHDRAW_ROLE)
         aaveInitialized
     {
         address owner = msg.sender;
@@ -1383,7 +1384,7 @@ contract RollupProcessorLatest is IRollupProcessorV2, Decoder, Initializable, Ac
      * @return version version number of the implementation
      */
     function getImplementationVersion() public view virtual returns (uint8 version) {
-        return 9;
+        return 10;
     }
 
     /**
