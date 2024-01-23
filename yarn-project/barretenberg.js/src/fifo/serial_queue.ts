@@ -1,4 +1,4 @@
-import { MemoryFifo } from '@aztec/barretenberg/fifo';
+import { MemoryFifo } from '@polyaztec/barretenberg/fifo';
 
 /**
  * A more specialised fifo queue that enqueues functions to execute. Enqueued functions are executed in serial.

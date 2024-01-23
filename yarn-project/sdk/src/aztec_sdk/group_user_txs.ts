@@ -1,7 +1,7 @@
-import { AssetValue } from '@aztec/barretenberg/asset';
-import { virtualAssetIdFlag } from '@aztec/barretenberg/bridge_call_data';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
-import { TxId } from '@aztec/barretenberg/tx_id';
+import { AssetValue } from '@polyaztec/barretenberg/asset';
+import { virtualAssetIdFlag } from '@polyaztec/barretenberg/bridge_call_data';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 import { CoreAccountTx, CoreDefiTx, CorePaymentTx, CoreUserTx } from '../core_tx/index.js';
 import {
   UserAccountTx,

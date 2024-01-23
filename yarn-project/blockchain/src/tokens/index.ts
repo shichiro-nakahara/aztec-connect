@@ -2,11 +2,11 @@ export * from './token_store.js';
 export * from './mainnet_addresses.js';
 
 import { TokenStore } from './token_store.js';
-import { EthereumProvider } from '@aztec/barretenberg/blockchain';
+import { EthereumProvider } from '@polyaztec/barretenberg/blockchain';
 import { Web3Provider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
 import { MainnetAddresses } from './mainnet_addresses.js';
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import { ERC20, WETH9 } from '../abis.js';
 
 const getSigner = (ethereumProvider: EthereumProvider, spender: EthAddress) => {

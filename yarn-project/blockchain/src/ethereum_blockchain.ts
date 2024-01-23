@@ -1,4 +1,4 @@
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import {
   Blockchain,
   BlockchainStatus,
@@ -7,14 +7,14 @@ import {
   SendTxOptions,
   TxHash,
   TypedData,
-} from '@aztec/barretenberg/blockchain';
-import { Block } from '@aztec/barretenberg/block_source';
-import { createLogger } from '@aztec/barretenberg/log';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { InitHelpers } from '@aztec/barretenberg/environment';
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { Timer } from '@aztec/barretenberg/timer';
-import { WorldStateConstants } from '@aztec/barretenberg/world_state';
+} from '@polyaztec/barretenberg/blockchain';
+import { Block } from '@polyaztec/barretenberg/block_source';
+import { createLogger } from '@polyaztec/barretenberg/log';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { InitHelpers } from '@polyaztec/barretenberg/environment';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { Timer } from '@polyaztec/barretenberg/timer';
+import { WorldStateConstants } from '@polyaztec/barretenberg/world_state';
 import { EventEmitter } from 'events';
 import { Contracts } from './contracts/index.js';
 import { validateSignature } from './validate_signature.js';

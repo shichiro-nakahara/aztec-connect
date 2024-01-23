@@ -1,7 +1,7 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { BridgeCallData, virtualAssetIdFlag, virtualAssetIdPlaceholder } from '@aztec/barretenberg/bridge_call_data';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
-import { TxId } from '@aztec/barretenberg/tx_id';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { BridgeCallData, virtualAssetIdFlag, virtualAssetIdPlaceholder } from '@polyaztec/barretenberg/bridge_call_data';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 import { createTxRefNo } from '../controllers/index.js';
 import { CoreUserTx } from '../core_tx/index.js';
 import { randomCoreAccountTx, randomCoreDefiTx, randomCorePaymentTx } from '../core_tx/fixtures.js';

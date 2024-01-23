@@ -1,4 +1,4 @@
-import { PriceFeed } from '@aztec/barretenberg/blockchain';
+import { PriceFeed } from '@polyaztec/barretenberg/blockchain';
 
 export class EthPriceFeed implements PriceFeed {
   constructor() {}

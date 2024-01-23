@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import { EventMessage, isEventMessage, ResponseMessage } from './messages.js';
 import { TransportConnect } from './transport_connect.js';
 import { TransportSocket } from './transport_socket.js';
-import { createDebugLogger } from '@aztec/barretenberg/log';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
 
 const debug = createDebugLogger('aztec:transport_client');
 

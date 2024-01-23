@@ -1,8 +1,8 @@
-import { Block } from '@aztec/barretenberg/block_source';
-import { Pedersen } from '@aztec/barretenberg/crypto';
-import { MemoryMerkleTree } from '@aztec/barretenberg/merkle_tree';
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { WorldStateConstants } from '@aztec/barretenberg/world_state';
+import { Block } from '@polyaztec/barretenberg/block_source';
+import { Pedersen } from '@polyaztec/barretenberg/crypto';
+import { MemoryMerkleTree } from '@polyaztec/barretenberg/merkle_tree';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { WorldStateConstants } from '@polyaztec/barretenberg/world_state';
 import { Mutex } from 'async-mutex';
 
 /**

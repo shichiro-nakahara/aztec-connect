@@ -1,4 +1,4 @@
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 
 export enum SdkEvent {
   // The SDK version does not match the rollup provider version

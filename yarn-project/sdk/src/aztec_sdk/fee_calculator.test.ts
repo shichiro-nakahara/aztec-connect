@@ -1,8 +1,8 @@
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { ProofData, ProofId } from '@aztec/barretenberg/client_proofs';
-import { numToUInt32BE } from '@aztec/barretenberg/serialize';
-import { ClientEthereumBlockchain } from '@aztec/blockchain';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { ProofData, ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { numToUInt32BE } from '@polyaztec/barretenberg/serialize';
+import { ClientEthereumBlockchain } from '@polyaztec/blockchain';
 import { CoreSdk } from '../core_sdk/index.js';
 import { FeeCalculator } from './fee_calculator.js';
 import { jest } from '@jest/globals';

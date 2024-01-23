@@ -1,8 +1,8 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AccountData, InitHelpers } from '@aztec/barretenberg/environment';
-import { Hasher, MemoryMerkleTree } from '@aztec/barretenberg/merkle_tree';
-import { WorldStateConstants } from '@aztec/barretenberg/world_state';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AccountData, InitHelpers } from '@polyaztec/barretenberg/environment';
+import { Hasher, MemoryMerkleTree } from '@polyaztec/barretenberg/merkle_tree';
+import { WorldStateConstants } from '@polyaztec/barretenberg/world_state';
 import { Alias, SpendingKey } from '../database/database.js';
 
 export interface GenesisData {

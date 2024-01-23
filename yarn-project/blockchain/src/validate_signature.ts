@@ -1,4 +1,4 @@
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import { ethers } from 'ethers';
 
 export function validateSignature(publicOwner: EthAddress, signature: Buffer, signingData: Buffer) {

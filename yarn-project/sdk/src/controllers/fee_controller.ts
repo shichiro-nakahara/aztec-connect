@@ -1,7 +1,7 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AssetValue } from '@aztec/barretenberg/asset';
-import { Tx } from '@aztec/barretenberg/rollup_provider';
-import { TxId } from '@aztec/barretenberg/tx_id';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AssetValue } from '@polyaztec/barretenberg/asset';
+import { Tx } from '@polyaztec/barretenberg/rollup_provider';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 import { CoreSdk } from '../core_sdk/index.js';
 import { ProofOutput, proofOutputToProofTx } from '../proofs/index.js';
 import { Signer } from '../signer/index.js';

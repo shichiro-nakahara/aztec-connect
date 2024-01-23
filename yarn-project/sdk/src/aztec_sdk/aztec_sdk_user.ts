@@ -1,4 +1,4 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
 import { AztecSdk } from './aztec_sdk.js';
 
 export class AztecSdkUser {

@@ -1,10 +1,10 @@
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AssetValue } from '@aztec/barretenberg/asset';
-import { TxType } from '@aztec/barretenberg/blockchain';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { DefiDepositProofData, JoinSplitProofData, ProofData, ProofId } from '@aztec/barretenberg/client_proofs';
-import { roundUp } from '@aztec/barretenberg/rounding';
-import { ClientEthereumBlockchain } from '@aztec/blockchain';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AssetValue } from '@polyaztec/barretenberg/asset';
+import { TxType } from '@polyaztec/barretenberg/blockchain';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { DefiDepositProofData, JoinSplitProofData, ProofData, ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { roundUp } from '@polyaztec/barretenberg/rounding';
+import { ClientEthereumBlockchain } from '@polyaztec/blockchain';
 import { CoreSdk } from '../core_sdk/index.js';
 
 const accumeFees = (fees0: AssetValue[], fees1: AssetValue[]) =>

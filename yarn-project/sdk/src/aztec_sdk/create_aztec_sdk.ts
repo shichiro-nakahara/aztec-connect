@@ -1,11 +1,11 @@
-import { EthereumProvider } from '@aztec/barretenberg/blockchain';
-import { createDebugLogger, enableLogs, logHistory } from '@aztec/barretenberg/log';
-import { ClientEthereumBlockchain } from '@aztec/blockchain';
+import { EthereumProvider } from '@polyaztec/barretenberg/blockchain';
+import { createDebugLogger, enableLogs, logHistory } from '@polyaztec/barretenberg/log';
+import { ClientEthereumBlockchain } from '@polyaztec/blockchain';
 import { CoreSdk, createCoreSdk } from '../core_sdk/index.js';
 import { CreateCoreSdkOptions } from '../core_sdk/index.js';
 import { AztecSdk } from './aztec_sdk.js';
 import config from '../config.js';
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 
 const debug = createDebugLogger('bb:create_aztec_sdk');
 

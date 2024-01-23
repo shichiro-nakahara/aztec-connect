@@ -1,5 +1,5 @@
-import { MemoryFifo } from '@aztec/barretenberg/fifo';
-import { Mutex, MutexDatabase } from '@aztec/barretenberg/mutex';
+import { MemoryFifo } from '@polyaztec/barretenberg/fifo';
+import { Mutex, MutexDatabase } from '@polyaztec/barretenberg/mutex';
 import { SerialQueue } from './serial_queue.js';
 
 export class MutexSerialQueue implements SerialQueue {

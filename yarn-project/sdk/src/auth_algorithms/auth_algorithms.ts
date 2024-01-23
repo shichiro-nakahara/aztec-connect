@@ -1,5 +1,5 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { DecryptedNote } from '@aztec/barretenberg/note_algorithms';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { DecryptedNote } from '@polyaztec/barretenberg/note_algorithms';
 import { JoinSplitTxInput } from '../proofs/proof_input/index.js';
 
 export interface AuthAlgorithms {

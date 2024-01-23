@@ -7,22 +7,22 @@ export * from './note/index.js';
 export * from './signer/index.js';
 export * from './user/index.js';
 export * from './user_tx/index.js';
-export * from '@aztec/barretenberg/account_id';
-export * from '@aztec/barretenberg/address';
-export * from '@aztec/barretenberg/asset';
-export * from '@aztec/barretenberg/bigint_buffer';
-export * from '@aztec/barretenberg/bridge_call_data';
-export { ProofId } from '@aztec/barretenberg/client_proofs';
-export * from '@aztec/barretenberg/crypto';
-export * from '@aztec/barretenberg/rollup_provider';
-export * from '@aztec/barretenberg/rollup_proof';
-export * from '@aztec/barretenberg/fifo';
-export * from '@aztec/barretenberg/tx_id';
-export * from '@aztec/barretenberg/blockchain';
-export * from '@aztec/barretenberg/timer';
-export * from '@aztec/barretenberg/log';
-export * from '@aztec/barretenberg/offchain_tx_data';
-export { DecodedBlock } from '@aztec/barretenberg/block_source';
+export * from '@polyaztec/barretenberg/account_id';
+export * from '@polyaztec/barretenberg/address';
+export * from '@polyaztec/barretenberg/asset';
+export * from '@polyaztec/barretenberg/bigint_buffer';
+export * from '@polyaztec/barretenberg/bridge_call_data';
+export { ProofId } from '@polyaztec/barretenberg/client_proofs';
+export * from '@polyaztec/barretenberg/crypto';
+export * from '@polyaztec/barretenberg/rollup_provider';
+export * from '@polyaztec/barretenberg/rollup_proof';
+export * from '@polyaztec/barretenberg/fifo';
+export * from '@polyaztec/barretenberg/tx_id';
+export * from '@polyaztec/barretenberg/blockchain';
+export * from '@polyaztec/barretenberg/timer';
+export * from '@polyaztec/barretenberg/log';
+export * from '@polyaztec/barretenberg/offchain_tx_data';
+export { DecodedBlock } from '@polyaztec/barretenberg/block_source';
 
 export {
   JsonRpcProvider,
@@ -36,11 +36,11 @@ export {
   FeeDistributor,
   RollupProcessor,
   EthAsset,
-} from '@aztec/blockchain';
+} from '@polyaztec/blockchain';
 
 // Exposing for medici. Remove once they have proper multisig api.
 export * from './proofs/index.js';
-export { BarretenbergWasm } from '@aztec/barretenberg/wasm';
+export { BarretenbergWasm } from '@polyaztec/barretenberg/wasm';
 export type CoreSdkInterface = {
   [K in keyof CoreSdk]: CoreSdk[K];
 };

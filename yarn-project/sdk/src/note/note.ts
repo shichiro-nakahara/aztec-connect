@@ -1,4 +1,4 @@
-import { TreeNote } from '@aztec/barretenberg/note_algorithms';
+import { TreeNote } from '@polyaztec/barretenberg/note_algorithms';
 
 export class Note {
   constructor(

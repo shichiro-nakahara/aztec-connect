@@ -1,5 +1,5 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { SchnorrSignature } from '@aztec/barretenberg/crypto';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { SchnorrSignature } from '@polyaztec/barretenberg/crypto';
 import { Signer } from './signer.js';
 
 export class RecoverSignatureSigner implements Signer {

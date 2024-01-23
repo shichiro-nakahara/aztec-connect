@@ -4,9 +4,9 @@ import {
   ProviderMessage,
   ProviderRpcError,
   RequestArguments,
-} from '@aztec/barretenberg/blockchain';
+} from '@polyaztec/barretenberg/blockchain';
 import { Wallet } from 'ethers';
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import { EthersAdapter } from './ethers_adapter.js';
 import { JsonRpcProvider, Web3Provider, TransactionRequest } from '@ethersproject/providers';
 import { readFileSync } from 'fs';

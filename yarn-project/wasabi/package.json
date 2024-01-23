@@ -27,10 +27,10 @@
     "rootDir": "./src"
   },
   "dependencies": {
-    "@aztec/blockchain": "workspace:^",
-    "@aztec/sdk": "workspace:^",
     "@ethersproject/abi": "5.5.0",
     "@ethersproject/providers": "^5.6.1",
+    "@polyaztec/blockchain": "workspace:^",
+    "@polyaztec/sdk": "workspace:^",
     "ethers": "^5.7.2",
     "isomorphic-fetch": "^3.0.0",
     "log-timestamp": "^0.3.0",
@@ -38,7 +38,7 @@
     "typescript": "^4.7.4"
   },
   "devDependencies": {
-    "@aztec/eslint-config": "workspace:^",
+    "@polyaztec/eslint-config": "workspace:^",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/node": "^18.7.23",
     "@types/source-map-support": "^0.5.6",

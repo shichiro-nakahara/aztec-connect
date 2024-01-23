@@ -1,22 +1,22 @@
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AssetValue, isVirtualAsset } from '@aztec/barretenberg/asset';
-import { EthereumProvider, Receipt, SendTxOptions, TxHash } from '@aztec/barretenberg/blockchain';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
-import { Blake2s, keccak256, randomBytes } from '@aztec/barretenberg/crypto';
-import { retryUntil } from '@aztec/barretenberg/retry';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AssetValue, isVirtualAsset } from '@polyaztec/barretenberg/asset';
+import { EthereumProvider, Receipt, SendTxOptions, TxHash } from '@polyaztec/barretenberg/blockchain';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { Blake2s, keccak256, randomBytes } from '@polyaztec/barretenberg/crypto';
+import { retryUntil } from '@polyaztec/barretenberg/retry';
 import {
   BridgePublishQuery,
   BridgePublishQueryResult,
   DefiSettlementTime,
   Tx,
   TxSettlementTime,
-} from '@aztec/barretenberg/rollup_provider';
-import { TxId } from '@aztec/barretenberg/tx_id';
-import { BarretenbergWasm } from '@aztec/barretenberg/wasm';
-import { roundUp } from '@aztec/barretenberg/rounding';
-import { DecodedBlock } from '@aztec/barretenberg/block_source';
-import { ClientEthereumBlockchain, validateSignature, Web3Signer } from '@aztec/blockchain';
+} from '@polyaztec/barretenberg/rollup_provider';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
+import { BarretenbergWasm } from '@polyaztec/barretenberg/wasm';
+import { roundUp } from '@polyaztec/barretenberg/rounding';
+import { DecodedBlock } from '@polyaztec/barretenberg/block_source';
+import { ClientEthereumBlockchain, validateSignature, Web3Signer } from '@polyaztec/blockchain';
 import { EventEmitter } from 'events';
 import {
   AddSpendingKeyController,

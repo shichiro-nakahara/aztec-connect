@@ -1,4 +1,4 @@
-import { EthereumProvider, RequestArguments } from '@aztec/barretenberg/blockchain';
+import { EthereumProvider, RequestArguments } from '@polyaztec/barretenberg/blockchain';
 import { Signer } from 'ethers';
 import { Provider } from '@ethersproject/abstract-provider';
 

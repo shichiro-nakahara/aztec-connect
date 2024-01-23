@@ -1,7 +1,7 @@
-import { Pedersen } from '@aztec/barretenberg/crypto';
-import { Grumpkin } from '@aztec/barretenberg/ecc';
-import { NoteAlgorithms } from '@aztec/barretenberg/note_algorithms';
-import { BarretenbergWasm } from '@aztec/barretenberg/wasm';
+import { Pedersen } from '@polyaztec/barretenberg/crypto';
+import { Grumpkin } from '@polyaztec/barretenberg/ecc';
+import { NoteAlgorithms } from '@polyaztec/barretenberg/note_algorithms';
+import { BarretenbergWasm } from '@polyaztec/barretenberg/wasm';
 import { AuthAlgorithms } from '../../auth_algorithms/index.js';
 import {
   AccountProofRequestData,

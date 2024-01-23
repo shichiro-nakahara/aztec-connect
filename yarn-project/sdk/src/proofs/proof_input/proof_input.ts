@@ -1,6 +1,6 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AccountTx } from '@aztec/barretenberg/client_proofs';
-import { ViewingKey } from '@aztec/barretenberg/viewing_key';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AccountTx } from '@polyaztec/barretenberg/client_proofs';
+import { ViewingKey } from '@polyaztec/barretenberg/viewing_key';
 import {
   JoinSplitTxInput,
   joinSplitTxInputFromJson,
@@ -8,7 +8,7 @@ import {
   joinSplitTxInputToJson,
 } from './join_split_tx_input.js';
 
-export { AccountTx } from '@aztec/barretenberg/client_proofs';
+export { AccountTx } from '@polyaztec/barretenberg/client_proofs';
 
 export interface AccountProofInput {
   tx: AccountTx;

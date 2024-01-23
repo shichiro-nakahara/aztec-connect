@@ -1,18 +1,18 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { toBigIntBE } from '@aztec/barretenberg/bigint_buffer';
-import { virtualAssetIdFlag } from '@aztec/barretenberg/bridge_call_data';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
-import { Grumpkin } from '@aztec/barretenberg/ecc';
-import { createDebugLogger } from '@aztec/barretenberg/log';
-import { deriveNoteSecret, NoteAlgorithms, TreeNote } from '@aztec/barretenberg/note_algorithms';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { toBigIntBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { virtualAssetIdFlag } from '@polyaztec/barretenberg/bridge_call_data';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { Grumpkin } from '@polyaztec/barretenberg/ecc';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
+import { deriveNoteSecret, NoteAlgorithms, TreeNote } from '@polyaztec/barretenberg/note_algorithms';
 import {
   OffchainAccountData,
   OffchainDefiDepositData,
   OffchainJoinSplitData,
-} from '@aztec/barretenberg/offchain_tx_data';
-import { InnerProofData, RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { Timer } from '@aztec/barretenberg/timer';
-import { TxId } from '@aztec/barretenberg/tx_id';
+} from '@polyaztec/barretenberg/offchain_tx_data';
+import { InnerProofData, RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { Timer } from '@polyaztec/barretenberg/timer';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 import { BlockContext } from '../block_context/block_context.js';
 import { CoreAccountTx, CoreDefiTx, CorePaymentTx, CoreUserTx, PaymentProofId } from '../core_tx/index.js';
 import { BulkUserStateUpdateData, Database, SpendingKey } from '../database/index.js';

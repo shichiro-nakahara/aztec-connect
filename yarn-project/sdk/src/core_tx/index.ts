@@ -1,4 +1,4 @@
-import { ProofId } from '@aztec/barretenberg/client_proofs';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
 import { CoreAccountTx, coreAccountTxFromJson, CoreAccountTxJson, coreAccountTxToJson } from './core_account_tx.js';
 import { CoreDefiTx, coreDefiTxFromJson, CoreDefiTxJson, coreDefiTxToJson } from './core_defi_tx.js';
 import { CorePaymentTx, corePaymentTxFromJson, CorePaymentTxJson, corePaymentTxToJson } from './core_payment_tx.js';

@@ -1,6 +1,6 @@
-import { EthereumProvider, RequestArguments } from '@aztec/barretenberg/blockchain';
-import { retry } from '@aztec/barretenberg/retry';
-import { createDebugLogger } from '@aztec/barretenberg/log';
+import { EthereumProvider, RequestArguments } from '@polyaztec/barretenberg/blockchain';
+import { retry } from '@polyaztec/barretenberg/retry';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
 
 const log = createDebugLogger('json_rpc_provider');
 

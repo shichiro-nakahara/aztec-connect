@@ -1,9 +1,9 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { EthereumProvider, BridgeData, BridgeSubsidy } from '@aztec/barretenberg/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { EthereumProvider, BridgeData, BridgeSubsidy } from '@polyaztec/barretenberg/blockchain';
 import { Web3Provider } from '@ethersproject/providers';
 import { IBridgeDataProvider, MockBridgeDataProvider } from '../../abis.js';
 import { Contract } from 'ethers';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
 import { WalletProvider } from '../../index.js';
 
 // helper function to set the subsidy for a specified bridge on the mock data provider used in tests

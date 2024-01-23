@@ -1,9 +1,9 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AccountTx, JoinSplitTx, ProofData } from '@aztec/barretenberg/client_proofs';
-import { SchnorrSignature } from '@aztec/barretenberg/crypto';
-import { HashPath } from '@aztec/barretenberg/merkle_tree';
-import { NoteAlgorithms } from '@aztec/barretenberg/note_algorithms';
-import { ViewingKey } from '@aztec/barretenberg/viewing_key';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AccountTx, JoinSplitTx, ProofData } from '@polyaztec/barretenberg/client_proofs';
+import { SchnorrSignature } from '@polyaztec/barretenberg/crypto';
+import { HashPath } from '@polyaztec/barretenberg/merkle_tree';
+import { NoteAlgorithms } from '@polyaztec/barretenberg/note_algorithms';
+import { ViewingKey } from '@polyaztec/barretenberg/viewing_key';
 import { treeNoteToNote } from '../note/index.js';
 import { JoinSplitTxInput } from './proof_input/index.js';
 

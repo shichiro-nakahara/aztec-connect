@@ -2,8 +2,8 @@ import { depositToWeth, approveWeth, getTokenBalance } from './index.js';
 import { Contract } from 'ethers';
 import { Web3Provider } from '@ethersproject/providers';
 import { MainnetAddresses } from './mainnet_addresses.js';
-import { EthereumProvider } from '@aztec/barretenberg/blockchain';
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthereumProvider } from '@polyaztec/barretenberg/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import { ISwapRouter } from '../abis.js';
 
 const supportedAssets = [

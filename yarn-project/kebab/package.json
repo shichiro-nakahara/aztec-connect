@@ -31,9 +31,9 @@
     "rootDir": "./src"
   },
   "dependencies": {
-    "@aztec/barretenberg": "workspace:^",
-    "@aztec/blockchain": "workspace:^",
     "@koa/cors": "^3.3.0",
+    "@polyaztec/barretenberg": "workspace:^",
+    "@polyaztec/blockchain": "workspace:^",
     "fs-extra": "^10.1.0",
     "json-normalize": "^1.1.2",
     "koa": "^2.13.4",
@@ -46,7 +46,7 @@
     "typeorm": "^0.3.10"
   },
   "devDependencies": {
-    "@aztec/eslint-config": "workspace:^",
+    "@polyaztec/eslint-config": "workspace:^",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/debug": "^4.1.5",
     "@types/fs-extra": "^9.0.13",

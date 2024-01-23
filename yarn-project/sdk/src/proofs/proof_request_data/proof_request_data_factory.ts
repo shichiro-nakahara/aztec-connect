@@ -1,10 +1,10 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AssetValue } from '@aztec/barretenberg/asset';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
-import { Blake2s } from '@aztec/barretenberg/crypto';
-import { WorldState } from '@aztec/barretenberg/world_state';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AssetValue } from '@polyaztec/barretenberg/asset';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { Blake2s } from '@polyaztec/barretenberg/crypto';
+import { WorldState } from '@polyaztec/barretenberg/world_state';
 import { UserState as AccountState } from '../../user_state/index.js';
 import { Database } from '../../database/index.js';
 import { AccountProofRequestData } from './account_proof_request_data.js';

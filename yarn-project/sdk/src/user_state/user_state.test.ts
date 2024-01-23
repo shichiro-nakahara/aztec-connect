@@ -1,13 +1,13 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { toBufferBE } from '@aztec/barretenberg/bigint_buffer';
-import { TxHash } from '@aztec/barretenberg/blockchain';
-import { Block } from '@aztec/barretenberg/block_source';
-import { DefiInteractionEvent } from '@aztec/barretenberg/block_source';
-import { BridgeCallData, virtualAssetIdFlag, virtualAssetIdPlaceholder } from '@aztec/barretenberg/bridge_call_data';
-import { ProofData, ProofId } from '@aztec/barretenberg/client_proofs';
-import { Grumpkin } from '@aztec/barretenberg/ecc';
-import { HashPath } from '@aztec/barretenberg/merkle_tree';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { toBufferBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { TxHash } from '@polyaztec/barretenberg/blockchain';
+import { Block } from '@polyaztec/barretenberg/block_source';
+import { DefiInteractionEvent } from '@polyaztec/barretenberg/block_source';
+import { BridgeCallData, virtualAssetIdFlag, virtualAssetIdPlaceholder } from '@polyaztec/barretenberg/bridge_call_data';
+import { ProofData, ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { Grumpkin } from '@polyaztec/barretenberg/ecc';
+import { HashPath } from '@polyaztec/barretenberg/merkle_tree';
 import {
   deriveNoteSecret,
   NoteAlgorithms,
@@ -15,17 +15,17 @@ import {
   SingleNoteDecryptor,
   TreeClaimNote,
   TreeNote,
-} from '@aztec/barretenberg/note_algorithms';
+} from '@polyaztec/barretenberg/note_algorithms';
 import {
   OffchainAccountData,
   OffchainDefiClaimData,
   OffchainDefiDepositData,
   OffchainJoinSplitData,
-} from '@aztec/barretenberg/offchain_tx_data';
-import { InnerProofData, RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { RollupProvider } from '@aztec/barretenberg/rollup_provider';
-import { TxId } from '@aztec/barretenberg/tx_id';
-import { BarretenbergWasm } from '@aztec/barretenberg/wasm';
+} from '@polyaztec/barretenberg/offchain_tx_data';
+import { InnerProofData, RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { RollupProvider } from '@polyaztec/barretenberg/rollup_provider';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
+import { BarretenbergWasm } from '@polyaztec/barretenberg/wasm';
 import { randomBytes } from 'crypto';
 import { BlockContext } from '../block_context/block_context.js';
 import { CoreAccountTx, CoreDefiTx, CorePaymentTx, CoreUserTx, PaymentProofId } from '../core_tx/index.js';

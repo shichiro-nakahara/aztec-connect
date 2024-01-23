@@ -1,8 +1,8 @@
-import { RollupProvider } from '@aztec/barretenberg/rollup_provider';
-import { InterruptableSleep } from '@aztec/barretenberg/sleep';
-import { Block } from '@aztec/barretenberg/block_source';
-import { MemoryFifo, Semaphore } from '@aztec/barretenberg/fifo';
-import { createDebugLogger } from '@aztec/barretenberg/log';
+import { RollupProvider } from '@polyaztec/barretenberg/rollup_provider';
+import { InterruptableSleep } from '@polyaztec/barretenberg/sleep';
+import { Block } from '@polyaztec/barretenberg/block_source';
+import { MemoryFifo, Semaphore } from '@polyaztec/barretenberg/fifo';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
 
 export class BlockDownloader {
   private runningPromise?: Promise<void>;

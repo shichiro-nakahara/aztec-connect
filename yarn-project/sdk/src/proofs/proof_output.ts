@@ -1,10 +1,10 @@
-import { ProofData, ProofId } from '@aztec/barretenberg/client_proofs';
+import { ProofData, ProofId } from '@polyaztec/barretenberg/client_proofs';
 import {
   OffchainAccountData,
   OffchainDefiDepositData,
   OffchainJoinSplitData,
-} from '@aztec/barretenberg/offchain_tx_data';
-import { Tx } from '@aztec/barretenberg/rollup_provider';
+} from '@polyaztec/barretenberg/offchain_tx_data';
+import { Tx } from '@polyaztec/barretenberg/rollup_provider';
 import {
   CoreAccountTx,
   CoreAccountTxJson,

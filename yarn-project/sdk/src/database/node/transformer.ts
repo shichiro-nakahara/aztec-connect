@@ -1,7 +1,7 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { TxId } from '@aztec/barretenberg/tx_id';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 import { ValueTransformer } from 'typeorm';
 
 export const bigintTransformer: ValueTransformer = {

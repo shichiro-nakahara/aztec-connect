@@ -1,8 +1,8 @@
 import { BlockContext } from './block_context.js';
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { Block } from '@aztec/barretenberg/block_source';
-import { TxHash } from '@aztec/barretenberg/blockchain';
-import { HashPath, MemoryMerkleTree } from '@aztec/barretenberg/merkle_tree';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { Block } from '@polyaztec/barretenberg/block_source';
+import { TxHash } from '@polyaztec/barretenberg/blockchain';
+import { HashPath, MemoryMerkleTree } from '@polyaztec/barretenberg/merkle_tree';
 import { randomBytes } from 'crypto';
 import { jest } from '@jest/globals';
 

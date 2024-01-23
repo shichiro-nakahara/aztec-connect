@@ -1,13 +1,13 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { createJoinSplitProofSigningData } from '@aztec/barretenberg/client_proofs';
-import { Grumpkin } from '@aztec/barretenberg/ecc';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { createJoinSplitProofSigningData } from '@polyaztec/barretenberg/client_proofs';
+import { Grumpkin } from '@polyaztec/barretenberg/ecc';
 import {
   batchDecryptNotes,
   deriveNoteSecret,
   NoteAlgorithms,
   NoteDecryptor,
-} from '@aztec/barretenberg/note_algorithms';
-import { BarretenbergWasm } from '@aztec/barretenberg/wasm';
+} from '@polyaztec/barretenberg/note_algorithms';
+import { BarretenbergWasm } from '@polyaztec/barretenberg/wasm';
 import { KeyPair } from '../key_pair/index.js';
 import { JoinSplitTxInput, toJoinSplitTx } from '../proofs/proof_input/index.js';
 import { AuthAlgorithms } from './auth_algorithms.js';

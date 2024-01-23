@@ -1,5 +1,5 @@
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { TxId } from '@aztec/barretenberg/tx_id';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 import { AfterInsert, AfterLoad, AfterUpdate, Column, Entity, Index, PrimaryColumn } from 'typeorm';
 import { CorePaymentTx } from '../../core_tx/index.js';
 import {

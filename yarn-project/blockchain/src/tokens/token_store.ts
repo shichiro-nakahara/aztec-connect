@@ -2,9 +2,9 @@ import { Contract } from 'ethers';
 import { Uniswap, addressesAreSame, fixEthersStackTrace } from './uniswap.js';
 import { getTokenBalance, approveToken, transferToken } from './index.js';
 import { MainnetAddresses } from './mainnet_addresses.js';
-import { EthereumProvider } from '@aztec/barretenberg/blockchain';
+import { EthereumProvider } from '@polyaztec/barretenberg/blockchain';
 import { Web3Provider } from '@ethersproject/providers';
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import { CurveStablePool, FactoryAbi, ProviderAbi, RegistryAbi, Zap } from '../abis.js';
 
 /** Token Store

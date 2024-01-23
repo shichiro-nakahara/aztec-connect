@@ -1,5 +1,5 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { TreeNote } from '@aztec/barretenberg/note_algorithms';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { TreeNote } from '@polyaztec/barretenberg/note_algorithms';
 import { AfterInsert, AfterLoad, AfterUpdate, Column, Entity, Index, PrimaryColumn } from 'typeorm';
 import { Note } from '../../note/index.js';
 import { bigintTransformer, grumpkinAddressTransformer } from './transformer.js';

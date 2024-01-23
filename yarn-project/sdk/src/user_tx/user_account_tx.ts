@@ -1,8 +1,8 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AssetValue } from '@aztec/barretenberg/asset';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
-import { TxId } from '@aztec/barretenberg/tx_id';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AssetValue } from '@polyaztec/barretenberg/asset';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 
 export class UserAccountTx {
   public readonly proofId = ProofId.ACCOUNT;

@@ -1,10 +1,10 @@
-import { PooledPedersen, SinglePedersen } from '@aztec/barretenberg/crypto';
-import { PooledFftFactory, SingleFftFactory } from '@aztec/barretenberg/fft';
-import { createDebugLogger } from '@aztec/barretenberg/log';
-import { PooledNoteDecryptor, SingleNoteDecryptor } from '@aztec/barretenberg/note_algorithms';
-import { PooledPippenger, SinglePippenger } from '@aztec/barretenberg/pippenger';
-import { ServerRollupProvider } from '@aztec/barretenberg/rollup_provider';
-import { BarretenbergWasm, WorkerPool } from '@aztec/barretenberg/wasm';
+import { PooledPedersen, SinglePedersen } from '@polyaztec/barretenberg/crypto';
+import { PooledFftFactory, SingleFftFactory } from '@polyaztec/barretenberg/fft';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
+import { PooledNoteDecryptor, SingleNoteDecryptor } from '@polyaztec/barretenberg/note_algorithms';
+import { PooledPippenger, SinglePippenger } from '@polyaztec/barretenberg/pippenger';
+import { ServerRollupProvider } from '@polyaztec/barretenberg/rollup_provider';
+import { BarretenbergWasm, WorkerPool } from '@polyaztec/barretenberg/wasm';
 import { getDb } from '../database/index.js';
 import { getDeviceMemory, getNumCpu, getNumWorkers } from '../get_num_workers/index.js';
 import { getLevelDb } from '../level_db/index.js';

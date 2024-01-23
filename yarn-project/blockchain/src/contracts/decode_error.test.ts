@@ -1,9 +1,9 @@
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import { Contract } from 'ethers';
 import { decodeErrorFromContract } from './decode_error.js';
 // import { abi } from '../artifacts/contracts/RollupProcessor.sol/RollupProcessor.json';
 // import { JsonRpcProvider } from '../provider';
-// import { TxHash } from '@aztec/barretenberg/blockchain';
+// import { TxHash } from '@polyaztec/barretenberg/blockchain';
 
 describe('decode_error', () => {
   it('should decode error', () => {

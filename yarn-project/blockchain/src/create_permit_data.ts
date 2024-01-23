@@ -1,5 +1,5 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { TypedData } from '@aztec/barretenberg/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { TypedData } from '@polyaztec/barretenberg/blockchain';
 
 const types = {
   EIP712Domain: [

@@ -1,4 +1,4 @@
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import {
   Asset,
   EthereumProvider,
@@ -8,9 +8,9 @@ import {
   SendTxOptions,
   TxHash,
   TypedData,
-} from '@aztec/barretenberg/blockchain';
-import { createLogger } from '@aztec/barretenberg/log';
-import { Block } from '@aztec/barretenberg/block_source';
+} from '@polyaztec/barretenberg/blockchain';
+import { createLogger } from '@polyaztec/barretenberg/log';
+import { Block } from '@polyaztec/barretenberg/block_source';
 import { Web3Provider } from '@ethersproject/providers';
 import { Web3Signer } from '../signer/index.js';
 import { EthAsset, TokenAsset } from './asset/index.js';

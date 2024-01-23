@@ -1,4 +1,4 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
 
 export * from './recovery_payload.js';
 

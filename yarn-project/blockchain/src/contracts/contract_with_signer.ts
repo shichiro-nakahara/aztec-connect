@@ -1,4 +1,4 @@
-import { SendTxOptions, TxHash } from '@aztec/barretenberg/blockchain';
+import { SendTxOptions, TxHash } from '@polyaztec/barretenberg/blockchain';
 import { Web3Provider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
 

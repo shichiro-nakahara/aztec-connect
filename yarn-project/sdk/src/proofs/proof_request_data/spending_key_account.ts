@@ -1,7 +1,7 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { HashPath } from '@aztec/barretenberg/merkle_tree';
-import { WorldState, WorldStateConstants } from '@aztec/barretenberg/world_state';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { HashPath } from '@polyaztec/barretenberg/merkle_tree';
+import { WorldState, WorldStateConstants } from '@polyaztec/barretenberg/world_state';
 import { Database } from '../../database/index.js';
 
 export interface SpendingKeyAccount {

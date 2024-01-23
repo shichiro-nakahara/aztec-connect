@@ -1,11 +1,11 @@
-import { AccountProver, JoinSplitProver, UnrolledProver } from '@aztec/barretenberg/client_proofs';
-import { NetCrs } from '@aztec/barretenberg/crs';
-import { randomBytes, SchnorrSignature } from '@aztec/barretenberg/crypto';
-import { FftFactory } from '@aztec/barretenberg/fft';
-import { createDebugLogger } from '@aztec/barretenberg/log';
-import { NoteAlgorithms } from '@aztec/barretenberg/note_algorithms';
-import { Pippenger } from '@aztec/barretenberg/pippenger';
-import { BarretenbergWasm, WorkerPool } from '@aztec/barretenberg/wasm';
+import { AccountProver, JoinSplitProver, UnrolledProver } from '@polyaztec/barretenberg/client_proofs';
+import { NetCrs } from '@polyaztec/barretenberg/crs';
+import { randomBytes, SchnorrSignature } from '@polyaztec/barretenberg/crypto';
+import { FftFactory } from '@polyaztec/barretenberg/fft';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
+import { NoteAlgorithms } from '@polyaztec/barretenberg/note_algorithms';
+import { Pippenger } from '@polyaztec/barretenberg/pippenger';
+import { BarretenbergWasm, WorkerPool } from '@polyaztec/barretenberg/wasm';
 import { KeyPair } from '../../key_pair/index.js';
 import { MemorySerialQueue } from '../../serial_queue/index.js';
 import {

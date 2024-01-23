@@ -1,14 +1,14 @@
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AssetValue } from '@aztec/barretenberg/asset';
-import { TxId } from '@aztec/barretenberg/tx_id';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AssetValue } from '@polyaztec/barretenberg/asset';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 import { CoreSdk } from '../core_sdk/index.js';
 import { ProofOutput, proofOutputToProofTx } from '../proofs/index.js';
 import { Signer } from '../signer/index.js';
 import { createTxRefNo } from './create_tx_ref_no.js';
-import { ClientEthereumBlockchain } from '@aztec/blockchain';
+import { ClientEthereumBlockchain } from '@polyaztec/blockchain';
 import config from '../config.js';
-import { Timer } from '@aztec/barretenberg/timer';
-import { sleep } from '@aztec/barretenberg/sleep';
+import { Timer } from '@polyaztec/barretenberg/timer';
+import { sleep } from '@polyaztec/barretenberg/sleep';
 
 export class XChainWithdrawController {
   private readonly requireFeePayingTx: boolean;

@@ -1,4 +1,4 @@
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import {
   EthereumProvider,
   EthereumSignature,
@@ -6,13 +6,13 @@ import {
   TxHash,
   RollupTxs,
   EthereumRpc,
-} from '@aztec/barretenberg/blockchain';
-import { Block } from '@aztec/barretenberg/block_source';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { computeInteractionHashes } from '@aztec/barretenberg/note_algorithms';
-import { Timer } from '@aztec/barretenberg/timer';
-import { sliceOffchainTxData } from '@aztec/barretenberg/offchain_tx_data';
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
+} from '@polyaztec/barretenberg/blockchain';
+import { Block } from '@polyaztec/barretenberg/block_source';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { computeInteractionHashes } from '@polyaztec/barretenberg/note_algorithms';
+import { Timer } from '@polyaztec/barretenberg/timer';
+import { sliceOffchainTxData } from '@polyaztec/barretenberg/offchain_tx_data';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
 import {
   TransactionReceipt,
   TransactionResponse,
@@ -24,10 +24,10 @@ import createDebug from 'debug';
 import { BytesLike, Contract, Event, utils } from 'ethers';
 import { RollupProcessorV3 as RollupProcessorAbi, PermitHelper } from '../../abis.js';
 import { decodeErrorFromContract, decodeErrorFromContractByTxHash } from '../decode_error.js';
-import { DefiInteractionEvent } from '@aztec/barretenberg/block_source';
+import { DefiInteractionEvent } from '@polyaztec/barretenberg/block_source';
 import { solidityFormatSignatures } from './solidity_format_signatures.js';
 import { getEarliestBlock } from '../../earliest_block/index.js';
-import { MemoryFifo, Semaphore } from '@aztec/barretenberg/fifo';
+import { MemoryFifo, Semaphore } from '@polyaztec/barretenberg/fifo';
 import { WalletProvider } from '../../index.js';
 
 const fixEthersStackTrace = (err: Error) => {
@@ -80,7 +80,7 @@ export class RollupProcessor {
     private ethereumProvider: EthereumProvider,
     protected permitHelperAddress: EthAddress = EthAddress.ZERO,
   ) {
-    this.provider = new Web3Provider(ethereumProvider);
+    this.provider = new Web3Provider(ethereumProvider, 'any');
     this.rollupProcessor = new Contract(rollupContractAddress.toString(), RollupProcessorAbi.abi, this.provider);
     this.permitHelper = new Contract(permitHelperAddress.toString(), PermitHelper.abi, this.provider);
   }
@@ -544,6 +544,7 @@ export class RollupProcessor {
   }
 
   async getUserPendingDeposit(assetId: number, account: EthAddress) {
+    console.log('getUserPendingDeposit IS HERE!')
     return BigInt(await this.rollupProcessor.userPendingDeposits(assetId, account.toString()));
   }
 

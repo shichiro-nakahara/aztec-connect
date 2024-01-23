@@ -15,12 +15,12 @@
     "cleanall": "yarn clean && rm -rf ./gen"
   },
   "dependencies": {
-    "@aztec/barretenberg": "workspace:^",
-    "@aztec/blockchain": "workspace:^",
-    "@aztec/halloumi": "workspace:^",
-    "@aztec/sdk": "workspace:^",
     "@ethersproject/abstract-provider": "^5.7.0",
     "@ethersproject/providers": "^5.7.0",
+    "@polyaztec/barretenberg": "workspace:^",
+    "@polyaztec/blockchain": "workspace:^",
+    "@polyaztec/halloumi": "workspace:^",
+    "@polyaztec/sdk": "workspace:^",
     "commander": "^8.2.0",
     "ethers": "5.5.1",
     "leveldown": "^6.1.1",
@@ -28,7 +28,7 @@
     "memdown": "^6.1.1"
   },
   "devDependencies": {
-    "@aztec/eslint-config": "workspace:^",
+    "@polyaztec/eslint-config": "workspace:^",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/leveldown": "^4.0.3",
     "@types/levelup": "^4.3.0",

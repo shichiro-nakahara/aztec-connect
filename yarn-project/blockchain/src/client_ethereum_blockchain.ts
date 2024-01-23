@@ -1,4 +1,4 @@
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import {
   Asset,
   BlockchainAsset,
@@ -8,9 +8,9 @@ import {
   Receipt,
   SendTxOptions,
   TxHash,
-} from '@aztec/barretenberg/blockchain';
-import { sleep } from '@aztec/barretenberg/sleep';
-import { Timer } from '@aztec/barretenberg/timer';
+} from '@polyaztec/barretenberg/blockchain';
+import { sleep } from '@polyaztec/barretenberg/sleep';
+import { Timer } from '@polyaztec/barretenberg/timer';
 import { Web3Provider } from '@ethersproject/providers';
 import { EthAsset, RollupProcessor, TokenAsset, NataGateway } from './contracts/index.js';
 
@@ -31,7 +31,7 @@ export class ClientEthereumBlockchain {
     private readonly permitSupportAssetIds: number[] = [],
   ) {
     this.rollupProcessor = new RollupProcessor(rollupContractAddress, ethereumProvider, permitHelperContractAddress);
-    this.provider = new Web3Provider(this.ethereumProvider);
+    this.provider = new Web3Provider(this.ethereumProvider, 'any');
     this.assets = assets.map(asset => {
       if (asset.address.equals(EthAddress.ZERO)) {
         return new EthAsset(this.ethereumProvider);

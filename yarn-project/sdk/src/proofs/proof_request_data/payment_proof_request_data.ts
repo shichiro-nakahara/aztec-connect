@@ -1,6 +1,6 @@
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AssetValue } from '@aztec/barretenberg/asset';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AssetValue } from '@polyaztec/barretenberg/asset';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
 import { Note } from '../../note/index.js';
 import { SpendingKeyAccount } from './spending_key_account.js';
 

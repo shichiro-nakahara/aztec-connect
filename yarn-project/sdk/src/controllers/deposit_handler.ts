@@ -1,16 +1,16 @@
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AssetValue } from '@aztec/barretenberg/asset';
-import { EthereumProvider, EthereumSignature, TxHash } from '@aztec/barretenberg/blockchain';
-import { retryUntil } from '@aztec/barretenberg/retry';
-import { InterruptableSleep, sleep } from '@aztec/barretenberg/sleep';
-import { Timer } from '@aztec/barretenberg/timer';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AssetValue } from '@polyaztec/barretenberg/asset';
+import { EthereumProvider, EthereumSignature, TxHash } from '@polyaztec/barretenberg/blockchain';
+import { retryUntil } from '@polyaztec/barretenberg/retry';
+import { InterruptableSleep, sleep } from '@polyaztec/barretenberg/sleep';
+import { Timer } from '@polyaztec/barretenberg/timer';
 import {
   ClientEthereumBlockchain,
   createPermitData,
   createPermitDataNonStandard,
   validateSignature,
   Web3Signer,
-} from '@aztec/blockchain';
+} from '@polyaztec/blockchain';
 import { CoreSdk } from '../core_sdk/index.js';
 import { ProofOutput } from '../proofs/index.js';
 

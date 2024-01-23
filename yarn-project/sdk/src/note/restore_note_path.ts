@@ -1,5 +1,5 @@
-import { HashPath } from '@aztec/barretenberg/merkle_tree';
-import { WorldState, WorldStateConstants } from '@aztec/barretenberg/world_state';
+import { HashPath } from '@polyaztec/barretenberg/merkle_tree';
+import { WorldState, WorldStateConstants } from '@polyaztec/barretenberg/world_state';
 import { Note } from './note.js';
 
 // For each input note we need to

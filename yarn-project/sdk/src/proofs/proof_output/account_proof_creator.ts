@@ -1,8 +1,8 @@
-import { AccountProver, AccountTx, ProofData } from '@aztec/barretenberg/client_proofs';
-import { SchnorrSignature } from '@aztec/barretenberg/crypto';
-import { createDebugLogger } from '@aztec/barretenberg/log';
-import { OffchainAccountData } from '@aztec/barretenberg/offchain_tx_data';
-import { TxId } from '@aztec/barretenberg/tx_id';
+import { AccountProver, AccountTx, ProofData } from '@polyaztec/barretenberg/client_proofs';
+import { SchnorrSignature } from '@polyaztec/barretenberg/crypto';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
+import { OffchainAccountData } from '@polyaztec/barretenberg/offchain_tx_data';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 import { CoreAccountTx } from '../../core_tx/index.js';
 
 const debug = createDebugLogger('bb:account_proof_creator');

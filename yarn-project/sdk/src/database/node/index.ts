@@ -1,6 +1,6 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { TxId } from '@aztec/barretenberg/tx_id';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 import { ConnectionOptions, DataSource, IsNull, LessThanOrEqual, MoreThan, Repository } from 'typeorm';
 import { CoreAccountTx, CoreDefiTx, CorePaymentTx } from '../../core_tx/index.js';
 import { Note } from '../../note/index.js';

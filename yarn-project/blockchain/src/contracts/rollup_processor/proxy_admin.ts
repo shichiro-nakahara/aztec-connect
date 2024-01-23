@@ -1,4 +1,4 @@
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import { Contract, ContractFactory, Signer } from 'ethers';
 import { formatBytes32String } from 'ethers/lib/utils.js';
 import { ProxyAdminContract, ProxyContract, ProxyDeployer } from '../../abis.js';

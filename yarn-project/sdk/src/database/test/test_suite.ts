@@ -1,8 +1,8 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { sleep } from '@aztec/barretenberg/sleep';
-import { TxId } from '@aztec/barretenberg/tx_id';
-import { randomBytes } from '@aztec/barretenberg/crypto';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { sleep } from '@polyaztec/barretenberg/sleep';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
+import { randomBytes } from '@polyaztec/barretenberg/crypto';
 import { CoreAccountTx, CoreDefiTx, CorePaymentTx, CoreUserTx } from '../../core_tx/index.js';
 import { Note } from '../../note/index.js';
 import { UserData } from '../../user/index.js';

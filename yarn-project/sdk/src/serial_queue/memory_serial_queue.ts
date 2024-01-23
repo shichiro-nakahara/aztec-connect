@@ -1,4 +1,4 @@
-import { MemoryFifo } from '@aztec/barretenberg/fifo';
+import { MemoryFifo } from '@polyaztec/barretenberg/fifo';
 import { SerialQueue } from './serial_queue.js';
 
 export class MemorySerialQueue implements SerialQueue {

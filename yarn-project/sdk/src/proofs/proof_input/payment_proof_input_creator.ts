@@ -1,8 +1,8 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AssetValue } from '@aztec/barretenberg/asset';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AssetValue } from '@polyaztec/barretenberg/asset';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
 import { AuthAlgorithms } from '../../auth_algorithms/index.js';
 import { Note } from '../../note/index.js';
 import { PaymentProofRequestData, SpendingKeyAccount } from '../proof_request_data/index.js';

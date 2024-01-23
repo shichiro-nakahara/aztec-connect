@@ -1,6 +1,6 @@
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
 import { AuthAlgorithms } from '../../auth_algorithms/index.js';
 import { Note } from '../../note/index.js';
 import { DefiProofRequestData, SpendingKeyAccount } from '../proof_request_data/index.js';

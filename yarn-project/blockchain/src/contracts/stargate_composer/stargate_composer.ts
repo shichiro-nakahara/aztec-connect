@@ -1,5 +1,5 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { EthereumProvider } from '@aztec/barretenberg/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { EthereumProvider } from '@polyaztec/barretenberg/blockchain';
 import { Web3Provider } from '@ethersproject/providers';
 import { Contract, BigNumber } from 'ethers';
 

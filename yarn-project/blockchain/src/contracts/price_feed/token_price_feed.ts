@@ -1,8 +1,8 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { EthAddress } from '@aztec/barretenberg/address';
-import { PriceFeed } from '@aztec/barretenberg/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { PriceFeed } from '@polyaztec/barretenberg/blockchain';
 import { Contract } from 'ethers';
-import { EthereumProvider } from '@aztec/barretenberg/blockchain';
+import { EthereumProvider } from '@polyaztec/barretenberg/blockchain';
 
 const abi = [
   'function latestAnswer() public view returns(int256)',

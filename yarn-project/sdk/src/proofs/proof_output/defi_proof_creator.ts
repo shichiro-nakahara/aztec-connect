@@ -1,12 +1,12 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { toBigIntBE } from '@aztec/barretenberg/bigint_buffer';
-import { JoinSplitProver, JoinSplitTx, ProofData } from '@aztec/barretenberg/client_proofs';
-import { SchnorrSignature } from '@aztec/barretenberg/crypto';
-import { createDebugLogger } from '@aztec/barretenberg/log';
-import { NoteAlgorithms } from '@aztec/barretenberg/note_algorithms';
-import { OffchainDefiDepositData } from '@aztec/barretenberg/offchain_tx_data';
-import { TxId } from '@aztec/barretenberg/tx_id';
-import { ViewingKey } from '@aztec/barretenberg/viewing_key';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { toBigIntBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { JoinSplitProver, JoinSplitTx, ProofData } from '@polyaztec/barretenberg/client_proofs';
+import { SchnorrSignature } from '@polyaztec/barretenberg/crypto';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
+import { NoteAlgorithms } from '@polyaztec/barretenberg/note_algorithms';
+import { OffchainDefiDepositData } from '@polyaztec/barretenberg/offchain_tx_data';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
+import { ViewingKey } from '@polyaztec/barretenberg/viewing_key';
 import { CoreDefiTx } from '../../core_tx/index.js';
 
 const debug = createDebugLogger('bb:defi_proof_creator');

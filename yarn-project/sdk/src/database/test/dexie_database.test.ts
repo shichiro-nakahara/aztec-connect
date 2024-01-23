@@ -1,4 +1,4 @@
-import { randomBytes } from '@aztec/barretenberg/crypto';
+import { randomBytes } from '@polyaztec/barretenberg/crypto';
 import 'fake-indexeddb/auto';
 
 import { DexieDatabase } from '../dexie_database.js';

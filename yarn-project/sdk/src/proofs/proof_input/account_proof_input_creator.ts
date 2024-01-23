@@ -1,7 +1,7 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { AccountTx, createAccountProofSigningData, ProofId } from '@aztec/barretenberg/client_proofs';
-import { BarretenbergWasm } from '@aztec/barretenberg/wasm';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { AccountTx, createAccountProofSigningData, ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { BarretenbergWasm } from '@polyaztec/barretenberg/wasm';
 import { AuthAlgorithms } from '../../auth_algorithms/index.js';
 import { AccountProofRequestData, SpendingKeyAccount } from '../proof_request_data/index.js';
 import { PaymentProofInputCreator } from './payment_proof_input_creator.js';

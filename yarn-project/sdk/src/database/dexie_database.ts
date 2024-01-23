@@ -1,10 +1,10 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
-import { createDebugLogger } from '@aztec/barretenberg/log';
-import { TreeNote } from '@aztec/barretenberg/note_algorithms';
-import { TxId } from '@aztec/barretenberg/tx_id';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
+import { TreeNote } from '@polyaztec/barretenberg/note_algorithms';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 import { default as Dexie } from 'dexie';
 import { CoreAccountTx, CoreDefiTx, CorePaymentTx } from '../core_tx/index.js';
 import { Note } from '../note/index.js';

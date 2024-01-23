@@ -1,4 +1,4 @@
-import { Semaphore, SerialQueue } from '@aztec/barretenberg/fifo';
+import { Semaphore, SerialQueue } from '@polyaztec/barretenberg/fifo';
 
 /**
  * Leverages the unbounded SerialQueue and Semaphore to create a SerialQueue that will block when putting an item

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { EthAddress } from '@aztec/barretenberg/address';
-import { Asset, EthereumProvider, SendTxOptions, TxHash } from '@aztec/barretenberg/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { Asset, EthereumProvider, SendTxOptions, TxHash } from '@polyaztec/barretenberg/blockchain';
 import { Web3Provider } from '@ethersproject/providers';
 import { fromBaseUnits, toBaseUnits } from '../../units.js';
 

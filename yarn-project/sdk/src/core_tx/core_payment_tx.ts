@@ -1,6 +1,6 @@
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
-import { TxId } from '@aztec/barretenberg/tx_id';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 
 export type PaymentProofId = ProofId.DEPOSIT | ProofId.WITHDRAW | ProofId.SEND;
 

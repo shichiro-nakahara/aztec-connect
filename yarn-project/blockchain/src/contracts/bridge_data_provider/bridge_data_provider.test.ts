@@ -1,5 +1,5 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
 import { JsonRpcProvider } from '../../index.js';
 import { BridgeDataProvider } from './bridge_data_provider.js';
 import { jest } from '@jest/globals';

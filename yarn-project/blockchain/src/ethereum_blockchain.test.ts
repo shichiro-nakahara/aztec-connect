@@ -1,8 +1,8 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { BlockchainAsset, BlockchainBridge, TxHash } from '@aztec/barretenberg/blockchain';
-import { Block } from '@aztec/barretenberg/block_source';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { BlockchainAsset, BlockchainBridge, TxHash } from '@polyaztec/barretenberg/blockchain';
+import { Block } from '@polyaztec/barretenberg/block_source';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
 import { randomBytes } from 'crypto';
 import { Contracts } from './contracts/index.js';
 import { EthereumBlockchain, EthereumBlockchainConfig } from './ethereum_blockchain.js';

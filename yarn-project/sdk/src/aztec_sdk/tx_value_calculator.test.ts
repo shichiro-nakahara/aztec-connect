@@ -1,8 +1,8 @@
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { randomBytes } from '@aztec/barretenberg/crypto';
-import { DefiSettlementTime, TxSettlementTime } from '@aztec/barretenberg/rollup_provider';
-import { ClientEthereumBlockchain } from '@aztec/blockchain';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { randomBytes } from '@polyaztec/barretenberg/crypto';
+import { DefiSettlementTime, TxSettlementTime } from '@polyaztec/barretenberg/rollup_provider';
+import { ClientEthereumBlockchain } from '@polyaztec/blockchain';
 import { CoreSdk } from '../core_sdk/index.js';
 import { NotePicker } from '../note_picker/index.js';
 import { TxValueCalculator } from './tx_value_calculator.js';

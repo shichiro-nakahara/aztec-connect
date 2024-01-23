@@ -1,5 +1,5 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { TxId } from '@aztec/barretenberg/tx_id';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
 
 export interface CoreClaimTx {
   defiTxId: TxId;

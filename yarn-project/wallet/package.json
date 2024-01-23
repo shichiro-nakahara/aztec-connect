@@ -18,9 +18,9 @@
     "serve": "^14.0.1"
   },
   "devDependencies": {
-    "@aztec/eslint-config": "workspace:^",
-    "@aztec/sdk": "workspace:^",
     "@ethersproject/providers": "^5.6.8",
+    "@polyaztec/eslint-config": "workspace:^",
+    "@polyaztec/sdk": "workspace:^",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/cbor": "^6.0.0",
     "@types/debug": "^4.1.7",

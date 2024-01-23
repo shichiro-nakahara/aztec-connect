@@ -1,26 +1,26 @@
-import { ProofId } from '@aztec/barretenberg/client_proofs';
-import { Grumpkin } from '@aztec/barretenberg/ecc';
-import { createDebugLogger } from '@aztec/barretenberg/log';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { Grumpkin } from '@polyaztec/barretenberg/ecc';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
 import {
   batchDecryptNotes,
   NoteAlgorithms,
   NoteDecryptor,
   recoverTreeNotes,
-} from '@aztec/barretenberg/note_algorithms';
+} from '@polyaztec/barretenberg/note_algorithms';
 import {
   OffchainAccountData,
   OffchainDefiDepositData,
   OffchainJoinSplitData,
-} from '@aztec/barretenberg/offchain_tx_data';
-import { retryUntil } from '@aztec/barretenberg/retry';
-import { RollupProvider } from '@aztec/barretenberg/rollup_provider';
-import { Timer } from '@aztec/barretenberg/timer';
-import { ViewingKey } from '@aztec/barretenberg/viewing_key';
+} from '@polyaztec/barretenberg/offchain_tx_data';
+import { retryUntil } from '@polyaztec/barretenberg/retry';
+import { RollupProvider } from '@polyaztec/barretenberg/rollup_provider';
+import { Timer } from '@polyaztec/barretenberg/timer';
+import { ViewingKey } from '@polyaztec/barretenberg/viewing_key';
 import { EventEmitter } from 'events';
 import { BlockContext } from '../block_context/block_context.js';
 import { CacheRequest } from '../cache_request/index.js';
 import { Database } from '../database/index.js';
-import { BoundedSerialQueue } from '@aztec/barretenberg/fifo';
+import { BoundedSerialQueue } from '@polyaztec/barretenberg/fifo';
 import { Note } from '../note/index.js';
 import { NotePicker, NotePickerOptions } from '../note_picker/index.js';
 import { ProofOutput } from '../proofs/index.js';

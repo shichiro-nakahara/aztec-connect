@@ -1,4 +1,4 @@
-import { EthereumProvider, RevertError, TxHash } from '@aztec/barretenberg/blockchain';
+import { EthereumProvider, RevertError, TxHash } from '@polyaztec/barretenberg/blockchain';
 import { Contract, utils } from 'ethers';
 
 export interface Fragment {

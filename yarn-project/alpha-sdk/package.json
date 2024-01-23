@@ -1,5 +1,5 @@
 {
-  "name": "@aztec/alpha-sdk",
+  "name": "@polyaztec/alpha-sdk",
   "version": "2.2.0",
   "exports": {
     "node": "./dest/index.js",
@@ -11,8 +11,8 @@
   "type": "module",
   "license": "MIT",
   "dependencies": {
-    "@aztec/barretenberg": "2.2.0-alpha.5",
-    "@aztec/blockchain": "2.2.0-alpha.5",
+    "@polyaztec/barretenberg": "2.2.0-alpha.5",
+    "@polyaztec/blockchain": "2.2.0-alpha.5",
     "detect-node": "^2.1.0",
     "dexie": "3.0.1",
     "events": "^3.3.0",

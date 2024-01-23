@@ -1,10 +1,10 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { toBigIntBE } from '@aztec/barretenberg/bigint_buffer';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
-import { TxId } from '@aztec/barretenberg/tx_id';
-import { randomBytes } from '@aztec/barretenberg/crypto';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { toBigIntBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
+import { randomBytes } from '@polyaztec/barretenberg/crypto';
 import { CoreAccountTx } from './core_account_tx.js';
 import { CoreDefiTx } from './core_defi_tx.js';
 import { CorePaymentTx } from './core_payment_tx.js';

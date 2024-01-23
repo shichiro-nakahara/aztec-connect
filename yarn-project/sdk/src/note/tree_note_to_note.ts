@@ -1,4 +1,4 @@
-import { NoteAlgorithms, TreeNote } from '@aztec/barretenberg/note_algorithms';
+import { NoteAlgorithms, TreeNote } from '@polyaztec/barretenberg/note_algorithms';
 import { Note } from '../note/index.js';
 
 export const treeNoteToNote = (

@@ -1,9 +1,9 @@
-import { JoinSplitProver, JoinSplitTx, ProofData } from '@aztec/barretenberg/client_proofs';
-import { SchnorrSignature } from '@aztec/barretenberg/crypto';
-import { createDebugLogger } from '@aztec/barretenberg/log';
-import { OffchainJoinSplitData } from '@aztec/barretenberg/offchain_tx_data';
-import { TxId } from '@aztec/barretenberg/tx_id';
-import { ViewingKey } from '@aztec/barretenberg/viewing_key';
+import { JoinSplitProver, JoinSplitTx, ProofData } from '@polyaztec/barretenberg/client_proofs';
+import { SchnorrSignature } from '@polyaztec/barretenberg/crypto';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
+import { OffchainJoinSplitData } from '@polyaztec/barretenberg/offchain_tx_data';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
+import { ViewingKey } from '@polyaztec/barretenberg/viewing_key';
 import { CorePaymentTx } from '../../core_tx/index.js';
 
 const debug = createDebugLogger('bb:payment_proof_creator');

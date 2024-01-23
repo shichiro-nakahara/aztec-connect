@@ -1,8 +1,8 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { AssetValue } from '@aztec/barretenberg/asset';
-import { EthereumProvider } from '@aztec/barretenberg/blockchain';
-import { TxId } from '@aztec/barretenberg/tx_id';
-import { ClientEthereumBlockchain } from '@aztec/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { AssetValue } from '@polyaztec/barretenberg/asset';
+import { EthereumProvider } from '@polyaztec/barretenberg/blockchain';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
+import { ClientEthereumBlockchain } from '@polyaztec/blockchain';
 import { CoreSdk } from '../core_sdk/index.js';
 import { ProofOutput, proofOutputToProofTx } from '../proofs/index.js';
 import { RecoveryPayload } from '../user/index.js';

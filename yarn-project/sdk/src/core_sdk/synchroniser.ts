@@ -1,15 +1,15 @@
-import { InitHelpers } from '@aztec/barretenberg/environment';
-import { createDebugLogger } from '@aztec/barretenberg/log';
-import { Mutex } from '@aztec/barretenberg/mutex';
-import { retry } from '@aztec/barretenberg/retry';
+import { InitHelpers } from '@polyaztec/barretenberg/environment';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
+import { Mutex } from '@polyaztec/barretenberg/mutex';
+import { retry } from '@polyaztec/barretenberg/retry';
 import {
   InitialWorldState,
   initialWorldStateFromBuffer,
   initialWorldStateToBuffer,
   RollupProvider,
-} from '@aztec/barretenberg/rollup_provider';
-import { Timer } from '@aztec/barretenberg/timer';
-import { WorldState } from '@aztec/barretenberg/world_state';
+} from '@polyaztec/barretenberg/rollup_provider';
+import { Timer } from '@polyaztec/barretenberg/timer';
+import { WorldState } from '@polyaztec/barretenberg/world_state';
 import { LevelUp } from 'levelup';
 import { BlockContext } from '../block_context/block_context.js';
 import { Alias, Database } from '../database/index.js';
@@ -17,11 +17,11 @@ import { parseGenesisAliasesAndKeys } from '../genesis_state/index.js';
 import { Pedersen } from '../index.js';
 import { UserState } from '../user_state/index.js';
 import { BlockDownloader } from './block_downloader.js';
-import { OffchainAccountData } from '@aztec/barretenberg/offchain_tx_data';
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { toBigIntBE } from '@aztec/barretenberg/bigint_buffer';
-import { ProofId } from '@aztec/barretenberg/client_proofs';
-import { BoundedSerialQueue } from '@aztec/barretenberg/fifo';
+import { OffchainAccountData } from '@polyaztec/barretenberg/offchain_tx_data';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { toBigIntBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { BoundedSerialQueue } from '@polyaztec/barretenberg/fifo';
 import { SdkEvent } from './sdk_status.js';
 import { EventEmitter } from 'events';
 import { SerialQueue } from '../serial_queue/index.js';

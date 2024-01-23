@@ -1,8 +1,8 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { JoinSplitTx } from '@aztec/barretenberg/client_proofs';
-import { HashPath } from '@aztec/barretenberg/merkle_tree';
-import { ClaimNoteTxData } from '@aztec/barretenberg/note_algorithms';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { JoinSplitTx } from '@polyaztec/barretenberg/client_proofs';
+import { HashPath } from '@polyaztec/barretenberg/merkle_tree';
+import { ClaimNoteTxData } from '@polyaztec/barretenberg/note_algorithms';
 import { Note, noteFromJson, NoteJson, noteToJson } from '../../note/index.js';
 
 export interface JoinSplitTxInput {

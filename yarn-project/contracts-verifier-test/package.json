@@ -1,5 +1,5 @@
 {
-  "name": "@aztec/contracts-verifier-test",
+  "name": "@polyaztec/contracts-verifier-test",
   "version": "2.0.0",
   "license": "MIT",
   "exports": "./dest/index.js",
@@ -10,10 +10,10 @@
     "test": "forge clean && forge build && forge test"
   },
   "dependencies": {
-    "@aztec/barretenberg": "workspace:^"
+    "@polyaztec/barretenberg": "workspace:^"
   },
   "devDependencies": {
-    "@aztec/eslint-config": "workspace:^",
+    "@polyaztec/eslint-config": "workspace:^",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/node": "^18.7.23",
     "typescript": "^4.7.4"

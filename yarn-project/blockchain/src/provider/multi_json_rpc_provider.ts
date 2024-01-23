@@ -1,4 +1,4 @@
-import { EthereumProvider, RequestArguments } from '@aztec/barretenberg/blockchain';
+import { EthereumProvider, RequestArguments } from '@polyaztec/barretenberg/blockchain';
 import { JsonRpcProvider } from './json_rpc_provider.js';
 
 export class MultiJsonRPCProvider implements EthereumProvider {

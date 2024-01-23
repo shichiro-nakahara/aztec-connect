@@ -1,6 +1,6 @@
-import { AssetValue } from '@aztec/barretenberg/asset';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { WorldState } from '@aztec/barretenberg/world_state';
+import { AssetValue } from '@polyaztec/barretenberg/asset';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { WorldState } from '@polyaztec/barretenberg/world_state';
 import { Note, restoreNotePath } from '../../note/index.js';
 import { NotePickerOptions } from '../../note_picker/index.js';
 

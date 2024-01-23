@@ -1,5 +1,5 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { Asset, BlockchainAsset, EthereumProvider, SendTxOptions, TxHash } from '@aztec/barretenberg/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { Asset, BlockchainAsset, EthereumProvider, SendTxOptions, TxHash } from '@polyaztec/barretenberg/blockchain';
 import { ContractTransaction } from '@ethersproject/contracts';
 import { Web3Provider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
@@ -31,7 +31,7 @@ export class TokenAsset implements Asset {
   ) {}
 
   static new(info: BlockchainAsset, ethereumProvider: EthereumProvider, minConfirmations?: number) {
-    const erc20 = new Contract(info.address.toString(), abi, new Web3Provider(ethereumProvider));
+    const erc20 = new Contract(info.address.toString(), abi, new Web3Provider(ethereumProvider, 'any'));
     return new TokenAsset(info, erc20, ethereumProvider, minConfirmations);
   }
 
@@ -41,7 +41,7 @@ export class TokenAsset implements Asset {
     gasLimit: number,
     minConfirmations?: number,
   ) {
-    const erc20 = new Contract(address.toString(), abi, new Web3Provider(ethereumProvider));
+    const erc20 = new Contract(address.toString(), abi, new Web3Provider(ethereumProvider, 'any'));
     const info = {
       address,
       name: await erc20.name(),
@@ -105,7 +105,7 @@ export class TokenAsset implements Asset {
 
   private getContractWithSigner(account: EthAddress, options: SendTxOptions) {
     const { provider = this.ethereumProvider, signingAddress = account } = options;
-    const ethSigner = new Web3Provider(provider).getSigner(signingAddress.toString());
+    const ethSigner = new Web3Provider(provider, 'any').getSigner(signingAddress.toString());
     return new Contract(this.info.address.toString(), abi, ethSigner);
   }
 }

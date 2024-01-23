@@ -1,4 +1,4 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { UserData } from '../../user/index.js';
 import { grumpkinAddressTransformer } from './transformer.js';

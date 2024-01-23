@@ -1,4 +1,4 @@
-import { toBufferBE } from '@aztec/barretenberg/bigint_buffer';
+import { toBufferBE } from '@polyaztec/barretenberg/bigint_buffer';
 import { NotePicker } from './index.js';
 import { Note } from '../note/index.js';
 

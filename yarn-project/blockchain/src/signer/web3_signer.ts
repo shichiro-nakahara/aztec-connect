@@ -1,5 +1,5 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { EthereumProvider, EthereumSigner, TypedData } from '@aztec/barretenberg/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { EthereumProvider, EthereumSigner, TypedData } from '@polyaztec/barretenberg/blockchain';
 import { validateSignature } from '../validate_signature.js';
 
 export class Web3Signer implements EthereumSigner {
