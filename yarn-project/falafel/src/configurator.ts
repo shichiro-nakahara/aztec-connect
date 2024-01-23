@@ -61,6 +61,8 @@ interface StartupConfig {
   blockExplorer: string;
   // Address of Stargate composer contract. Env: STARGATE_COMPOSER
   stargateComposer: EthAddress;
+  // Added once subsidy retrieval started failing to allow us to disable it.
+  enableSubsidies: boolean;
 }
 
 export interface ConfVars extends StartupConfig {
@@ -111,6 +113,7 @@ export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   ipWhitelist: string[],
   surgeFeeGasPriceMultiplier: SurgePrice[],
   sgWithdrawFeeMultiplier: number
+  enableSubsidies: false,
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
@@ -202,7 +205,8 @@ function getStartupConfigEnvVars(): Partial<StartupConfig> {
     SERVER_AUTH_TOKEN,
     CALL_DATA_LIMIT_KB,
     BLOCK_EXPLORER,
-    STARGATE_COMPOSER
+    STARGATE_COMPOSER,
+    ENABLE_SUBSIDIES,
   } = process.env;
 
   const envVars: Partial<StartupConfig> = {
@@ -234,7 +238,8 @@ function getStartupConfigEnvVars(): Partial<StartupConfig> {
     serverAuthToken: SERVER_AUTH_TOKEN,
     rollupCallDataLimit: CALL_DATA_LIMIT_KB ? +CALL_DATA_LIMIT_KB * 1024 : undefined,
     blockExplorer: BLOCK_EXPLORER ? BLOCK_EXPLORER : undefined,
-    stargateComposer: STARGATE_COMPOSER ? EthAddress.fromString(STARGATE_COMPOSER) : undefined
+    stargateComposer: STARGATE_COMPOSER ? EthAddress.fromString(STARGATE_COMPOSER) : undefined,
+    enableSubsidies: ENABLE_SUBSIDIES ? ENABLE_SUBSIDIES === 'true' : false,
   };
   return Object.fromEntries(Object.entries(envVars).filter(e => e[1] !== undefined));
 }
