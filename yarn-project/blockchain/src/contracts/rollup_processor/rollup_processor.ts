@@ -544,7 +544,6 @@ export class RollupProcessor {
   }
 
   async getUserPendingDeposit(assetId: number, account: EthAddress) {
-    console.log('getUserPendingDeposit IS HERE!')
     return BigInt(await this.rollupProcessor.userPendingDeposits(assetId, account.toString()));
   }
 
