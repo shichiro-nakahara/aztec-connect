@@ -1,4 +1,4 @@
-import { numToUInt32BE } from '@aztec/barretenberg/serialize';
+import { numToUInt32BE } from '@polyaztec/barretenberg/serialize';
 
 export enum Command {
   REQUEST_WORK,

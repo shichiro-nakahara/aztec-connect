@@ -1,4 +1,4 @@
-import { numToUInt32BE } from '@aztec/barretenberg/serialize';
+import { numToUInt32BE } from '@polyaztec/barretenberg/serialize';
 import { ClaimProof } from './claim_proof.js';
 import { RootRollup } from './root_rollup.js';
 import { TxRollup } from './tx_rollup.js';

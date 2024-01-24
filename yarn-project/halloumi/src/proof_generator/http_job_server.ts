@@ -1,14 +1,14 @@
 import { ProofGenerator } from './proof_generator.js';
-import { randomBytes } from '@aztec/barretenberg/crypto';
-import { createDebugLogger, createLogger } from '@aztec/barretenberg/log';
-import { InterruptError } from '@aztec/barretenberg/errors';
+import { randomBytes } from '@polyaztec/barretenberg/crypto';
+import { createDebugLogger, createLogger } from '@polyaztec/barretenberg/log';
+import { InterruptError } from '@polyaztec/barretenberg/errors';
 import { Command, Protocol } from './http_job_protocol.js';
 import http from 'http';
 import Koa, { DefaultState, Context } from 'koa';
 import Router from 'koa-router';
 import { PromiseReadable } from 'promise-readable';
-import { InterruptableSleep } from '@aztec/barretenberg/sleep';
-import { MemoryFifo } from '@aztec/barretenberg/fifo';
+import { InterruptableSleep } from '@polyaztec/barretenberg/sleep';
+import { MemoryFifo } from '@polyaztec/barretenberg/fifo';
 
 interface Job {
   // A unique, random 32 byte job id. Ensures we never conflict request/response ids in event of restarts.

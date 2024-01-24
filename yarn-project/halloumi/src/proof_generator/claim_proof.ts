@@ -1,6 +1,6 @@
-import { HashPath } from '@aztec/barretenberg/merkle_tree';
-import { DefiInteractionNote, TreeClaimNote } from '@aztec/barretenberg/note_algorithms';
-import { Deserializer, Serializer } from '@aztec/barretenberg/serialize';
+import { HashPath } from '@polyaztec/barretenberg/merkle_tree';
+import { DefiInteractionNote, TreeClaimNote } from '@polyaztec/barretenberg/note_algorithms';
+import { Deserializer, Serializer } from '@polyaztec/barretenberg/serialize';
 
 export class ClaimProof {
   constructor(

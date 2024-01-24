@@ -1,5 +1,5 @@
-import { DefiInteractionNote, TreeClaimNote } from '@aztec/barretenberg/note_algorithms';
-import { HashPath } from '@aztec/barretenberg/merkle_tree';
+import { DefiInteractionNote, TreeClaimNote } from '@polyaztec/barretenberg/note_algorithms';
+import { HashPath } from '@polyaztec/barretenberg/merkle_tree';
 import { randomBytes } from 'crypto';
 import { ClaimProof } from './claim_proof.js';
 

@@ -2,7 +2,7 @@ import { HttpJobServer } from './http_job_server.js';
 import { HttpJobWorker } from './http_job_worker.js';
 import { randomBytes } from 'crypto';
 import { Server } from '../server.js';
-import { sleep } from '@aztec/barretenberg/sleep';
+import { sleep } from '@polyaztec/barretenberg/sleep';
 import { jest } from '@jest/globals';
 
 type Mockify<T> = {

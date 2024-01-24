@@ -3,7 +3,7 @@ import Router from 'koa-router';
 import { PromiseReadable } from 'promise-readable';
 import { DefaultState, Context } from 'koa';
 import { Server } from './server.js';
-import { fetch } from '@aztec/barretenberg/iso_fetch';
+import { fetch } from '@polyaztec/barretenberg/iso_fetch';
 
 export function appFactory(server: Server, prefix: string) {
   const router = new Router<DefaultState, Context>({ prefix });

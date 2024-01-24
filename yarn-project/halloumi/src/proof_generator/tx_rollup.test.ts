@@ -1,6 +1,6 @@
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { HashPath } from '@aztec/barretenberg/merkle_tree';
-import { numToUInt32BE } from '@aztec/barretenberg/serialize';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { HashPath } from '@polyaztec/barretenberg/merkle_tree';
+import { numToUInt32BE } from '@polyaztec/barretenberg/serialize';
 import { randomBytes, randomInt } from 'crypto';
 import { TxRollup } from './tx_rollup.js';
 

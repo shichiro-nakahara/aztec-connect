@@ -1,5 +1,5 @@
-import { HashPath } from '@aztec/barretenberg/merkle_tree';
-import { EthAddress } from '@aztec/barretenberg/address';
+import { HashPath } from '@polyaztec/barretenberg/merkle_tree';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import { randomBytes } from 'crypto';
 import { RootRollup } from './root_rollup.js';
 

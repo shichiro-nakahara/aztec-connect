@@ -1,6 +1,6 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { HashPath } from '@aztec/barretenberg/merkle_tree';
-import { toBufferBE } from '@aztec/barretenberg/bigint_buffer';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { HashPath } from '@polyaztec/barretenberg/merkle_tree';
+import { toBufferBE } from '@polyaztec/barretenberg/bigint_buffer';
 import {
   deserializeArrayFromVector,
   deserializeBigInt,
@@ -9,7 +9,7 @@ import {
   numToUInt32BE,
   serializeBufferArrayToVector,
   serializeBufferToVector,
-} from '@aztec/barretenberg/serialize';
+} from '@polyaztec/barretenberg/serialize';
 
 export class RootRollup {
   constructor(

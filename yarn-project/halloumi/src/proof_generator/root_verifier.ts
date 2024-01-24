@@ -1,4 +1,4 @@
-import { deserializeBufferFromVector, serializeBufferToVector } from '@aztec/barretenberg/serialize';
+import { deserializeBufferFromVector, serializeBufferToVector } from '@polyaztec/barretenberg/serialize';
 
 export class RootVerifier {
   constructor(public rootRollupProofBuf: Buffer) {}

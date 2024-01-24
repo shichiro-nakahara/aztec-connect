@@ -1,8 +1,8 @@
 import { Server } from '../server.js';
 import { Command, Protocol } from './http_job_protocol.js';
-import { fetch } from '@aztec/barretenberg/iso_fetch';
-import { InterruptableSleep } from '@aztec/barretenberg/sleep';
-import { createDebugLogger } from '@aztec/barretenberg/log';
+import { fetch } from '@polyaztec/barretenberg/iso_fetch';
+import { InterruptableSleep } from '@polyaztec/barretenberg/sleep';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
 import { randomBytes } from 'crypto';
 
 /**

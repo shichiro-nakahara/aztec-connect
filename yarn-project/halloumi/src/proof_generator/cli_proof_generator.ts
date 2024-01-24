@@ -1,10 +1,10 @@
-import { fetch } from '@aztec/barretenberg/iso_fetch';
+import { fetch } from '@polyaztec/barretenberg/iso_fetch';
 import { ChildProcess, spawn } from 'child_process';
 import { PromiseReadable } from 'promise-readable';
 import { createInterface } from 'readline';
-import { MemoryFifo } from '@aztec/barretenberg/fifo';
+import { MemoryFifo } from '@polyaztec/barretenberg/fifo';
 import { ProofGenerator } from './proof_generator.js';
-import { numToUInt32BE } from '@aztec/barretenberg/serialize';
+import { numToUInt32BE } from '@polyaztec/barretenberg/serialize';
 import fs from 'fs-extra';
 const { unlink, writeFile, pathExists, mkdirp, rename } = fs;
 
