@@ -1,9 +1,9 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { TxHash } from '@aztec/barretenberg/blockchain';
-import { createDebugLogger } from '@aztec/barretenberg/log';
-import { DefiInteractionNote } from '@aztec/barretenberg/note_algorithms';
-import { Timer } from '@aztec/barretenberg/timer';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { TxHash } from '@polyaztec/barretenberg/blockchain';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
+import { DefiInteractionNote } from '@polyaztec/barretenberg/note_algorithms';
+import { Timer } from '@polyaztec/barretenberg/timer';
 import {
   AssetMetricsDao,
   AccountDao,

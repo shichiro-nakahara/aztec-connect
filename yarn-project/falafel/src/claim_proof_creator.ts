@@ -1,13 +1,13 @@
-import { TxType } from '@aztec/barretenberg/blockchain';
-import { DefiInteractionEvent } from '@aztec/barretenberg/block_source';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { ProofData } from '@aztec/barretenberg/client_proofs';
-import { TreeClaimNote } from '@aztec/barretenberg/note_algorithms';
-import { OffchainDefiClaimData } from '@aztec/barretenberg/offchain_tx_data';
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { Timer } from '@aztec/barretenberg/timer';
-import { RollupTreeId, WorldStateDb } from '@aztec/barretenberg/world_state_db';
-import { ClaimProof, ClaimProofRequest, ProofGenerator } from '@aztec/halloumi/proof_generator';
+import { TxType } from '@polyaztec/barretenberg/blockchain';
+import { DefiInteractionEvent } from '@polyaztec/barretenberg/block_source';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { ProofData } from '@polyaztec/barretenberg/client_proofs';
+import { TreeClaimNote } from '@polyaztec/barretenberg/note_algorithms';
+import { OffchainDefiClaimData } from '@polyaztec/barretenberg/offchain_tx_data';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { Timer } from '@polyaztec/barretenberg/timer';
+import { RollupTreeId, WorldStateDb } from '@polyaztec/barretenberg/world_state_db';
+import { ClaimProof, ClaimProofRequest, ProofGenerator } from '@polyaztec/halloumi/proof_generator';
 import { ClaimDao, TxDao } from './entity/index.js';
 import { parseInteractionResult, RollupDb } from './rollup_db/index.js';
 

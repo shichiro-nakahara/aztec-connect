@@ -1,18 +1,18 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { toBufferBE } from '@aztec/barretenberg/bigint_buffer';
-import { Blockchain } from '@aztec/barretenberg/blockchain';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { AccountVerifier, JoinSplitVerifier, ProofData, ProofId } from '@aztec/barretenberg/client_proofs';
-import { randomBytes } from '@aztec/barretenberg/crypto';
-import { NoteAlgorithms } from '@aztec/barretenberg/note_algorithms';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { toBufferBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { Blockchain } from '@polyaztec/barretenberg/blockchain';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { AccountVerifier, JoinSplitVerifier, ProofData, ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { randomBytes } from '@polyaztec/barretenberg/crypto';
+import { NoteAlgorithms } from '@polyaztec/barretenberg/note_algorithms';
 import {
   OffchainAccountData,
   OffchainDefiDepositData,
   OffchainJoinSplitData,
-} from '@aztec/barretenberg/offchain_tx_data';
-import { numToUInt32BE } from '@aztec/barretenberg/serialize';
-import { ViewingKey } from '@aztec/barretenberg/viewing_key';
+} from '@polyaztec/barretenberg/offchain_tx_data';
+import { numToUInt32BE } from '@polyaztec/barretenberg/serialize';
+import { ViewingKey } from '@polyaztec/barretenberg/viewing_key';
 import { BridgeResolver } from '../bridge/index.js';
 import { AddressCheckProviders, AztecBlacklistProvider, RateLimiter } from '../compliance/index.js';
 import { RollupDb } from '../rollup_db/index.js';

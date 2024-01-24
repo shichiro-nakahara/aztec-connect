@@ -1,5 +1,5 @@
-import { toBigIntBE } from '@aztec/barretenberg/bigint_buffer';
-import { RollupTreeId, WorldStateDb } from '@aztec/barretenberg/world_state_db';
+import { toBigIntBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { RollupTreeId, WorldStateDb } from '@polyaztec/barretenberg/world_state_db';
 import { TxDao } from '../entity/index.js';
 
 export const checkDuplicateNullifiers = (txs: TxDao[]) => {

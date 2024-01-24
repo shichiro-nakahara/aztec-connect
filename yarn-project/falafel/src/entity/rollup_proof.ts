@@ -1,4 +1,4 @@
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
 import {
   AfterInsert,
   AfterLoad,

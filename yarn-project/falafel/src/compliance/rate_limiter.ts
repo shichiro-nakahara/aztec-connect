@@ -1,4 +1,4 @@
-import { createLogger } from '@aztec/barretenberg/log';
+import { createLogger } from '@polyaztec/barretenberg/log';
 import { configurator } from '../configurator.js';
 
 interface ValueForDate {

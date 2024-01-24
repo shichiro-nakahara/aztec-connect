@@ -1,9 +1,9 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { Blockchain, EthereumRpc, SendTxOptions, TxHash } from '@aztec/barretenberg/blockchain';
-import { JoinSplitProofData } from '@aztec/barretenberg/client_proofs';
-import { createLogger } from '@aztec/barretenberg/log';
-import { sleep } from '@aztec/barretenberg/sleep';
-import { fromBaseUnits } from '@aztec/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { Blockchain, EthereumRpc, SendTxOptions, TxHash } from '@polyaztec/barretenberg/blockchain';
+import { JoinSplitProofData } from '@polyaztec/barretenberg/client_proofs';
+import { createLogger } from '@polyaztec/barretenberg/log';
+import { sleep } from '@polyaztec/barretenberg/sleep';
+import { fromBaseUnits } from '@polyaztec/blockchain';
 import { RollupDao } from './entity/index.js';
 import { Metrics } from './metrics/index.js';
 import { RollupDb } from './rollup_db/index.js';

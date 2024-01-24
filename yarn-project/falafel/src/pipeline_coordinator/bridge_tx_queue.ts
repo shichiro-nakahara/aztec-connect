@@ -1,8 +1,8 @@
-import { AssetValue } from '@aztec/barretenberg/asset';
-import { toBigIntBE } from '@aztec/barretenberg/bigint_buffer';
-import { TxType } from '@aztec/barretenberg/blockchain';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { DefiDepositProofData, ProofData } from '@aztec/barretenberg/client_proofs';
+import { AssetValue } from '@polyaztec/barretenberg/asset';
+import { toBigIntBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { TxType } from '@polyaztec/barretenberg/blockchain';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { DefiDepositProofData, ProofData } from '@polyaztec/barretenberg/client_proofs';
 import { BridgeSubsidyProvider } from '../bridge/bridge_subsidy_provider.js';
 import { TxDao } from '../entity/index.js';
 import { TxFeeResolver } from '../tx_fee_resolver/index.js';

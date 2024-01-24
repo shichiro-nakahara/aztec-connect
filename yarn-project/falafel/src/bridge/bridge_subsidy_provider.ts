@@ -1,5 +1,5 @@
-import { BridgeSubsidy } from '@aztec/barretenberg/blockchain';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
+import { BridgeSubsidy } from '@polyaztec/barretenberg/blockchain';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
 import { BridgeResolver } from './bridge_resolver.js';
 
 interface BridgeCriteria {

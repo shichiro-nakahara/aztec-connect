@@ -1,4 +1,4 @@
-import { createDebugLogger } from '@aztec/barretenberg/log';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
 import { configurator } from './configurator.js';
 
 const debug = createDebugLogger('surge');

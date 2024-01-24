@@ -1,5 +1,5 @@
 import { AddressCheckProvider } from './address_check_provider.js';
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 
 export class AztecBlacklistProvider implements AddressCheckProvider {
   constructor(private blacklist: EthAddress[]) {}

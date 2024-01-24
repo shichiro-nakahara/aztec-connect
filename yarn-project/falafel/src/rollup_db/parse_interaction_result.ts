@@ -1,5 +1,5 @@
-import { DefiInteractionEvent } from '@aztec/barretenberg/block_source';
-import { Deserializer } from '@aztec/barretenberg/serialize';
+import { DefiInteractionEvent } from '@polyaztec/barretenberg/block_source';
+import { Deserializer } from '@polyaztec/barretenberg/serialize';
 
 export const parseInteractionResult = (buf: Buffer) => {
   if (!buf.length) {

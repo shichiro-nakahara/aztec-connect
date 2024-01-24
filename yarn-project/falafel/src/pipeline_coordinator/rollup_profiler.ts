@@ -1,7 +1,7 @@
 import { TxFeeResolver } from '../tx_fee_resolver/index.js';
 import { RollupTx } from './bridge_tx_queue.js';
-import { isDefiDepositTx, numTxTypes } from '@aztec/barretenberg/blockchain';
-import { ProofData } from '@aztec/barretenberg/client_proofs';
+import { isDefiDepositTx, numTxTypes } from '@polyaztec/barretenberg/blockchain';
+import { ProofData } from '@polyaztec/barretenberg/client_proofs';
 import { BridgeSubsidyProvider } from '../bridge/bridge_subsidy_provider.js';
 
 export interface BridgeProfile {

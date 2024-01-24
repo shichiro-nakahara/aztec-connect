@@ -1,6 +1,6 @@
-import { NoteAlgorithms } from '@aztec/barretenberg/note_algorithms';
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { RollupTreeId, WorldStateDb } from '@aztec/barretenberg/world_state_db';
+import { NoteAlgorithms } from '@polyaztec/barretenberg/note_algorithms';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { RollupTreeId, WorldStateDb } from '@polyaztec/barretenberg/world_state_db';
 import { ClaimProofCreator } from '../claim_proof_creator.js';
 import { RollupAggregator } from '../rollup_aggregator.js';
 import { RollupCreator } from '../rollup_creator.js';
@@ -11,13 +11,13 @@ import { BridgeResolver } from '../bridge/index.js';
 import { PublishTimeManager } from './publish_time_manager.js';
 import { RollupCoordinator } from './rollup_coordinator.js';
 import { TxDao } from '../entity/index.js';
-import { createDebugLogger, createLogger } from '@aztec/barretenberg/log';
-import { InterruptError } from '@aztec/barretenberg/errors';
+import { createDebugLogger, createLogger } from '@polyaztec/barretenberg/log';
+import { InterruptError } from '@polyaztec/barretenberg/errors';
 import { RollupProfile, emptyProfile } from './rollup_profiler.js';
 import { Metrics } from '../metrics/index.js';
-import { InterruptableSleep } from '@aztec/barretenberg/sleep';
-import { Blockchain } from '@aztec/barretenberg/blockchain';
-import { EthAddress } from '@aztec/barretenberg/address';
+import { InterruptableSleep } from '@polyaztec/barretenberg/sleep';
+import { Blockchain } from '@polyaztec/barretenberg/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 
 export class PipelineCoordinator {
   private flush = false;

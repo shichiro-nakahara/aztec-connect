@@ -1,9 +1,9 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { Blockchain } from '@aztec/barretenberg/blockchain';
-import { NoteAlgorithms } from '@aztec/barretenberg/note_algorithms';
-import { WorldStateDb } from '@aztec/barretenberg/world_state_db';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { Blockchain } from '@polyaztec/barretenberg/blockchain';
+import { NoteAlgorithms } from '@polyaztec/barretenberg/note_algorithms';
+import { WorldStateDb } from '@polyaztec/barretenberg/world_state_db';
 import { BridgeResolver } from './bridge/index.js';
-import { ProofGenerator } from '@aztec/halloumi/proof_generator';
+import { ProofGenerator } from '@polyaztec/halloumi/proof_generator';
 import { ClaimProofCreator } from './claim_proof_creator.js';
 import { Metrics } from './metrics/index.js';
 import { PipelineCoordinator } from './pipeline_coordinator/index.js';
@@ -12,8 +12,8 @@ import { RollupCreator } from './rollup_creator.js';
 import { RollupDb } from './rollup_db/index.js';
 import { RollupPublisher } from './rollup_publisher.js';
 import { TxFeeResolver } from './tx_fee_resolver/index.js';
-import { fromBaseUnits } from '@aztec/blockchain';
-import { createLogger } from '@aztec/barretenberg/log';
+import { fromBaseUnits } from '@polyaztec/blockchain';
+import { createLogger } from '@polyaztec/barretenberg/log';
 
 export class RollupPipeline {
   private pipelineCoordinator: PipelineCoordinator;

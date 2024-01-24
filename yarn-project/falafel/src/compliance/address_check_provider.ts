@@ -1,4 +1,4 @@
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 
 export interface AddressCheckProvider {
   addressProhibited(address: EthAddress): Promise<boolean>;

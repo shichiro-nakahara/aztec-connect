@@ -1,7 +1,7 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { toBigIntBE } from '@aztec/barretenberg/bigint_buffer';
-import { Blockchain, TxType } from '@aztec/barretenberg/blockchain';
-import { BridgeCallData, validateBridgeCallData } from '@aztec/barretenberg/bridge_call_data';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { toBigIntBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { Blockchain, TxType } from '@polyaztec/barretenberg/blockchain';
+import { BridgeCallData, validateBridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
 import {
   AccountVerifier,
   DefiDepositProofData,
@@ -9,19 +9,19 @@ import {
   JoinSplitVerifier,
   ProofData,
   ProofId,
-} from '@aztec/barretenberg/client_proofs';
-import { Crs } from '@aztec/barretenberg/crs';
-import { NoteAlgorithms } from '@aztec/barretenberg/note_algorithms';
+} from '@polyaztec/barretenberg/client_proofs';
+import { Crs } from '@polyaztec/barretenberg/crs';
+import { NoteAlgorithms } from '@polyaztec/barretenberg/note_algorithms';
 import {
   OffchainAccountData,
   OffchainDefiDepositData,
   OffchainJoinSplitData,
-} from '@aztec/barretenberg/offchain_tx_data';
-import { TxId } from '@aztec/barretenberg/tx_id';
-import { createLogger } from '@aztec/barretenberg/log';
-import { BarretenbergWasm, BarretenbergWorker, createWorker } from '@aztec/barretenberg/wasm';
+} from '@polyaztec/barretenberg/offchain_tx_data';
+import { TxId } from '@polyaztec/barretenberg/tx_id';
+import { createLogger } from '@polyaztec/barretenberg/log';
+import { BarretenbergWasm, BarretenbergWorker, createWorker } from '@polyaztec/barretenberg/wasm';
 import { Mutex } from 'async-mutex';
-import { ProofGenerator } from '@aztec/halloumi/proof_generator';
+import { ProofGenerator } from '@polyaztec/halloumi/proof_generator';
 import { BridgeResolver } from '../bridge/index.js';
 import { TxDao } from '../entity/index.js';
 import { getTxTypeFromProofData } from '../get_tx_type.js';

@@ -1,11 +1,11 @@
-import { Blockchain, TxType } from '@aztec/barretenberg/blockchain';
-import { createLogger } from '@aztec/barretenberg/log';
-import { roundUp } from '@aztec/barretenberg/rounding';
-import { EthAddress } from '@aztec/barretenberg/address';
+import { Blockchain, TxType } from '@polyaztec/barretenberg/blockchain';
+import { createLogger } from '@polyaztec/barretenberg/log';
+import { roundUp } from '@polyaztec/barretenberg/rounding';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import { getGasOverhead, getTxCallData } from './get_gas_overhead.js';
 import { PriceTracker } from './price_tracker.js';
 import { configurator } from '../configurator.js';
-import { createDebugLogger } from '@aztec/barretenberg/log';
+import { createDebugLogger } from '@polyaztec/barretenberg/log';
 import surge from '../surge.js';
 
 const allTxTypes = [

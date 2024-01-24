@@ -1,18 +1,18 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { InterruptError } from '@aztec/barretenberg/errors';
-import { createLogger } from '@aztec/barretenberg/log';
-import { HashPath } from '@aztec/barretenberg/merkle_tree';
-import { DefiInteractionNote } from '@aztec/barretenberg/note_algorithms';
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { numToUInt32BE } from '@aztec/barretenberg/serialize';
-import { RollupTreeId, WorldStateDb } from '@aztec/barretenberg/world_state_db';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { InterruptError } from '@polyaztec/barretenberg/errors';
+import { createLogger } from '@polyaztec/barretenberg/log';
+import { HashPath } from '@polyaztec/barretenberg/merkle_tree';
+import { DefiInteractionNote } from '@polyaztec/barretenberg/note_algorithms';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { numToUInt32BE } from '@polyaztec/barretenberg/serialize';
+import { RollupTreeId, WorldStateDb } from '@polyaztec/barretenberg/world_state_db';
 import {
   ProofGenerator,
   RootRollup,
   RootRollupProofRequest,
   RootVerifier,
   RootVerifierProofRequest,
-} from '@aztec/halloumi/proof_generator';
+} from '@polyaztec/halloumi/proof_generator';
 import { RollupDao, RollupProofDao } from './entity/index.js';
 import { Metrics } from './metrics/index.js';
 import { RollupDb } from './rollup_db/index.js';

@@ -1,20 +1,20 @@
-import { AliasHash } from '@aztec/barretenberg/account_id';
-import { EthAddress, GrumpkinAddress } from '@aztec/barretenberg/address';
-import { Blockchain } from '@aztec/barretenberg/blockchain';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { AccountVerifier, JoinSplitVerifier } from '@aztec/barretenberg/client_proofs';
-import { Blake2s } from '@aztec/barretenberg/crypto';
-import { InitHelpers } from '@aztec/barretenberg/environment';
-import { createLogger } from '@aztec/barretenberg/log';
-import { NoteAlgorithms } from '@aztec/barretenberg/note_algorithms';
+import { AliasHash } from '@polyaztec/barretenberg/account_id';
+import { EthAddress, GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { Blockchain } from '@polyaztec/barretenberg/blockchain';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { AccountVerifier, JoinSplitVerifier } from '@polyaztec/barretenberg/client_proofs';
+import { Blake2s } from '@polyaztec/barretenberg/crypto';
+import { InitHelpers } from '@polyaztec/barretenberg/environment';
+import { createLogger } from '@polyaztec/barretenberg/log';
+import { NoteAlgorithms } from '@polyaztec/barretenberg/note_algorithms';
 import {
   BridgePublishQuery,
   InitialWorldState,
   RollupProviderStatus as BarretenbergRollupProviderStatus,
-} from '@aztec/barretenberg/rollup_provider';
-import { BarretenbergWasm } from '@aztec/barretenberg/wasm';
-import { WorldStateDb } from '@aztec/barretenberg/world_state_db';
-import { CliProofGenerator, HttpJobServer, HttpJobServers, ProofGenerator } from '@aztec/halloumi/proof_generator';
+} from '@polyaztec/barretenberg/rollup_provider';
+import { BarretenbergWasm } from '@polyaztec/barretenberg/wasm';
+import { WorldStateDb } from '@polyaztec/barretenberg/world_state_db';
+import { CliProofGenerator, HttpJobServer, HttpJobServers, ProofGenerator } from '@polyaztec/halloumi/proof_generator';
 import { InitAccountFiles } from './environment/index.js';
 import { BridgeResolver } from './bridge/index.js';
 import { Configurator, RuntimeConfig } from './configurator.js';

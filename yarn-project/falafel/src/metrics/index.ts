@@ -1,9 +1,9 @@
-import { Blockchain, TxType } from '@aztec/barretenberg/blockchain';
-import { fromBaseUnits } from '@aztec/blockchain';
-import { WorldStateDb } from '@aztec/barretenberg/world_state_db';
-import { toBigIntBE } from '@aztec/barretenberg/bigint_buffer';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { EthAddress } from '@aztec/barretenberg/address';
+import { Blockchain, TxType } from '@polyaztec/barretenberg/blockchain';
+import { fromBaseUnits } from '@polyaztec/blockchain';
+import { WorldStateDb } from '@polyaztec/barretenberg/world_state_db';
+import { toBigIntBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import coinbase, { PublicClient } from 'coinbase-pro';
 import client, { Counter, Gauge, Histogram } from 'prom-client';
 import { RollupDb } from '../rollup_db/index.js';
@@ -11,7 +11,7 @@ import { RollupProfile } from '../pipeline_coordinator/rollup_profiler.js';
 import { TxDao, BridgeMetricsDao, RollupDao } from '../entity/index.js';
 import { BridgeQueueStats } from '../pipeline_coordinator/bridge_tx_queue.js';
 import { TxFeeResolver } from '../tx_fee_resolver/index.js';
-import { DefiDepositProofData } from '@aztec/barretenberg/client_proofs';
+import { DefiDepositProofData } from '@polyaztec/barretenberg/client_proofs';
 import { BridgeResolver } from '../bridge/index.js';
 import { BridgeSubsidyProvider } from '../bridge/bridge_subsidy_provider.js';
 

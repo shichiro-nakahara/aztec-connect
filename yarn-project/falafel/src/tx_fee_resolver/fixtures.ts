@@ -1,6 +1,6 @@
-import { toBufferBE } from '@aztec/barretenberg/bigint_buffer';
-import { TxType } from '@aztec/barretenberg/blockchain';
-import { numToUInt32BE } from '@aztec/barretenberg/serialize';
+import { toBufferBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { TxType } from '@polyaztec/barretenberg/blockchain';
+import { numToUInt32BE } from '@polyaztec/barretenberg/serialize';
 import { randomBytes } from 'crypto';
 import { TxDao } from '../entity/index.js';
 

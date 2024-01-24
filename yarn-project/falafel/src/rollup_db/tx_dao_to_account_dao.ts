@@ -1,7 +1,7 @@
-import { OffchainAccountData } from '@aztec/barretenberg/offchain_tx_data';
+import { OffchainAccountData } from '@polyaztec/barretenberg/offchain_tx_data';
 import { TxDao, AccountDao } from '../entity/index.js';
-import { TxType } from '@aztec/barretenberg/blockchain';
-import { toBigIntBE } from '@aztec/barretenberg/bigint_buffer';
+import { TxType } from '@polyaztec/barretenberg/blockchain';
+import { toBigIntBE } from '@polyaztec/barretenberg/bigint_buffer';
 
 export const txDaoToAccountDao = (txDao: TxDao) => {
   const { accountPublicKey, aliasHash } = OffchainAccountData.fromBuffer(txDao.offchainTxData);

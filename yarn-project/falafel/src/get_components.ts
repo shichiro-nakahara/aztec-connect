@@ -1,8 +1,8 @@
-import { EthereumRpc } from '@aztec/barretenberg/blockchain';
-import { InitHelpers } from '@aztec/barretenberg/environment';
-import { BarretenbergWasm } from '@aztec/barretenberg/wasm';
-import { WorldStateDb } from '@aztec/barretenberg/world_state_db';
-import { EthereumBlockchain, EthereumBlockchainConfig, JsonRpcProvider, WalletProvider } from '@aztec/blockchain';
+import { EthereumRpc } from '@polyaztec/barretenberg/blockchain';
+import { InitHelpers } from '@polyaztec/barretenberg/environment';
+import { BarretenbergWasm } from '@polyaztec/barretenberg/wasm';
+import { WorldStateDb } from '@polyaztec/barretenberg/world_state_db';
+import { EthereumBlockchain, EthereumBlockchainConfig, JsonRpcProvider, WalletProvider } from '@polyaztec/blockchain';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { Configurator, ConfVars } from './configurator.js';
 import {

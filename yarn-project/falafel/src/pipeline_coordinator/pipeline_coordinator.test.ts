@@ -1,6 +1,6 @@
-import { toBufferBE } from '@aztec/barretenberg/bigint_buffer';
-import { NoteAlgorithms } from '@aztec/barretenberg/note_algorithms';
-import { WorldStateDb } from '@aztec/barretenberg/world_state_db';
+import { toBufferBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { NoteAlgorithms } from '@polyaztec/barretenberg/note_algorithms';
+import { WorldStateDb } from '@polyaztec/barretenberg/world_state_db';
 import { randomBytes } from 'crypto';
 import moment from 'moment';
 import { PipelineCoordinator } from './index.js';
@@ -11,7 +11,7 @@ import { RollupCreator } from '../rollup_creator.js';
 import { RollupDb } from '../rollup_db/index.js';
 import { RollupPublisher } from '../rollup_publisher.js';
 import { TxFeeResolver } from '../tx_fee_resolver/index.js';
-import { TxType } from '@aztec/barretenberg/blockchain';
+import { TxType } from '@polyaztec/barretenberg/blockchain';
 import { BridgeResolver } from '../bridge/index.js';
 import { Metrics } from '../metrics/index.js';
 import { jest } from '@jest/globals';

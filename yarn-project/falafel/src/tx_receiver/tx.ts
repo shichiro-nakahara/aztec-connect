@@ -1,4 +1,4 @@
-import { ProofData } from '@aztec/barretenberg/client_proofs';
+import { ProofData } from '@polyaztec/barretenberg/client_proofs';
 
 export interface Tx {
   proof: ProofData;

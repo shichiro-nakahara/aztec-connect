@@ -4,8 +4,8 @@ import {
   privacySetsFromJson,
   privacySetsToJson,
   getDefaultPrivacySets,
-} from '@aztec/barretenberg/rollup_provider';
-import { EthAddress } from '@aztec/barretenberg/address';
+} from '@polyaztec/barretenberg/rollup_provider';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import fsExtra from 'fs-extra';
 const { mkdirpSync, pathExistsSync, readJsonSync, writeJsonSync } = fsExtra;
 import { FALAFEL_VERSION } from './version.js';

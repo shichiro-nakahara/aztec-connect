@@ -1,4 +1,4 @@
-import { EthAddress } from '@aztec/barretenberg/address';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import { AztecBlacklistProvider } from './aztec_blacklist_provider.js';
 import { jest } from '@jest/globals';
 

@@ -1,9 +1,9 @@
-import { isAccountTx, isDefiDepositTx, TxType, numTxTypes } from '@aztec/barretenberg/blockchain';
-import { DefiDepositProofData, ProofData } from '@aztec/barretenberg/client_proofs';
-import { HashPath } from '@aztec/barretenberg/merkle_tree';
-import { DefiInteractionNote } from '@aztec/barretenberg/note_algorithms';
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { asyncMap } from '@aztec/barretenberg/async_map';
+import { isAccountTx, isDefiDepositTx, TxType, numTxTypes } from '@polyaztec/barretenberg/blockchain';
+import { DefiDepositProofData, ProofData } from '@polyaztec/barretenberg/client_proofs';
+import { HashPath } from '@polyaztec/barretenberg/merkle_tree';
+import { DefiInteractionNote } from '@polyaztec/barretenberg/note_algorithms';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { asyncMap } from '@polyaztec/barretenberg/async_map';
 import { BridgeResolver } from '../bridge/index.js';
 import { TxDao } from '../entity/index.js';
 import { RollupAggregator } from '../rollup_aggregator.js';
@@ -16,15 +16,15 @@ import { BridgeTxQueue, createDefiRollupTx, createRollupTx, RollupTx, RollupReso
 import { PublishTimeManager, RollupTimeouts } from './publish_time_manager.js';
 import { profileRollup, RollupProfile } from './rollup_profiler.js';
 import { RollupDao, RollupProcessTimeDao } from '../entity/index.js';
-import { InterruptError } from '@aztec/barretenberg/errors';
+import { InterruptError } from '@polyaztec/barretenberg/errors';
 import { BridgeSubsidyProvider } from '../bridge/bridge_subsidy_provider.js';
-import { Blockchain, TxHash, EthereumRpc } from '@aztec/barretenberg/blockchain';
-import { fromBaseUnits } from '@aztec/blockchain';
+import { Blockchain, TxHash, EthereumRpc } from '@polyaztec/barretenberg/blockchain';
+import { fromBaseUnits } from '@polyaztec/blockchain';
 import { configurator } from '../configurator.js';
 import { Notifier } from '../notifier.js';
-import { EthAddress } from '@aztec/barretenberg/address';
-import { sleep } from '@aztec/barretenberg/sleep';
-import { createLogger } from '@aztec/barretenberg/log';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { sleep } from '@polyaztec/barretenberg/sleep';
+import { createLogger } from '@polyaztec/barretenberg/log';
 
 enum RollupCoordinatorState {
   BUILDING,

@@ -1,8 +1,8 @@
-import { toBufferBE } from '@aztec/barretenberg/bigint_buffer';
-import { TxType } from '@aztec/barretenberg/blockchain';
-import { randomBytes } from '@aztec/barretenberg/crypto';
-import { numToUInt32BE } from '@aztec/barretenberg/serialize';
-import { RollupTreeId, WorldStateDb } from '@aztec/barretenberg/world_state_db';
+import { toBufferBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { TxType } from '@polyaztec/barretenberg/blockchain';
+import { randomBytes } from '@polyaztec/barretenberg/crypto';
+import { numToUInt32BE } from '@polyaztec/barretenberg/serialize';
+import { RollupTreeId, WorldStateDb } from '@polyaztec/barretenberg/world_state_db';
 import { TxDao } from '../entity/index.js';
 import { checkDuplicateNullifiers, checkNullifiersAgainstWorldState, findNearbyTxs } from './diagnostics.js';
 import { jest } from '@jest/globals';

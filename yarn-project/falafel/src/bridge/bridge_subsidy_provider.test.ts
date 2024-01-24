@@ -1,9 +1,9 @@
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { BridgeConfig } from '@aztec/barretenberg/rollup_provider';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { BridgeConfig } from '@polyaztec/barretenberg/rollup_provider';
 import { BridgeResolver } from './bridge_resolver.js';
 import { BridgeSubsidyProvider } from './bridge_subsidy_provider.js';
 import { jest } from '@jest/globals';
-import { BridgeSubsidy } from '@aztec/barretenberg/blockchain';
+import { BridgeSubsidy } from '@polyaztec/barretenberg/blockchain';
 
 const bridgeConfigs: BridgeConfig[] = [
   {

@@ -1,6 +1,6 @@
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { BridgePublishQuery, BridgePublishQueryResult } from '@aztec/barretenberg/rollup_provider';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { BridgePublishQuery, BridgePublishQueryResult } from '@polyaztec/barretenberg/rollup_provider';
 import { RollupDb } from '../rollup_db/rollup_db.js';
 import { TxFeeResolver } from '../tx_fee_resolver/index.js';
 

@@ -1,10 +1,10 @@
-import { TxType } from '@aztec/barretenberg/blockchain';
+import { TxType } from '@polyaztec/barretenberg/blockchain';
 import {
   OffchainAccountData,
   OffchainDefiClaimData,
   OffchainDefiDepositData,
   OffchainJoinSplitData,
-} from '@aztec/barretenberg/offchain_tx_data';
+} from '@polyaztec/barretenberg/offchain_tx_data';
 import {
   RollupAccountProofData,
   RollupDefiClaimProofData,
@@ -12,7 +12,7 @@ import {
   RollupDepositProofData,
   RollupSendProofData,
   RollupWithdrawProofData,
-} from '@aztec/barretenberg/rollup_proof';
+} from '@polyaztec/barretenberg/rollup_proof';
 
 const CALLDATA_GAS_PER_BYTE = 16;
 const SIGNATURE_CALLDATA_SIZE = 96;

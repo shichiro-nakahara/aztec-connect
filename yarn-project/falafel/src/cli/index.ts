@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import { toBigIntBE } from '@aztec/barretenberg/bigint_buffer';
-import { TxType } from '@aztec/barretenberg/blockchain';
-import { ProofData } from '@aztec/barretenberg/client_proofs';
-import { OffchainDefiDepositData } from '@aztec/barretenberg/offchain_tx_data';
-import { WorldStateDb } from '@aztec/barretenberg/world_state_db';
+import { toBigIntBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { TxType } from '@polyaztec/barretenberg/blockchain';
+import { ProofData } from '@polyaztec/barretenberg/client_proofs';
+import { OffchainDefiDepositData } from '@polyaztec/barretenberg/offchain_tx_data';
+import { WorldStateDb } from '@polyaztec/barretenberg/world_state_db';
 import { Command } from 'commander';
 import { DataSource } from 'typeorm';
 import { getOrmConfig } from '../get_components.js';
@@ -11,8 +11,8 @@ import { configurator } from '../configurator.js';
 import { TypeOrmRollupDb } from '../rollup_db/index.js';
 import { SyncRollupDb } from '../rollup_db/sync_rollup_db.js';
 import { checkDuplicateNullifiers, checkNullifiersAgainstWorldState, findNearbyTxs } from './diagnostics.js';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { fromBaseUnits } from '@aztec/blockchain';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { fromBaseUnits } from '@polyaztec/blockchain';
 import { RollupDao } from '../entity/index.js';
 
 const createRollupDb = async () => {

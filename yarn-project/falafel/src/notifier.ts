@@ -1,5 +1,5 @@
 import { configurator } from './configurator.js';
-import { createLogger } from '@aztec/barretenberg/log';
+import { createLogger } from '@polyaztec/barretenberg/log';
 
 export class Notifier {
   private endpoint: string | undefined;

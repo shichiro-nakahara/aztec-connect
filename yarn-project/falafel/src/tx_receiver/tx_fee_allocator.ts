@@ -1,7 +1,7 @@
-import { toBigIntBE } from '@aztec/barretenberg/bigint_buffer';
-import { TxType } from '@aztec/barretenberg/blockchain';
-import { DefiDepositProofData } from '@aztec/barretenberg/client_proofs';
-import { createLogger } from '@aztec/barretenberg/log';
+import { toBigIntBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { TxType } from '@polyaztec/barretenberg/blockchain';
+import { DefiDepositProofData } from '@polyaztec/barretenberg/client_proofs';
+import { createLogger } from '@polyaztec/barretenberg/log';
 import { TxDao } from '../entity/index.js';
 import { TxFeeResolver } from '../tx_fee_resolver/index.js';
 import { Tx } from './tx.js';

@@ -1,20 +1,20 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { toBigIntBE, toBufferBE } from '@aztec/barretenberg/bigint_buffer';
-import { Blockchain, TxType } from '@aztec/barretenberg/blockchain';
-import { Block } from '@aztec/barretenberg/block_source';
-import { DefiDepositProofData, JoinSplitProofData, ProofData, ProofId } from '@aztec/barretenberg/client_proofs';
-import { InitHelpers } from '@aztec/barretenberg/environment';
-import { SerialQueue } from '@aztec/barretenberg/fifo';
-import { createLogger } from '@aztec/barretenberg/log';
-import { DefiInteractionNote, NoteAlgorithms, TreeClaimNote } from '@aztec/barretenberg/note_algorithms';
-import { OffchainDefiDepositData } from '@aztec/barretenberg/offchain_tx_data';
-import { InnerProofData, RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { BridgePublishQuery } from '@aztec/barretenberg/rollup_provider';
-import { serializeBufferArrayToVector } from '@aztec/barretenberg/serialize';
-import { Timer } from '@aztec/barretenberg/timer';
-import { WorldStateConstants } from '@aztec/barretenberg/world_state';
-import { RollupTreeId, WorldStateDb } from '@aztec/barretenberg/world_state_db';
-import { fromBaseUnits } from '@aztec/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { toBigIntBE, toBufferBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { Blockchain, TxType } from '@polyaztec/barretenberg/blockchain';
+import { Block } from '@polyaztec/barretenberg/block_source';
+import { DefiDepositProofData, JoinSplitProofData, ProofData, ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { InitHelpers } from '@polyaztec/barretenberg/environment';
+import { SerialQueue } from '@polyaztec/barretenberg/fifo';
+import { createLogger } from '@polyaztec/barretenberg/log';
+import { DefiInteractionNote, NoteAlgorithms, TreeClaimNote } from '@polyaztec/barretenberg/note_algorithms';
+import { OffchainDefiDepositData } from '@polyaztec/barretenberg/offchain_tx_data';
+import { InnerProofData, RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { BridgePublishQuery } from '@polyaztec/barretenberg/rollup_provider';
+import { serializeBufferArrayToVector } from '@polyaztec/barretenberg/serialize';
+import { Timer } from '@polyaztec/barretenberg/timer';
+import { WorldStateConstants } from '@polyaztec/barretenberg/world_state';
+import { RollupTreeId, WorldStateDb } from '@polyaztec/barretenberg/world_state_db';
+import { fromBaseUnits } from '@polyaztec/blockchain';
 import { InitAccountFiles } from './environment/index.js';
 import {
   AccountDao,

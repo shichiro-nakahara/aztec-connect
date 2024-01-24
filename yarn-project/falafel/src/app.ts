@@ -1,8 +1,8 @@
-import { GrumpkinAddress } from '@aztec/barretenberg/address';
-import { assetValueToJson } from '@aztec/barretenberg/asset';
-import { EthAddress } from '@aztec/barretenberg/address';
-import { JoinSplitProofData, ProofData, ProofId } from '@aztec/barretenberg/client_proofs';
-import { fetch } from '@aztec/barretenberg/iso_fetch';
+import { GrumpkinAddress } from '@polyaztec/barretenberg/address';
+import { assetValueToJson } from '@polyaztec/barretenberg/asset';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { JoinSplitProofData, ProofData, ProofId } from '@polyaztec/barretenberg/client_proofs';
+import { fetch } from '@polyaztec/barretenberg/iso_fetch';
 import {
   DepositTxJson,
   partialRuntimeConfigFromJson,
@@ -12,8 +12,8 @@ import {
   initialWorldStateToBuffer,
   bridgePublishQueryFromJson,
   bridgePublishQueryResultToJson,
-} from '@aztec/barretenberg/rollup_provider';
-import { serializeBufferArrayToVector } from '@aztec/barretenberg/serialize';
+} from '@polyaztec/barretenberg/rollup_provider';
+import { serializeBufferArrayToVector } from '@polyaztec/barretenberg/serialize';
 import cors from '@koa/cors';
 import fsExtra from 'fs-extra';
 import Koa, { Context, DefaultState } from 'koa';

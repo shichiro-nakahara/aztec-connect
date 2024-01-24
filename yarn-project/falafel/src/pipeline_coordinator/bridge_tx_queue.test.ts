@@ -1,8 +1,8 @@
-import { toBufferBE } from '@aztec/barretenberg/bigint_buffer';
-import { TxType } from '@aztec/barretenberg/blockchain';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { BridgeConfig } from '@aztec/barretenberg/rollup_provider';
-import { numToUInt32BE } from '@aztec/barretenberg/serialize';
+import { toBufferBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { TxType } from '@polyaztec/barretenberg/blockchain';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { BridgeConfig } from '@polyaztec/barretenberg/rollup_provider';
+import { numToUInt32BE } from '@polyaztec/barretenberg/serialize';
 import { randomBytes } from 'crypto';
 import { TxDao } from '../entity/tx.js';
 import { TxFeeResolver } from '../tx_fee_resolver/index.js';

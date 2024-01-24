@@ -1,6 +1,6 @@
-import { Blockchain, TxType } from '@aztec/barretenberg/blockchain';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { EthAddress } from '@aztec/barretenberg/address';
+import { Blockchain, TxType } from '@polyaztec/barretenberg/blockchain';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { EthAddress } from '@polyaztec/barretenberg/address';
 import { BridgeResolver } from '../bridge/index.js';
 import { FeeCalculator } from './fee_calculator.js';
 import { getTxCallData } from './get_gas_overhead.js';

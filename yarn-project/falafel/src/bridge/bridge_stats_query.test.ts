@@ -1,6 +1,6 @@
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { RollupProofData } from '@aztec/barretenberg/rollup_proof';
-import { BridgeConfig, BridgePublishQuery } from '@aztec/barretenberg/rollup_provider';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { RollupProofData } from '@polyaztec/barretenberg/rollup_proof';
+import { BridgeConfig, BridgePublishQuery } from '@polyaztec/barretenberg/rollup_provider';
 import { randomBytes } from 'crypto';
 import { RollupDao, RollupProofDao } from '../entity/index.js';
 import { RollupDb } from '../rollup_db/index.js';

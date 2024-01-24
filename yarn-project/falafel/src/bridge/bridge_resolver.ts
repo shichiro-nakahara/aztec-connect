@@ -1,7 +1,7 @@
-import { Blockchain } from '@aztec/barretenberg/blockchain';
-import { isVirtualAsset } from '@aztec/barretenberg/asset';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { BridgeConfig } from '@aztec/barretenberg/rollup_provider';
+import { Blockchain } from '@polyaztec/barretenberg/blockchain';
+import { isVirtualAsset } from '@polyaztec/barretenberg/asset';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { BridgeConfig } from '@polyaztec/barretenberg/rollup_provider';
 
 export class BridgeResolver {
   constructor(

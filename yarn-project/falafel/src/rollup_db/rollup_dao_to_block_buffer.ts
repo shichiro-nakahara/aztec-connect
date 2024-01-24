@@ -1,5 +1,5 @@
-import { toBigIntBE } from '@aztec/barretenberg/bigint_buffer';
-import { Block } from '@aztec/barretenberg/block_source';
+import { toBigIntBE } from '@polyaztec/barretenberg/bigint_buffer';
+import { Block } from '@polyaztec/barretenberg/block_source';
 import { RollupDao } from '../entity/rollup.js';
 import { parseInteractionResult } from './parse_interaction_result.js';
 

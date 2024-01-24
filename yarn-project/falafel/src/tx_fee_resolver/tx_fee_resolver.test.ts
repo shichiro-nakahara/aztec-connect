@@ -1,7 +1,7 @@
-import { EthAddress } from '@aztec/barretenberg/address';
-import { Blockchain, BlockchainAsset, PriceFeed } from '@aztec/barretenberg/blockchain';
-import { BridgeCallData } from '@aztec/barretenberg/bridge_call_data';
-import { EthPriceFeed } from '@aztec/blockchain';
+import { EthAddress } from '@polyaztec/barretenberg/address';
+import { Blockchain, BlockchainAsset, PriceFeed } from '@polyaztec/barretenberg/blockchain';
+import { BridgeCallData } from '@polyaztec/barretenberg/bridge_call_data';
+import { EthPriceFeed } from '@polyaztec/blockchain';
 import { BridgeResolver } from '../bridge/index.js';
 import { TxFeeResolver } from './index.js';
 import { jest } from '@jest/globals';

@@ -1,4 +1,4 @@
-import { BlockchainAsset, TxType, Blockchain } from '@aztec/barretenberg/blockchain';
+import { BlockchainAsset, TxType, Blockchain } from '@polyaztec/barretenberg/blockchain';
 import { FeeCalculator } from './fee_calculator.js';
 import { PriceTracker } from './price_tracker.js';
 import { getGasOverhead, getTxCallData } from './get_gas_overhead.js';

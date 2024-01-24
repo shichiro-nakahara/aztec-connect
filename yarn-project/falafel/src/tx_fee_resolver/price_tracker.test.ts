@@ -1,5 +1,5 @@
-import { Blockchain, PriceFeed } from '@aztec/barretenberg/blockchain';
-import { EthPriceFeed } from '@aztec/blockchain';
+import { Blockchain, PriceFeed } from '@polyaztec/barretenberg/blockchain';
+import { EthPriceFeed } from '@polyaztec/blockchain';
 import { PriceTracker } from './price_tracker.js';
 import { jest } from '@jest/globals';
 

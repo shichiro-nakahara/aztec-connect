@@ -1,5 +1,5 @@
-import { Blockchain, PriceFeed } from '@aztec/barretenberg/blockchain';
-import { InterruptableSleep } from '@aztec/barretenberg/sleep';
+import { Blockchain, PriceFeed } from '@polyaztec/barretenberg/blockchain';
+import { InterruptableSleep } from '@polyaztec/barretenberg/sleep';
 
 export class PriceTracker {
   private readonly gasPriceFeed: PriceFeed;
