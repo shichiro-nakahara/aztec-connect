@@ -92,7 +92,8 @@ const defaultStartupConfig: StartupConfig = {
   exitOnly: false,
   rollupCallDataLimit: 120 * 1024,
   blockExplorer: '',
-  stargateComposer: EthAddress.ZERO
+  stargateComposer: EthAddress.ZERO,
+  enableSubsidies: false
 };
 
 interface SurgePrice {
@@ -113,7 +114,6 @@ export interface RuntimeConfig extends BarretenbergRuntimeConfig {
   ipWhitelist: string[],
   surgeFeeGasPriceMultiplier: SurgePrice[],
   sgWithdrawFeeMultiplier: number
-  enableSubsidies: false,
 };
 
 const defaultRuntimeConfig: RuntimeConfig = {
