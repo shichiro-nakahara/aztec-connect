@@ -15,7 +15,7 @@ export class NataGateway {
     this.nataGateway = new Contract(
       address.toString(), 
       [ 
-        `function withdraws(uint256) view returns (
+        `function sgWithdraws(uint256) view returns (
           uint16 sgChainId, 
           uint256 srcPoolId, 
           uint256 dstPoolId, 
@@ -31,9 +31,9 @@ export class NataGateway {
     );
   }
 
-  async getWithdraw(id: number) {
+  async getSGWithdraw(id: number) {
     try {
-      const withdraw = await this.nataGateway.withdraws(id);
+      const withdraw = await this.nataGateway.sgWithdraws(id);
       if (withdraw.sgChainId == 0) return undefined;
       return withdraw;
     }

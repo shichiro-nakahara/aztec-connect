@@ -184,7 +184,7 @@ export class ClientEthereumBlockchain {
     }
   }
 
-  public async getXChainWithdrawal(id: number) {
-    return await this.nataGateway.getWithdraw(id);
+  public async getSGXChainWithdrawal(id: number) {
+    return await this.nataGateway.getSGWithdraw(id);
   }
 }

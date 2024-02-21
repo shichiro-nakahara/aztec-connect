@@ -37,7 +37,7 @@ export class XChainWithdrawController {
     this.requireFeePayingTx = !!fee.value && fee.assetId !== assetValue.assetId;
   }
 
-  public async initWithdraw() {
+  public async initSGWithdraw() {
     const result = await(
       await fetch(
         `${config.nataGateway.keeper}/x-chain-withdraw`,
@@ -66,7 +66,7 @@ export class XChainWithdrawController {
     let withdraw;
     const timer = new Timer();
     while (true) {
-      withdraw = await this.blockchain.getXChainWithdrawal(id);
+      withdraw = await this.blockchain.getSGXChainWithdrawal(id);
       if (withdraw) break;
 
       await sleep(1000);
