@@ -10,7 +10,7 @@ import config from '../config.js';
 import { Timer } from '@polyaztec/barretenberg/timer';
 import { sleep } from '@polyaztec/barretenberg/sleep';
 
-export class XChainWithdrawController {
+export class AcrossXChainWithdrawController {
   private readonly requireFeePayingTx: boolean;
   private proofOutputs: ProofOutput[] = [];
   private feeProofOutputs: ProofOutput[] = [];
@@ -24,9 +24,7 @@ export class XChainWithdrawController {
     public readonly assetValue: AssetValue,
     public readonly fee: AssetValue,
     public readonly recipient: EthAddress,
-    public readonly sgChainId: number,
-    public readonly srcPoolId: number,
-    public readonly dstPoolId: number,
+    public readonly destinationChainId: number,
     private readonly core: CoreSdk,
     private readonly blockchain: ClientEthereumBlockchain,
   ) {
@@ -37,22 +35,22 @@ export class XChainWithdrawController {
     this.requireFeePayingTx = !!fee.value && fee.assetId !== assetValue.assetId;
   }
 
-  public async initSGWithdraw() {
+  public async initAcrossWithdraw() {
+    const remoteStatus = await this.core.getRemoteStatus();
     const result = await(
       await fetch(
-        `${config.nataGateway.keeper}/x-chain-withdraw`,
+        `${config.nataGateway.keeper}/across-x-chain-withdraw`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            sgChainId: this.sgChainId,
-            srcPoolId: this.srcPoolId,
-            dstPoolId: this.dstPoolId,
-            assetId: this.assetValue.assetId,
+            recipient: this.recipient.toString(),
+            originToken: remoteStatus.blockchainStatus.assets[this.assetValue.assetId].address.toString(),
             amount: this.assetValue.value.toString(),
-            destination: this.recipient.toString()
+            destinationChainId: this.destinationChainId,
+            assetId: this.assetValue.assetId,
           })
         }
       )
@@ -66,7 +64,7 @@ export class XChainWithdrawController {
     let withdraw;
     const timer = new Timer();
     while (true) {
-      withdraw = await this.blockchain.getSGXChainWithdrawal(id);
+      withdraw = await this.blockchain.getAcrossXChainWithdrawal(id);
       if (withdraw) break;
 
       await sleep(1000);
@@ -76,12 +74,11 @@ export class XChainWithdrawController {
       }
     }
 
-    if (withdraw.sgChainId != this.sgChainId || 
-      withdraw.srcPoolId.toNumber() != this.srcPoolId || 
-      withdraw.dstPoolId.toNumber() != this.dstPoolId || 
+    if (
+      withdraw.destinationChainId != this.destinationChainId || 
       withdraw.assetId.toNumber() != this.assetValue.assetId || 
       withdraw.rpWithdrawAmount.toBigInt() != this.assetValue.value ||
-      withdraw.destination.toString() != this.recipient.toString()
+      withdraw.recipient.toString() != this.recipient.toString()
     ) {
       throw new Error('Invalid withdraw id');
     }

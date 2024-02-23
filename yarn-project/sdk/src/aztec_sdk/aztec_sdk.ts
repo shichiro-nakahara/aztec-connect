@@ -28,7 +28,8 @@ import {
   RegisterController,
   TransferController,
   WithdrawController,
-  XChainWithdrawController,
+  SGXChainWithdrawController,
+  AcrossXChainWithdrawController,
   createTxRefNo,
 } from '../controllers/index.js';
 import { CoreSdk, SdkEvent } from '../core_sdk/index.js';
@@ -355,7 +356,7 @@ export class AztecSdk extends EventEmitter {
     return new WithdrawController(userId, userSigner, assetValue, fee, to, this.core);
   }
 
-  public createXChainWithdrawController(
+  public createSGXChainWithdrawController(
     userId: GrumpkinAddress,
     userSigner: Signer,
     assetValue: AssetValue,
@@ -365,7 +366,7 @@ export class AztecSdk extends EventEmitter {
     srcPoolId: number,
     dstPoolId: number
   ) {
-    return new XChainWithdrawController(
+    return new SGXChainWithdrawController(
       userId, 
       userSigner, 
       assetValue, 
@@ -379,23 +380,23 @@ export class AztecSdk extends EventEmitter {
     );
   }
 
-  public async getXChainWithdrawFees(
-    from: EthAddress,
-    assetId: number,
-    srcSgChainId: number,
-    dstSgChainId: number,
-    srcPoolId: number,
-    dstPoolId: number, 
-    options?: GetFeesOptions & { assetValue?: AssetValue })
-  {
-    return await this.feeCalculator.getXChainWithdrawFees(
-      from,
-      assetId,
-      srcSgChainId,
-      dstSgChainId,
-      srcPoolId,
-      dstPoolId,
-      options
+  public createAcrossXChainWithdrawController(
+    userId: GrumpkinAddress,
+    userSigner: Signer,
+    assetValue: AssetValue,
+    fee: AssetValue,
+    to: EthAddress,
+    destinationChainId: number,
+  ) {
+    return new AcrossXChainWithdrawController(
+      userId, 
+      userSigner, 
+      assetValue, 
+      fee, 
+      to, 
+      destinationChainId, 
+      this.core,
+      this.blockchain
     );
   }
 

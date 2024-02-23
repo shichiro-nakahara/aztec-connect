@@ -25,7 +25,18 @@ export class NataGateway {
           bool complete, 
           string txHash, 
           uint256 sgSendAmount
-        )`
+        )`,
+        `function acrossWithdraws(uint256) view returns (
+          uint256 destinationChainId, 
+          address originToken, 
+          uint256 assetId, 
+          uint256 rpWithdrawAmount, 
+          address recipient, 
+          bool complete, 
+          string txHash, 
+          uint256 acrossSendAmount
+        )`,
+
       ], 
       this.provider
     );
@@ -35,6 +46,18 @@ export class NataGateway {
     try {
       const withdraw = await this.nataGateway.sgWithdraws(id);
       if (withdraw.sgChainId == 0) return undefined;
+      return withdraw;
+    }
+    catch (e: any) {
+      console.warn(e);
+      return undefined;
+    }
+  }
+
+  async getAcrossWithdraw(id: number) {
+    try {
+      const withdraw = await this.nataGateway.acrossWithdraws(id);
+      if (withdraw.destinationChainId == 0) return undefined;
       return withdraw;
     }
     catch (e: any) {

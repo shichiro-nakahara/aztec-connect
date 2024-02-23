@@ -38,24 +38,6 @@ export class FeeCalculator {
     return await this.getTransactionFees(assetId, txType, options);
   }
 
-  public async getXChainWithdrawFees(
-    from: EthAddress,
-    assetId: number,
-    srcSgChainId: number,
-    dstSgChainId: number,
-    srcPoolId: number,
-    dstPoolId: number,
-    { recipient, ...options }: GetFeesOptions & { recipient?: EthAddress; assetValue?: AssetValue } = {},
-  ) {
-    const txType =
-      recipient && !(await this.blockchain.isContract(recipient)) && !(await this.blockchain.isEmpty(recipient))
-        ? TxType.WITHDRAW_TO_WALLET
-        : TxType.WITHDRAW_HIGH_GAS;
-    const aztecFees = await this.getTransactionFees(assetId, txType, options);
-
-    // TODO: SG Fee
-  }
-
   public async getTransferFees(assetId: number, options?: GetFeesOptions) {
     return await this.getTransactionFees(assetId, TxType.TRANSFER, options);
   }
