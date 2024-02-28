@@ -1,6 +1,6 @@
 {
   "name": "@polyaztec/sdk",
-  "version": "2.5.5",
+  "version": "2.5.6",
   "main": "./dest/index.js",
   "exports": {
     "node": "./dest/index.js",

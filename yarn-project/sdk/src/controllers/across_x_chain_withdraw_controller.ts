@@ -25,6 +25,7 @@ export class AcrossXChainWithdrawController {
     public readonly fee: AssetValue,
     public readonly recipient: EthAddress,
     public readonly destinationChainId: number,
+    public readonly originToken: string,
     private readonly core: CoreSdk,
     private readonly blockchain: ClientEthereumBlockchain,
   ) {
@@ -47,7 +48,7 @@ export class AcrossXChainWithdrawController {
           },
           body: JSON.stringify({
             recipient: this.recipient.toString(),
-            originToken: remoteStatus.blockchainStatus.assets[this.assetValue.assetId].address.toString(),
+            originToken: this.originToken,
             amount: this.assetValue.value.toString(),
             destinationChainId: this.destinationChainId,
             assetId: this.assetValue.assetId,

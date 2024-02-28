@@ -387,6 +387,7 @@ export class AztecSdk extends EventEmitter {
     fee: AssetValue,
     to: EthAddress,
     destinationChainId: number,
+    originToken: string
   ) {
     return new AcrossXChainWithdrawController(
       userId, 
@@ -394,7 +395,8 @@ export class AztecSdk extends EventEmitter {
       assetValue, 
       fee, 
       to, 
-      destinationChainId, 
+      destinationChainId,
+      originToken,
       this.core,
       this.blockchain
     );
