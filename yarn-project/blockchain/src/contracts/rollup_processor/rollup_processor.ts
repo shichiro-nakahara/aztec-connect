@@ -72,6 +72,15 @@ export class RollupProcessor {
         block: 43779573,
         hash: '0x621934386a2f01b3858a758891ef7a2089686431cb5a08a68ac048083c90ab26'
       }
+    },
+    '0x6a5f705eeb63c9982a743b727953f66d67380651842afcf0bd58438dd9b2b55a': {
+      invalidOffchainTxs: [
+        '0xbdcbe7fc045f88fe201c7b1c24ace274c59cc190f3948a0bb11a677fd0c38860'
+      ],
+      correctOffchainTx: {
+        block: 54340210,
+        hash: '0x4910e2c5e9bffa063119a89a943a0b342c42ce9ce6dabddb869f492ae7c84c32'
+      }
     }
   };
 
