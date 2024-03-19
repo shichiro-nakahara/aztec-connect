@@ -81,6 +81,13 @@ export class RollupProcessor {
         block: 54340210,
         hash: '0x4910e2c5e9bffa063119a89a943a0b342c42ce9ce6dabddb869f492ae7c84c32'
       }
+    },
+    '0x67f04db2ca25ab9606f55c6c85ec6aa4ebf9d47b5d67e1e4fdeeba5082f655c4': {
+      invalidOffchainTxs: [],
+      correctOffchainTx: {
+        block: 54816273,
+        hash: '0x4d6bedcff85355965c7d296455e492127aff3c96f72f929c629f0ba12acf7940'
+      }
     }
   };
 
