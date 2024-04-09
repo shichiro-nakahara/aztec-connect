@@ -58,38 +58,22 @@ export class RollupProcessor {
   public permitHelper: Contract;
   private provider: Web3Provider;
   private debug = createDebug('bb:rollup_processor');
+  private offchainDEDebug = createDebug('bb:getOffchainDataEvents');
 
   // Something weird happened here. 2x offchain data got posted for this rollup, one was posted before
   // the rollup tx and the other one after. The offchain data that was posted before (i.e. lower block number)
   // was incorrect. This hack was added to look for the correct offchain data for that particular transaction.
-  private offchainDataFixes = {
-    // rollupTx
-    '0x9c7d51dd39255ee8b3c2c3e93fa69f9736183ed2d1dd41f7f7e8966797bb847e': {
-      invalidOffchainTxs: [
-        '0xfb2006ca38b3b0bc1977d2e57566dd3d5936c2a6591d625de8dd267414c6ea0a'
-      ],
-      correctOffchainTx: {
-        block: 43779573,
-        hash: '0x621934386a2f01b3858a758891ef7a2089686431cb5a08a68ac048083c90ab26'
-      }
-    },
-    '0x6a5f705eeb63c9982a743b727953f66d67380651842afcf0bd58438dd9b2b55a': {
-      invalidOffchainTxs: [
-        '0xbdcbe7fc045f88fe201c7b1c24ace274c59cc190f3948a0bb11a677fd0c38860'
-      ],
-      correctOffchainTx: {
-        block: 54340210,
-        hash: '0x4910e2c5e9bffa063119a89a943a0b342c42ce9ce6dabddb869f492ae7c84c32'
-      }
-    },
-    '0x67f04db2ca25ab9606f55c6c85ec6aa4ebf9d47b5d67e1e4fdeeba5082f655c4': {
-      invalidOffchainTxs: [],
-      correctOffchainTx: {
-        block: 54816273,
-        hash: '0x4d6bedcff85355965c7d296455e492127aff3c96f72f929c629f0ba12acf7940'
-      }
-    }
-  };
+  private invalidOffchainTxs = [
+    // rollupId 6
+    // rollupTx 0x9c7d51dd39255ee8b3c2c3e93fa69f9736183ed2d1dd41f7f7e8966797bb847e
+    // correctTx 0x621934386a2f01b3858a758891ef7a2089686431cb5a08a68ac048083c90ab26
+    '0xfb2006ca38b3b0bc1977d2e57566dd3d5936c2a6591d625de8dd267414c6ea0a',
+
+    // rollupId 1036
+    // rollupTx 0x6a5f705eeb63c9982a743b727953f66d67380651842afcf0bd58438dd9b2b55a
+    // correctTx 0xbdcbe7fc045f88fe201c7b1c24ace274c59cc190f3948a0bb11a677fd0c38860
+    '0x4910e2c5e9bffa063119a89a943a0b342c42ce9ce6dabddb869f492ae7c84c32'
+  ];
 
   constructor(
     protected rollupContractAddress: EthAddress,
@@ -874,63 +858,78 @@ export class RollupProcessor {
     const filter = this.rollupProcessor.filters.OffchainData(
       rollupLogs.length === 1 ? rollupLogs[0].args.rollupId : undefined,
     );
-    // Search from 1 days worth of blocks before, up to the last rollup block.
+    // Search from 1 days worth of blocks before, up to 1 hour after the last rollup block.
     const { offchainSearchLead } = await this.getEarliestBlock();
-    let start = rollupEvents[0].blockNumber - offchainSearchLead;
-    let end = rollupEvents[rollupEvents.length - 1].blockNumber;
+    const start = rollupEvents[0].blockNumber - offchainSearchLead;
+    const end = rollupEvents[rollupEvents.length - 1].blockNumber + (offchainSearchLead / 24);
 
-    const rollupTxHash = rollupEvents[0].transactionHash;
-    const rollupTxsToFix = Object.keys(this.offchainDataFixes);
-    if (rollupTxsToFix.includes(rollupTxHash)) {
-      this.debug(`broken rollup tx found, offsetting block search to find correct offchain data event`);
-      end = (<any>this.offchainDataFixes)[rollupTxHash].correctOffchainTx.block;
-    }
-
-    this.debug(`fetching offchain data events from blocks ${start} - ${end}...`);
+    this.offchainDEDebug(`fetching offchain data events from blocks ${start} - ${end}...`);
     let offchainEvents = await this.rollupProcessor.queryFilter(
       filter,
       start,
       end,
     );
 
-    if (rollupTxsToFix.includes(rollupTxHash)) {
-      this.debug(`filtering incorrect offchain data event`);
+    if (this.invalidOffchainTxs.length > 0) {
+      let filtered = 0;
       offchainEvents = offchainEvents.filter((e) => {
-        return !(<any>this.offchainDataFixes)[rollupTxHash].invalidOffchainTxs.includes(e.transactionHash);
-      })
+        const filter = this.invalidOffchainTxs.includes(e.transactionHash);
+        if (filter) filtered++;
+        return !filter;
+      });
+      if (filtered > 0) this.offchainDEDebug(`filtered ${filtered} incorrect offchain data events`);
     }
 
-    this.debug(`found ${offchainEvents.length} offchain events.`);
+    this.offchainDEDebug(`found ${offchainEvents.length} offchain events.`);
+
     // Key the offchain data event on the rollup id and sender.
-    const offchainEventMap = offchainEvents.reduce<{ [key: string]: Event[] }>((a, e) => {
+    const offchainEventMap:{ [key: string]: Event[] } = {};
+
+    for (const e of offchainEvents) {
       const offChainLog = this.contract.interface.parseLog(e);
       const {
         args: { rollupId, chunk, totalChunks, sender },
       } = offChainLog;
 
-      // if the rollup event occurs before the offchain event, then ignore the off chain event
-      const rollupLogIndex = rollupLogs.findIndex(x => x.args.rollupId.toNumber() === rollupId.toNumber());
-      if (e.transactionHash != (<any>this.offchainDataFixes)[rollupTxHash]?.correctOffchainTx.hash &&
-        rollupLogIndex !== -1
-      ) {
-        const rollupEvent = rollupEvents[rollupLogIndex];
-        if (rollupEvent.blockNumber < e.blockNumber) {
-          this.debug(
-            `ignoring offchain event at block ${e.blockNumber} for rollup ${rollupId} at block ${rollupEvent.blockNumber}`,
-          );
-          return a;
-        }
+      const key = `${rollupId}:${sender}`;
+      if (!offchainEventMap[key] || offchainEventMap[key].length != totalChunks) {
+        offchainEventMap[key] = Array.from({ length: totalChunks });
       }
 
-      const key = `${rollupId}:${sender}`;
-      if (!a[key] || a[key].length != totalChunks) {
-        a[key] = Array.from({ length: totalChunks });
+      if (offchainEventMap[key][chunk]) {
+        const [a, b] = await Promise.all([
+          offchainEventMap[key][chunk].getTransaction(),
+          e.getTransaction()
+        ]);
+
+        // Remove trailing zeros from shortest data before comparison
+        const shortestData = a.data.length < b.data.length ? a.data.replace(/0+$/, '') : b.data.replace(/0+$/, '');
+        const longestData = a.data.length < b.data.length ? b.data : a.data;
+
+        if (longestData.substring(0, shortestData.length) != shortestData) {
+          console.log(shortestData);
+          console.log(longestData);
+          throw new Error(`Found multiple, conflicting offchain data for rollup ${rollupId}, chunk ${chunk}`);
+        }
+
+        // Take the longest
+        if (a.data == longestData) {
+          this.offchainDEDebug(
+            `Found duplicate offchain events for rollup ${rollupId}, chunk ${chunk}, taking longest (current)`
+          );
+          continue;
+        }
+
+        this.offchainDEDebug(
+          `Found duplicate offchain events for rollup ${rollupId}, chunk ${chunk}, taking longest (new)`
+        );
       }
+
       // Store by chunk index. Copes with chunks being re-published.
-      a[key][chunk] = e;
-      this.debug(`parsed offchain event for rollup: ${rollupId} sender: ${sender} chunk: ${chunk}.`);
-      return a;
-    }, {});
+      offchainEventMap[key][chunk] = e;
+      this.offchainDEDebug(`parsed offchain event for rollup: ${rollupId} sender: ${sender} chunk: ${chunk}.`);
+    }
+
     // Finally, for each rollup log, lookup the offchain events for the rollup id from the same sender.
     return rollupLogs.map(rollupLog => {
       const {

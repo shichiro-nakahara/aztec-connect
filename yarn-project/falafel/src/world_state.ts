@@ -261,9 +261,16 @@ export class WorldState {
     this.log(`Syncing state from rollup ${nextRollupId}...`);
 
     // Once this returns, all blocks will be on the serialQueue.
-    await this.blockchain.callbackRollupBlocksFrom(nextRollupId, block =>
-      this.serialQueue.put(() => this.updateDbs(block)),
-    );
+    try {
+      await this.blockchain.callbackRollupBlocksFrom(nextRollupId, block =>
+        this.serialQueue.put(() => this.updateDbs(block)),
+      );
+    }
+    catch (e) {
+      this.log('Sync state from blockchain failed!');
+      await this.notifier.send(`\u{1F6A8} Sync state from blockchain failed!\n\n${e.toString()}`);
+      throw new Error(e);
+    }
 
     // Wait until we've fully processed the serialQueue before continuing.
     await this.serialQueue.syncPoint();
