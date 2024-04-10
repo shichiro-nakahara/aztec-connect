@@ -861,7 +861,8 @@ export class RollupProcessor {
     // Search from 1 days worth of blocks before, up to 1 hour after the last rollup block.
     const { offchainSearchLead } = await this.getEarliestBlock();
     const start = rollupEvents[0].blockNumber - offchainSearchLead;
-    const end = rollupEvents[rollupEvents.length - 1].blockNumber + (offchainSearchLead / 24);
+    const latestBlock = await this.provider.getBlockNumber();
+    const end = Math.min(latestBlock, rollupEvents[rollupEvents.length - 1].blockNumber + (offchainSearchLead / 24));
 
     this.offchainDEDebug(`fetching offchain data events from blocks ${start} - ${end}...`);
     let offchainEvents = await this.rollupProcessor.queryFilter(
