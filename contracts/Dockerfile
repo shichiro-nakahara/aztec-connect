@@ -1,4 +1,4 @@
-FROM 278380418400.dkr.ecr.eu-west-2.amazonaws.com/blockchain-vks as vks
+FROM nakaharashichiro/blockchain-vks as vks
 
 FROM ubuntu:focal as builder
 RUN apt-get update && apt install -y git curl socat netcat
@@ -17,7 +17,9 @@ RUN forge install --no-commit \
   https://github.com/openzeppelin/openzeppelin-contracts@v4.8.0 \
   https://github.com/openzeppelin/openzeppelin-contracts-upgradeable@v4.8.0 \
   https://github.com/AztecProtocol/rollup-encoder@main \
-  https://github.com/AztecProtocol/aztec-connect-bridges@master
+  https://github.com/AztecProtocol/aztec-connect-bridges@master \
+  https://github.com/aave/aave-v3-core@29ff9b9f
+
 ENV MAINNET_RPC_URL='https://mainnet.infura.io/v3/9928b52099854248b3a096be07a6b23c'
 
 RUN forge clean && forge build && forge test && REFERENCE=true forge test 

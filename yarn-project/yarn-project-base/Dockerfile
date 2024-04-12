@@ -1,7 +1,7 @@
-FROM 278380418400.dkr.ecr.eu-west-2.amazonaws.com/aztec-connect-cpp-x86_64-linux-clang
-FROM 278380418400.dkr.ecr.eu-west-2.amazonaws.com/aztec-connect-cpp-wasm-linux-clang
-FROM 278380418400.dkr.ecr.eu-west-2.amazonaws.com/blockchain-vks
-FROM 278380418400.dkr.ecr.eu-west-2.amazonaws.com/contracts
+FROM nakaharashichiro/aztec-connect-cpp-x86_64-linux-clang
+FROM nakaharashichiro/aztec-connect-cpp-wasm-linux-clang
+FROM nakaharashichiro/blockchain-vks
+FROM nakaharashichiro/contracts
 
 FROM node:18-alpine
 RUN apk update && apk add --no-cache build-base git python3 curl bash jq
