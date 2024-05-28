@@ -13,7 +13,7 @@ contract GasOracle is Ownable {
     }
 
     function latestAnswer() external view returns (int256) {
-        return (int(block.basefee) * multiplier) / 100;
+        return (int(block.basefee == 0 ? 30 gwei : block.basefee) * multiplier) / 100;
     }
 
     function getAnswer(uint256) external view returns (int256) {
