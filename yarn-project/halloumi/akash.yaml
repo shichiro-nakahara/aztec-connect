@@ -1,0 +1,86 @@
+---
+version: "2.0"
+
+services:
+
+  halloumi-inner:
+    image: nakaharashichiro/halloumi
+    env:
+      - "MAX_CIRCUIT_SIZE=33554432"
+      - "NUM_INNER_ROLLUP_TXS=28"
+      - "NUM_OUTER_ROLLUP_PROOFS=32"
+      - "PROVERLESS=false"
+      - "LAZY_INIT=true"
+      - "PERSIST=false"
+      - "DATA_DIR=./data"
+      - "JOB_SERVER_URL=http://45.32.239.141:8082" # 8082 inner, 8083 outer
+      - "PORT=80"
+      - "DEBUG=*"
+    expose:
+      - port: 80
+        as: 80
+        proto: tcp
+        to:
+          - global: true
+
+  halloumi-outer:
+    image: nakaharashichiro/halloumi
+    env:
+      - "MAX_CIRCUIT_SIZE=33554432"
+      - "NUM_INNER_ROLLUP_TXS=28"
+      - "NUM_OUTER_ROLLUP_PROOFS=32"
+      - "PROVERLESS=false"
+      - "LAZY_INIT=true"
+      - "PERSIST=false"
+      - "DATA_DIR=./data"
+      - "JOB_SERVER_URL=http://45.32.239.141:8083" # 8082 inner, 8083 outer
+      - "PORT=80"
+      - "DEBUG=*"
+    expose:
+      - port: 80
+        as: 80
+        proto: tcp
+        to:
+          - global: true
+
+profiles:
+
+  compute:
+    halloumi-inner:
+      resources:
+        cpu:
+          units: 12
+        memory:
+          size: 512Gi
+        storage:
+          - size: 16Gi
+    halloumi-outer:
+      resources:
+        cpu:
+          units: 12
+        memory:
+          size: 512Gi
+        storage:
+          - size: 16Gi
+
+  placement:
+    dcloud:
+      pricing:
+        halloumi-inner:
+          denom: uakt
+          amount: 500
+        halloumi-outer:
+          denom: uakt
+          amount: 500
+
+deployment:
+
+  halloumi-inner:
+    dcloud:
+      profile: halloumi-inner
+      count: 1
+
+  halloumi-outer:
+    dcloud:
+      profile: halloumi-outer
+      count: 1
