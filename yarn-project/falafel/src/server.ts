@@ -27,6 +27,7 @@ import { WorldState } from './world_state.js';
 import { AddressCheckProviders, AztecBlacklistProvider, RateLimiter } from './compliance/index.js';
 import { rollupDaoToBlockBuffer } from './rollup_db/rollup_dao_to_block_buffer.js';
 import { AliasDao } from './entity/alias.js';
+import { Notifier } from './notifier.js';
 
 export interface RollupProviderStatus extends BarretenbergRollupProviderStatus {
   runtimeConfig: RuntimeConfig;
@@ -56,6 +57,7 @@ export class Server {
     private metrics: Metrics,
     barretenberg: BarretenbergWasm,
     private log = createLogger('Server'),
+    private notifier = new Notifier('Server'),
   ) {
     const {
       version,
@@ -88,7 +90,19 @@ export class Server {
 
     switch (proofGeneratorMode) {
       case 'split':
-        this.proofGenerator = new HttpJobServers();
+        this.proofGenerator = new HttpJobServers(
+          5000,
+          async (clientIp: string) => {
+            let message = `Rollup job allocated`;
+            message += `\n\n<b>Halloumi IP</b>\n${clientIp}`;
+            await this.notifier.send(message);
+          },
+          async (clientIp: string) => {
+            let message = `Rollup job complete`;
+            message += `\n\n<b>Halloumi IP</b>\n${clientIp}`;
+            await this.notifier.send(message);
+          }
+        );
         break;
       case 'local': {
         const { MAX_CIRCUIT_SIZE = '0' } = process.env;

@@ -1,12 +1,6 @@
 ---
 version: "2.0"
 
-endpoints:
-  halloumi-inner:
-    kind: ip
-  halloumi-outer:
-    kind: ip
-
 services:
 
   halloumi-inner:
@@ -28,7 +22,6 @@ services:
         proto: tcp
         to:
           - global: true
-            ip: halloumi-inner
 
   halloumi-outer:
     image: nakaharashichiro/halloumi
@@ -49,7 +42,6 @@ services:
         proto: tcp
         to:
           - global: true
-            ip: halloumi-inner
 
 profiles:
 

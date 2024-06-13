@@ -47,7 +47,12 @@ export class HttpJobServer implements ProofGenerator {
   // This Promise is awaited when the server is stopped at which point the queue is canceled
   private runningPromise: Promise<void>;
 
-  constructor(private port = 8082, private ackTimeout = 5000) {
+  constructor(
+    private port = 8082, 
+    private ackTimeout = 5000, 
+    private onGetJob: Function | null = null, 
+    private onJobComplete: Function | null = null
+  ) {
     const router = new Router<DefaultState, Context>();
 
     // A worker can request the next unclaimed job for it to perform
@@ -55,6 +60,9 @@ export class HttpJobServer implements ProofGenerator {
       // respond with work that can be performed
       // retrieval of work is serialized to prevent simultaneous polls of the job queue
       ctx.body = await this.serialExecute(() => this.getWork());
+      if (this.onGetJob && ctx.body != Buffer.alloc(0)) {
+        await this.onGetJob(ctx.request.ip);
+      }
       ctx.status = 200;
     });
 
@@ -64,6 +72,9 @@ export class HttpJobServer implements ProofGenerator {
       // request should include job info and the results of work performed (the requested data) when successful
       const buf = (await stream.readAll()) as Buffer;
       this.completeJob(buf);
+      if (this.onJobComplete) {
+        await this.onJobComplete(ctx.request.ip);
+      }
       ctx.status = 200;
     });
 
