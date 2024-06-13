@@ -9,9 +9,9 @@ export class HttpJobServers implements ProofGenerator {
   private txRollupAndClaimServer: HttpJobServer;
   private rootAndVerifierServer: HttpJobServer;
 
-  constructor(ackTimeout = 5000) {
-    this.txRollupAndClaimServer = new HttpJobServer(8082, ackTimeout);
-    this.rootAndVerifierServer = new HttpJobServer(8083, ackTimeout);
+  constructor(ackTimeout = 5000, onGetJob: Function | null = null, onJobComplete: Function | null = null) {
+    this.txRollupAndClaimServer = new HttpJobServer(8082, ackTimeout, onGetJob, onJobComplete);
+    this.rootAndVerifierServer = new HttpJobServer(8083, ackTimeout, onGetJob, onJobComplete);
   }
 
   public async start() {
