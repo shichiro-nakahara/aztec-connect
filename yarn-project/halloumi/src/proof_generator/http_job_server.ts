@@ -131,24 +131,17 @@ export class HttpJobServer implements ProofGenerator {
    * Empty buffer is returned if server is stopped before a job is found.
    */
   private async getWork() {
-    this.debug('received request for work');
-    // Continuously try to get an unclaimed job, waiting if none is found and then trying again
-    while (this.running) {
-      const now = new Date().getTime();
-      // Serve back the oldest unclaimed job (new (timestamp 0) or expired)
-      const job = this.jobs.find(j => now - j.timestamp > this.ackTimeout);
-      if (job) {
-        // Timestamp the job, indicating that the last time it was worked on is 'now'
-        job.timestamp = now;
-        return Protocol.pack(job.id, job.cmd, job.data);
-      } else {
-        // No jobs. Block for 1 second, or until awoken.
-        this.debug('sleep');
-        await this.interruptableSleep.sleep(1000);
-        this.debug('awoke');
-      }
+    if (!this.running) return Buffer.alloc(0);
+
+    const now = new Date().getTime();
+    // Serve back the oldest unclaimed job (new (timestamp 0) or expired)
+    const job = this.jobs.find(j => now - j.timestamp > this.ackTimeout);
+    if (job) {
+      // Timestamp the job, indicating that the last time it was worked on is 'now'
+      job.timestamp = now;
+      return Protocol.pack(job.id, job.cmd, job.data);
     }
-    // Should only happen if server is stopped before this function finds work to return
+
     return Buffer.alloc(0);
   }
 
