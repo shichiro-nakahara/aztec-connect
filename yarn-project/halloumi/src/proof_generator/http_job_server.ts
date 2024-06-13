@@ -60,7 +60,7 @@ export class HttpJobServer implements ProofGenerator {
       // respond with work that can be performed
       // retrieval of work is serialized to prevent simultaneous polls of the job queue
       ctx.body = await this.serialExecute(() => this.getWork());
-      if (this.onGetJob && ctx.body != Buffer.alloc(0)) {
+      if (this.onGetJob && (ctx.body as Buffer).length != 0) {
         await this.onGetJob(ctx.request.ip);
       }
       ctx.status = 200;
